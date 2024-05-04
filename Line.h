@@ -11,12 +11,60 @@
     This class represents a singular line of assembly to be assembled.
   Base Class:
     None
+
+EXAMPLE:
+	- Line object
+		○ Operand list member
+			§ Index OP
+			§ Value OP
+			§ String OP
+		○ HOW WILL YOU HANDLE ALL OF THE DIFFERENT TYPES
+		○ LINE # (IN THE FILE)
+		○ FILE STRING
+			§ Which file you are in and what line number of the string you 
+
+OP Codes
+	- Instruction op code
+		○ Index opcodes
+		○ Value opcodes
+		○ No operand opcode
+	- Specific psudo op 1 code
+	- Specific psudo op 2 code
+	- Specific psudo op 3 code
+	- So on
+	- Memory space pseudo op
+		○ Data
+		○ Text
+		○ Info
+		○ It is structured very similarly but a with maybe a different function pointer
+		
+		
+
 */
 
+
+
 //Data Members:
-typedef struct Line
+class Line
 {
-  int line_number;
+private:
+  uint_64_t line_number;
+  
+public:
+  Line(/* args */);
+  ~Line();
+};
+
+Line::Line(/* args */)
+{
+}
+
+Line::~Line()
+{
+}
+ Line
+{
+
 /*
   Description: The assembly file line number of a line.
   Applicability: Instance
