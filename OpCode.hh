@@ -6,8 +6,12 @@ using namespace std;
 class OpCode
 {
 public:
-	std::string code;
-	std::string PICHEX;
+	string code;
+	string PICHEX;
+	OpCode(const string opcode, const string obPICHEX){
+		code = opcode;
+		PICHEX = obPICHEX;
+	}
 };
 
 /*
@@ -27,4 +31,4 @@ Opcode object
 
 */
 
-#endif __OPCODEHH__
+#endif

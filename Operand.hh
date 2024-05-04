@@ -4,14 +4,15 @@
 #define Operand_HH
 
 
-template <operand_value O>
+
+template <typename O>
 
 // Declarations of classes, functions, and variables go here
 
 class Operand {
 private:
     // Member variables
-    String Raw; //  This is the raw string that was parsed
+    string Raw; //  This is the raw string that was parsed
 
 protected:
     O value;  //  This is a polymorphism enabled representation of the value
@@ -26,7 +27,7 @@ public:
     // Member functions
     void someFunction();
 
-    Parent(const T& val) : value(val) {}
+    Parent(const O& val) : value(val) {}
     void printValue() {
         std::cout << "Parent value: " << value << std::endl;
     }

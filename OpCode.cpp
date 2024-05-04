@@ -1,15 +1,15 @@
 #include "OpCode.hh"
-#include <stdio.hh>
+#include <stdio.h>
 #include <iostream>
-#include <assert.hh>
+#include <assert.h>
 
 using namespace std;
 
 int main() {
 
-	OpCode obj("ADD", "1000");
+	OpCode obj = OpCode("ADD", "1000");
 
 	cout << obj.code << endl;
-	cout << obj.PICHEX <<endl;
+	cout << obj.PICHEX << endl;
 
 }
