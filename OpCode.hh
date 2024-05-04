@@ -6,8 +6,8 @@ using namespace std;
 class OpCode
 {
 public:
-	string code;
-	string PICHEX;
+	std::string code;
+	std::string PICHEX;
 };
 
 /*
