@@ -1,17 +1,28 @@
 #ifndef __OPCODEHH__
 #define __OPCODEHH__
-
+#include "../../Operand/Parent/Operand.hh"
+#include <stdio.h>
+#include <iostream>
+#include <list>
 using namespace std;
 
 class OpCode
 {
-public:
+private:
 	string code;
-	string PICHEX;
-	OpCode(const string opcode, const string obPICHEX){
+	string pichex;
+	list<Operand<string>> operands;
+
+public:
+	OpCode(const string opcode, const string ob_pichex, list<Operand<string>> ob_operands){
 		code = opcode;
-		PICHEX = obPICHEX;
+		pichex = ob_pichex;
+		operands = ob_operands;
 	}
+	string get_hex();
+	string get_code();
+	string get_operands();
+	
 };
 
 /*

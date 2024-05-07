@@ -5,11 +5,10 @@
 
 using namespace std;
 
-int main() {
+string OpCode::get_hex(){
+	return pichex;
+}
 
-	OpCode obj = OpCode("ADD", "1000");
-
-	cout << obj.code << endl;
-	cout << obj.PICHEX << endl;
-
+string OpCode::get_code(){
+	return code;
 }
