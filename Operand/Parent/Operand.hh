@@ -1,60 +1,86 @@
 // Operand.hh
 
-#ifndef Operand_HH  // Include guard to prevent multiple inclusion
+#ifndef Operand_HH
 #define Operand_HH
 
+#include <string>  // Include necessary header file for string
+// #include <iostream> // Include necessary header file for cout
 
+using namespace std;  // Include std namespace for string usage
 
 template <typename O>
-
-// Declarations of classes, functions, and variables go here
-
 class Operand {
 private:
-    // Member variables
-    string Raw; //  This is the raw string that was parsed
+    /// @brief Size of the operand in bits
+    int size;
+    /// @brief Raw string that was parsed
+    string raw;  
 
 protected:
-    O value;  //  This is a polymorphism enabled representation of the value
+    /// @brief Type flexible value representation
+    O value;
 
 public:
-    // Constructor
-    Operand();
+    // Constructors
 
-    // Destructor
+    /**
+     * Initialize a default operand.
+     */
+    Operand();
+    /**
+     * Initialize an operand with chosen parameters.
+     *
+     * @param size the size of the operand in bits
+     * @param raw the raw string info
+     * @param value type flexible value representation
+     */
+    Operand(int size, string raw, O value);
+
+    /**
+     * Destruct an operand.
+     */
     ~Operand();
 
-    // Member functions
-    void someFunction();
 
-    Parent(const O& val) : value(val) {}
-    void printValue() {
-        std::cout << "Parent value: " << value << std::endl;
+    // Member functions
+    void printValue() const {
+        cout << "Parent value: " << value << endl;
     }
 
+    // Accessors and modifiers
+
+    /**
+     * Get the value of the operand bit size
+     */
+    int operand_get_size() const;
+    /**
+     * Get the value of the operand's raw string
+     */
+    std::string operand_get_raw() const;
+    /**
+     * Get the value of the operand value
+     */
+    O operand_get_value() const;
+
+    /**
+     * Set the value of the operand bit size
+     *
+     * @param size the size of the operand in bits
+     */
+    void operand_set_size(int size);
+    /**
+     * Set the value of the operand's raw string
+     *
+     * @param raw the raw string info
+     */
+    void operand_set_raw(const std::string& raw);
+    /**
+     * Set the value of the operand value
+     *
+     * @param value type flexible value representation
+     */
+    void operand_set_value(const O& value);
 };
 
-/*
-Operand: part of a line
-- can have differnt types
-  - value operand
-  - index operand
-  - string operand
 
-
-Operand object
-	- Value string
-	- Expression
-	- In MyCPU Operands
-		○ Define specific operand types
-
-Opcode object
-	- Knows how to generate machine code
-	- Knows valid operand types
-	- Search operands
-		○ MyCPU first
-		○ Generic second
-	- Checks types
-
-*/
-#endif  // End of include guard
+#endif

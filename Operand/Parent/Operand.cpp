@@ -3,39 +3,54 @@
 #include "Operand.hh"
 #include <iostream>
 
-// Define constructor
+// Constructors
 template<typename O>
-Operand<O>::Operand() {
-    // Constructor implementation
+Operand<O>::Operand() : size(0), raw(""), value(0) {}
+
+// Parameterized constructor
+template<typename O>
+Operand<O>::Operand(int size, string raw, O value): 
+    size(size), raw(raw), value(value) {}
+
+// Destructor
+template<typename O>
+Operand<O>::~Operand(){}
+
+
+// Member functions
+template<typename O>
+Parent(const O& val) : value(val) {}
+void printValue() {
+    std::cout << "Parent value: " << this.value << std::endl;
 }
 
-// Define destructor
+// Accessors and modifiers
 template<typename O>
-Operand<O>::~Operand() {
-    // Destructor implementation
+int Operand<O>::operand_get_size() const {
+    return size;
 }
 
-// Define member function
 template<typename O>
-void Operand<O>::someFunction() {
-    // Member function implementation
+string Operand<O>::operand_get_raw() const {
+    return raw;
 }
 
-// Example of using the Operand class
-int main() {
-    // Create an instance of Operand with int type
-    Operand<int> intOperand;
-    
-    // Create an instance of Operand with double type
-    Operand<double> doubleOperand;
+template<typename O>
+O Operand<O>::operand_get_value() const {
+    return value;
+}
 
-    // Example usage
-    intOperand.someFunction();
-    doubleOperand.someFunction();
+template<typename O>
+void Operand<O>::operand_set_size(int size) {
+    this->size = size;
+}
 
-    // Example of printing value
-    intOperand.printValue();
-    doubleOperand.printValue();
+template<typename O>
+void Operand<O>::operand_set_raw(const string& raw) {
+    this->raw = raw;
+}
 
-    return 0;
+template<typename O>
+void Operand<O>::operand_set_value(const O& value) {
+    this->value = value;
 }
