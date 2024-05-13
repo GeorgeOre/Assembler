@@ -19,7 +19,7 @@ Operand<O>::~Operand(){}
 
 // Member functions
 template<typename O>
-Parent(const O& val) : value(val) {}
+
 void printValue() {
     std::cout << "Parent value: " << this.value << std::endl;
 }
@@ -27,7 +27,7 @@ void printValue() {
 // Accessors and modifiers
 template<typename O>
 int Operand<O>::operand_get_size() const {
-    return size;
+    return this->size;
 }
 
 template<typename O>

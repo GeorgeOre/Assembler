@@ -23,11 +23,11 @@ int main()
     Operand<int> intOperand;
     
     // Create an instance of Operand with double type
-    Operand<double> doubleOperand;
+    //Operand<double> doubleOperand;
 
     // Example of printing value
     intOperand.printValue();
-    doubleOperand.printValue();
+    //doubleOperand.printValue();
     return 0;
 
 }

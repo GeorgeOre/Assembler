@@ -12,8 +12,8 @@ LDFLAGS := -lm  # Example of additional linker flags if needed
 # {[(	Main Project Config	)]}
 
 # Output directory for object files
-BUILD_DIR := ./build
-SRC_DIRS := ./src
+BUILD_DIR := bin
+SRC_DIRS := libsrc/*/*
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
@@ -93,10 +93,14 @@ $(TEST_BIN): $(TEST_OBJ)
 	$(CXX) $(TEST_OBJ) -o bins/$(TEST_BIN) $(LDFLAGS)
 # Compile the test source files
 $(TEST_OBJ): $(TEST_SRC)
+	echo $(TEST_SRC)
 	$(CXX) $(CXXFLAGS) -c $(TEST_SRC) -o $(TEST_OBJ)
 
 check:
-	echo $(TEST_SRC)
+	@echo "Source directories:"
+	@echo $(SRC_DIRS)
+#	echo -e Sources:\n$(SRCS)
+#	echo -e Test Sources:\n$(TEST_SRC)
 
 .PHONY: clean test all check
 
