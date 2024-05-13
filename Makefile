@@ -13,11 +13,12 @@ LDFLAGS := -lm  # Example of additional linker flags if needed
 
 # Output directory for object files
 BUILD_DIR := bin
-SRC_DIRS := libsrc/*/*
+SRC_DIRS := library obj-parent obj-children
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
-SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*))
+#SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 
 # Prepends BUILD_DIR and appends .o to every src file
 # As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
@@ -98,7 +99,7 @@ $(TEST_OBJ): $(TEST_SRC)
 
 check:
 	@echo "Source directories:"
-	@echo $(SRC_DIRS)
+	@echo $(SRCS)
 #	echo -e Sources:\n$(SRCS)
 #	echo -e Test Sources:\n$(TEST_SRC)
 
