@@ -17,8 +17,8 @@ SRC_DIRS := library obj-parent obj-children
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
-SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*))
-#SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+#SRCS := $(wildcard $(SRC_DIRS)/*)
+SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 
 # Prepends BUILD_DIR and appends .o to every src file
 # As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
@@ -36,18 +36,18 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
-OBJ_DIR := obj
+OBJ_DIR := out
 # Source files
-SRCS := $(wildcard *.cpp)
+#SRCS := $(wildcard *.cpp)
 # Create object file paths
-OBJS := $(OBJ_DIR)/$(subst .cpp,.o,$(notdir $(SRCS)))
+#OBJS := $(OBJ_DIR)/$(subst .cpp,.o,$(notdir $(SRCS)))
 # Create the name of the assembler executable
 EXEC := assembler
 
 # {[(	Test Configs	)]}
 
 # Test files directory
-TEST_DIR := Tests
+TEST_DIR := test
 # Build test source files
 TEST_SRC := $(wildcard $(TEST_DIR)/*.cpp)
 # Build test object files
@@ -77,11 +77,11 @@ $(OBJS): $(SRCS)
 	$(CXX) $(CXXFLAGS) -c $(SRCS) -o $(OBJS)
 
 # Run the test executable
-test: $(TEST_BIN)
+t: $(TEST_BIN)
 	./$(TEST_BIN)
 # Link the test object files into test executable
 $(TEST_BIN): $(TEST_OBJ)
-	$(CXX) $(TEST_OBJ) -o bins/$(TEST_BIN) $(LDFLAGS)
+	$(CXX) $(TEST_OBJ) -o bin/$(TEST_BIN) $(LDFLAGS)
 # Compile the test source files
 $(TEST_OBJ): $(TEST_SRC)
 	$(CXX) $(CXXFLAGS) -c $(TEST_SRC) -o $(TEST_OBJ)
@@ -91,7 +91,7 @@ test_operand: $(TEST_BIN)
 	./$(TEST_BIN)
 # Link the test object files into test executable
 $(TEST_BIN): $(TEST_OBJ)
-	$(CXX) $(TEST_OBJ) -o bins/$(TEST_BIN) $(LDFLAGS)
+	$(CXX) $(TEST_OBJ) -o bin/$(TEST_BIN) $(LDFLAGS)
 # Compile the test source files
 $(TEST_OBJ): $(TEST_SRC)
 	echo $(TEST_SRC)
@@ -99,7 +99,10 @@ $(TEST_OBJ): $(TEST_SRC)
 
 check:
 	@echo "Source directories:"
+	@echo $(SRC_DIRS)
 	@echo $(SRCS)
+	@echo $(OBJS)
+	@echo $(DEPS)
 #	echo -e Sources:\n$(SRCS)
 #	echo -e Test Sources:\n$(TEST_SRC)
 
