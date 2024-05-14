@@ -5,10 +5,6 @@
 
 using namespace std;
 
-string OpCode::get_hex(){
-	return pichex;
-}
-
 string OpCode::get_code(){
 	return code;
 }
