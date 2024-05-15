@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <OpCode.hh>
+#include <list>
 
 
 /*
@@ -48,7 +52,8 @@ OP Codes
 class Line
 {
 private:
-  uint_64_t line_number;
+  u_int64_t line_number;
+  OpCode opcode;
   
 public:
   Line(/* args */);
@@ -62,7 +67,7 @@ Line::Line(/* args */)
 Line::~Line()
 {
 }
- Line
+Line
 {
 
 /*
@@ -73,7 +78,7 @@ Line::~Line()
   Type: Unsigned int
 */
 
-line_pseudo_ops;
+  string get_line_pseudo_ops;
 /*
   Description: The pseudo-op of the line.
   Applicability: instance
@@ -108,7 +113,7 @@ line_pseudo_ops;
   opcode->SECTIONpsudoop
 */
 
-  String line_labels;
+  string line_labels;
 /*
   Description: The label a line has.
   Applicability: instance
@@ -126,7 +131,7 @@ line_pseudo_ops;
   Type: String
 */
 
-line_operands;
+  list<string> line_operands;
 /*
   Description: The operands of the op-code.
   Applicability: instance
