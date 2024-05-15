@@ -1,3 +1,3 @@
-#include "./Line.h"
+#include "Line.hh"
 
 class Line
