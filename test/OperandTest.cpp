@@ -1,33 +1,34 @@
-// Custom headers
-#include "Operand.hh"
-
-// Utils
 #include <iostream>
 #include <vector>
-#include <string>
+#include "Operand.hh"
+#include "Boperand.hh"
+#include "Koperand.hh"
+#include "Doperand.hh"
+#include "Foperand.hh"
 
+int main() {
+    // Create a vector of Operand pointers
+    std::vector<Operand*> operandList;
 
-using namespace std;    // This is if you don't want to use ::
+    // Add different types of operands to the list
+    operandList.push_back(new Boperand("B_raw_data"));
+    operandList.push_back(new Koperand("K_raw_data"));
+    operandList.push_back(new Doperand("D_raw_data"));
+    operandList.push_back(new Foperand("F_raw_data"));
 
-int main()
-{
-    // vector<string> msg {"This is proof that this works"};
+    // Iterate over the list and call a method on each operand
+    for (Operand* operand : operandList) {
+        operand->printValue();
+        std::cout << "Size: " << operand->getSize() << " bits" << std::endl;
+        std::cout << "Raw: " << operand->getRaw() << std::endl;
+        std::cout << "Binary: " << operand->getBinary() << std::endl;
+        std::cout << "-----------------------" << std::endl;
+    }
 
-    // for (const string& word : msg)
-    // {
-    //     cout << word << " ";
-    // }
-    // cout << endl;
+    // Clean up: delete each operand to avoid memory leaks
+    for (Operand* operand : operandList) {
+        delete operand;
+    }
 
-    // Create an instance of Operand with int type
-    Operand<int> intOperand;
-    
-    // Create an instance of Operand with double type
-    //Operand<double> doubleOperand;
-
-    // Example of printing value
-    intOperand.printValue();
-    //doubleOperand.printValue();
     return 0;
-
 }

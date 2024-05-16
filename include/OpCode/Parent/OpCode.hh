@@ -11,22 +11,15 @@ class OpCode
 private:
 	string code;
 	string pichex;
-<<<<<<< Updated upstream:include/Parent/OpCode.hh
-	list<Operand<string>> operands;
-=======
 	string format;
-	//list<Operand> operands;
->>>>>>> Stashed changes:include/OpCode/Parent/OpCode.hh
+//	list<Operand> operands;
 
 public:
-	OpCode(const string opcode, const string ob_pichex, list<Operand<string>> ob_operands){
-		code = opcode;
-		pichex = ob_pichex;
-		operands = ob_operands;
-	}
+	OpCode();
 	string get_hex();
 	string get_code();
 	string get_operands();
+	string get_format();
 	
 };
 
