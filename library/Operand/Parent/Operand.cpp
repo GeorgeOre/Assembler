@@ -1,9 +1,8 @@
 #include "Operand.hh"
-#include "OpCode.hh"
 
 // Constructor
 Operand::Operand(OpCode *opcode, const string &raw)
-    : opcode(opcode), raw(raw), size(0), binary("") {}
+    : opcode(opcode), size(0), raw(raw), binary("") {}
 
 // Destructor
 Operand::~Operand() {}
@@ -17,7 +16,7 @@ const string &Operand::getRaw() const {
     return raw;
 }
 
-const string &Operand::getBinary() const {
+const string &Operand::getBinary() const { // Use camelCase
     return binary;
 }
 
@@ -36,6 +35,5 @@ void Operand::setBinary(const string &binary) {
 
 // Inheritance
 void Operand::identifyChild() const {
-    // Example implementation, to be customized based on actual child classes
-    cout << "Unknown operand type" << endl;
+    cout << "This is an Operand" << endl;
 }

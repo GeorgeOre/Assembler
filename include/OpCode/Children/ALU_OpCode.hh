@@ -1,41 +1,30 @@
-#ifndef ALU_OpCode_HH
-#define ALU_OpCode_HH
+#ifndef ALU_OPCODE_HH
+#define ALU_OPCODE_HH
+
 #include "OpCode.hh"
-#include <stdio.h>
-#include <iostream>
+#include "Operand.hh"
+#include <string>
 #include <list>
 #include <map>
-using namespace std;
+#include <iostream>
 
 class ALU_OpCode : public OpCode
 {
 private:
-	string format = "00";
-	map<string, string> pichex_map = {
-		{"MOVWF", "00001"}, {"CLR", "0001"},
-		{"SUBWF", "0010"}, {"DECF", "0011"},
-		{"IORWF", "0100"}, {"ANDWF", "0101"},
-		{"XORWF", "0110"}, {"ADDWF", "0111"},
-		{"MOVF", "1000"}, {"COMF", "1001"},
-		{"INCF", "1010"}, {"DECFSZ", "1011"},
-		{"RRF", "1100"}, {"RLF", "1101"},
-		{"SWAPF", "1110"}, {"INFSZ", "1111"}
-	};
-	list<Operand<string>> operands;
-	string code;
-	string pichex;
+    std::string format;
+    std::map<std::string, std::string> pichex_map;
+    std::list<Operand*> operands;
+    std::string code;
+    std::string pichex;
 
 public:
-	ALU_OpCode(const string opcode, list<Operand<string>> ob_operands){
-		code = opcode;
-		pichex = pichex_map.at(opcode);
-		operands = ob_operands;
-	};
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
+    ALU_OpCode(const std::string& opcode, const std::list<Operand*>& op_operands);
 
+    // Accessors
+    std::string get_hex() const;
+    std::string get_code() const;
+    std::string get_operands() const;
+    std::string get_format() const;
 };
 
 #endif

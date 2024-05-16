@@ -1,19 +1,23 @@
-#ifndef FOPERAND_HH  // Include guard to prevent multiple inclusion
+#ifndef FOPERAND_HH
 #define FOPERAND_HH
 
-#include "Operand.hh"  // Include the parent class header file
+#include "Operand.hh"
 
 class Foperand : public Operand {
 public:
     // Constructor
-    Foperand(const std::string &raw);
+    Foperand(OpCode *opcode, const string &raw) : Operand(opcode, raw) {
+        setSize(3); // Example: Set size to 3 bits
+        setBinary("binary_value"); // Set binary value based on raw
+    }
 
-    // Destructor
-    ~Foperand();
+    // Festructor
+    virtual ~Foperand() {}
 
-    // Member functions
-    void printValue() const;
-
+    // Override identifyChild
+    virtual void identifyChild() const override {
+        cout << "This is a Foperand" << endl;
+    }
 };
 
-#endif  // End of include guard
+#endif

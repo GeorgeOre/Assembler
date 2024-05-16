@@ -1,19 +1,23 @@
-#ifndef BOPERAND_HH  // Include guard to prevent multiple inclusion
+#ifndef BOPERAND_HH
 #define BOPERAND_HH
 
-#include "Operand.hh"  // Include the parent class header file
+#include "Operand.hh"
 
 class Boperand : public Operand {
 public:
     // Constructor
-    Boperand(const std::string &raw);
+    Boperand(OpCode *opcode, const string &raw) : Operand(opcode, raw) {
+        setSize(3); // Example: Set size to 3 bits
+        setBinary("binary_value"); // Set binary value based on raw
+    }
 
     // Destructor
-    ~Boperand();
+    virtual ~Boperand() {}
 
-    // Member functions
-    void printValue() const;
-
+    // Override identifyChild
+    virtual void identifyChild() const override {
+        cout << "This is a Boperand" << endl;
+    }
 };
 
-#endif  // End of include guard
+#endif

@@ -1,43 +1,25 @@
-#ifndef __OPCODEHH__
-#define __OPCODEHH__
-#include "Operand.hh"
-#include <stdio.h>
-#include <iostream>
-#include <list>
-using namespace std;
+#ifndef OPCODE_HH
+#define OPCODE_HH
 
-class OpCode
-{
-private:
-	string code;
-	string pichex;
-	string format;
-//	list<Operand> operands;
+#include <string>
 
+class OpCode {
 public:
-	OpCode();
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
-	
+    // Constructor
+    OpCode(const std::string& name = "");
+
+    // Accessors
+    std::string get_hex() const;
+    std::string get_code() const;
+    std::string get_operands() const;
+    std::string get_format() const;
+    std::string get_name() const; // Add this method
+
+private:
+    std::string code;
+    std::string pichex;
+    std::string format;
+    std::string name; // Add this member
 };
-
-/*
-Operand object
-	- Value string
-	- HEX Expression
-	- In MyCPU Operands
-		○ Define specific operand types
-
-Opcode object
-	- Knows how to generate machine code
-	- Knows valid operand types
-	- Search operands
-		○ MyCPU first
-		○ Generic second
-	- Checks types
-
-*/
 
 #endif

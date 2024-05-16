@@ -3,7 +3,8 @@
 #include <sstream>
 
 // Constructor
-UI::UI() : state(StateEnum::START) {
+UI::UI(const std::string& inputFilePath, const std::string& outputFilePath)
+    : state(StateEnum::START), translator(inputFilePath, outputFilePath) {
     initialize_tables();
 }
 
@@ -84,4 +85,3 @@ void UI::set_response(EventEnum event) {
     std::string response = response_table[std::to_string(static_cast<int>(event))];
     std::cout << response << std::endl;
 }
-

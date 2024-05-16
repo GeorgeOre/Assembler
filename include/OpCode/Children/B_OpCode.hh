@@ -1,35 +1,30 @@
-#ifndef B_OpCode_HH
-#define B_OpCode_HH
+#ifndef B_OPCODE_HH
+#define B_OPCODE_HH
+
 #include "OpCode.hh"
-#include <stdio.h>
-#include <iostream>
+#include "Operand.hh"
+#include <string>
 #include <list>
 #include <map>
-using namespace std;
+#include <iostream>
 
 class B_OpCode : public OpCode
 {
 private:
-	string format = "01";
-	map<string, string> pichex_map = {
-		{"BCF", "00"}, {"BSF", "01"},
-		{"BTFSC", "10"}, {"BTFSS", "11"}
-	};
-	list<Operand<string>> operands;
-	string code;
-	string pichex;
+    std::string format;
+    std::map<std::string, std::string> pichex_map;
+    std::list<Operand*> operands;
+    std::string code;
+    std::string pichex;
 
 public:
-	B_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
-		code = opcode;
-		pichex = pichex_map.at(opcode);
-		operands = ob_operands;
-	};
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
+    B_OpCode(const std::string& opcode, const std::list<Operand*>& op_operands);
 
+    // Accessors
+    std::string get_hex() const;
+    std::string get_code() const;
+    std::string get_operands() const;
+    std::string get_format() const;
 };
 
 #endif

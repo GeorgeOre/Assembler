@@ -1,14 +1,27 @@
 #include "OpCode.hh"
-#include <stdio.h>
-#include <iostream>
-#include <assert.h>
 
-using namespace std;
+// Constructor
+OpCode::OpCode(const std::string& name) : code(""), pichex(""), format(""), name(name) {}
 
-string OpCode::get_hex(){
-	return pichex;
+// Accessors
+std::string OpCode::get_hex() const {
+    return pichex;
 }
 
-string OpCode::get_code(){
-	return code;
+std::string OpCode::get_code() const {
+    return code;
+}
+
+std::string OpCode::get_operands() const {
+    // Assuming this should return a representation of operands
+    // This can be updated based on actual operand storage and representation
+    return ""; 
+}
+
+std::string OpCode::get_format() const {
+    return format;
+}
+
+std::string OpCode::get_name() const {
+    return name;
 }

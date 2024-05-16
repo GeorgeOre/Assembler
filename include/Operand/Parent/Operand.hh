@@ -26,7 +26,7 @@ public:
     // Accessors
     uint64_t getSize() const;
     const string &getRaw() const;
-    const string &getBinary() const;
+    const string &getBinary() const; // Use camelCase
 
     // Modifiers
     void setSize(uint64_t size);

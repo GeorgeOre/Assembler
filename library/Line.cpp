@@ -46,7 +46,7 @@ std::string Line::ToPicHEX(const OpCode& opcode, const std::vector<Operand*>& op
     oss << opcode.get_name();  // Assuming OpCode has a method get_name() that returns a string
 
     for (const Operand* operand : operands) {
-        oss << " " << operand->get_binary(); // Assuming Operand has a method get_binary() that returns a string
+        oss << " " << operand->getBinary(); // Use camelCase
     }
 
     return oss.str();

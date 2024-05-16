@@ -1,19 +1,23 @@
-#ifndef DOPERAND_HH  // Include guard to prevent multiple inclusion
+#ifndef DOPERAND_HH
 #define DOPERAND_HH
 
-#include "Operand.hh"  // Include the parent class header file
+#include "Operand.hh"
 
 class Doperand : public Operand {
 public:
     // Constructor
-    Doperand(const std::string &raw);
+    Doperand(OpCode *opcode, const string &raw) : Operand(opcode, raw) {
+        setSize(3); // Example: Set size to 3 bits
+        setBinary("binary_value"); // Set binary value based on raw
+    }
 
     // Destructor
-    ~Doperand();
+    virtual ~Doperand() {}
 
-    // Member functions
-    void printValue() const;
-
+    // Override identifyChild
+    virtual void identifyChild() const override {
+        cout << "This is a Doperand" << endl;
+    }
 };
 
-#endif  // End of include guard
+#endif
