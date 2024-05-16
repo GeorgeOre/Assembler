@@ -26,7 +26,7 @@ private:
 	string pichex;
 
 public:
-	ALU_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
+	ALU_OpCode(const string opcode, list<Operand<string>> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;

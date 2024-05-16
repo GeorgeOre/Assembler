@@ -1,0 +1,59 @@
+.
+├── GlectureNotes.txt
+├── Makefile
+├── README.md
+├── assets
+├── bin
+│   ├── myprogram
+│   └── runtest
+├── demo
+│   └── main.cpp
+├── include
+│   ├── Line.hh
+│   ├── OpCode
+│   │   ├── Children
+│   │   │   ├── ALU_OpCode.hh
+│   │   │   ├── B_OpCode.hh
+│   │   │   ├── CTRL_OpCode.hh
+│   │   │   ├── Misc_OpCode.hh
+│   │   │   └── W_OpCode.hh
+│   │   └── Parent
+│   │       └── OpCode.hh
+│   ├── Operand
+│   │   ├── Children
+│   │   │   ├── Boperand.hh
+│   │   │   ├── Doperand.hh
+│   │   │   ├── Foperand.hh
+│   │   │   └── Koperand.hh
+│   │   └── Parent
+│   │       └── Operand.hh
+│   ├── Translator.hh
+│   └── UI.hh
+├── library
+│   ├── Line.cpp
+│   ├── OpCode
+│   │   ├── Children
+│   │   │   ├── ALU_OpCode.cpp
+│   │   │   ├── B_OpCode.cpp
+│   │   │   ├── CTRL_OpCode.cpp
+│   │   │   ├── Misc_OpCode.cpp
+│   │   │   └── W_OpCode.cpp
+│   │   └── Parent
+│   │       └── OpCode.cpp
+│   ├── Operand
+│   │   ├── Children
+│   │   │   ├── Boperand.cpp
+│   │   │   ├── Doperand.cpp
+│   │   │   ├── Foperand .cpp
+│   │   │   └── Koperand.cpp
+│   │   └── Parent
+│   │       └── Operand.cpp
+│   ├── Translator.cpp
+│   └── UI.cpp
+├── out
+├── project_structure.txt
+├── ref
+└── tests
+    └── OperandTest.cpp
+
+20 directories, 36 files
