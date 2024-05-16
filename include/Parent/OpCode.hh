@@ -1,6 +1,6 @@
 #ifndef __OPCODEHH__
 #define __OPCODEHH__
-#include "../../Operand/Parent/Operand.hh"
+#include "Operand.hh"
 #include <stdio.h>
 #include <iostream>
 #include <list>
@@ -11,7 +11,12 @@ class OpCode
 private:
 	string code;
 	string pichex;
+<<<<<<< Updated upstream:include/Parent/OpCode.hh
 	list<Operand<string>> operands;
+=======
+	string format;
+	//list<Operand> operands;
+>>>>>>> Stashed changes:include/OpCode/Parent/OpCode.hh
 
 public:
 	OpCode(const string opcode, const string ob_pichex, list<Operand<string>> ob_operands){
