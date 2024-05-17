@@ -1,4 +1,6 @@
-#include "Section.cpp"
+#include "Section.hh"
+#include <string>
+#include <unordered_map>
 
 // Initialize the static member
 std::unordered_map<std::string, Section> Section::sections;
@@ -6,17 +8,17 @@ std::unordered_map<std::string, Section> Section::sections;
 // Constructor
 Section::Section(const std::string& name) : name(name) {}
 
-// Get the name
+// Get name
 std::string Section::get_name() const {
     return name;
 }
 
-// Get a Section by name
+// Get section by name
 const Section& Section::get(const std::string& name) {
     return sections.at(name);
 }
 
-// Add a new Section
+// Add a section by name
 void Section::add(const std::string& name) {
     sections.emplace(name, Section(name));
 }

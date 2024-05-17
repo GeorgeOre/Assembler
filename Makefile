@@ -1,6 +1,6 @@
 # Compiler
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -Iinclude/OpCode/Parent -Iinclude/Operand/Parent
+CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -Iinclude/OpCode/Parent -Iinclude/OpCode/Children -Iinclude/Operand/Parent -Iinclude/Operand/Children
 
 # Directories
 SRC_DIR = library

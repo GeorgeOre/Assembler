@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <unordered_map>
+#include <algorithm>  // Include algorithm for std::all_of
 #include "Line.hh"
 #include "EventEnum.hh"
 #include "OpCode.hh"
@@ -44,7 +45,12 @@ private:
     std::ofstream output_file;
     bool contains_error = false;
 
-    static std::unordered_map<std::string, OpCode> op_code_enum;
+    static std::unordered_map<std::string, PseudoOpCode> pseudo_op_enum;
+    static std::unordered_map<std::string, Section> section_enum;
+    static std::unordered_map<std::string, ConstPrefix> const_prefix_enum;
+    static std::unordered_map<std::string, std::string> text_label_hashmap;
+    static std::unordered_map<std::string, std::string> data_label_hashmap;
+    static std::unordered_map<std::string, std::string> const_hashmap;
 
     EventEnum return_message(EventEnum event);
     EventEnum make_error_file();

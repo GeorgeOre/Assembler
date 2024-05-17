@@ -5,26 +5,22 @@
 #include <vector>
 #include "OpCode.hh"
 #include "Segment.hh"
-#include "Operand.hh"
+#include "Operand.hh" // Include Operand
 
 class Line {
 public:
-    // Constructor
     Line(int lineNumber, const std::string& lineContent, const OpCode& opcode, const Segment& segment);
 
-    // Accessors
     int get_line_number() const;
     std::string get_line_content() const;
     OpCode get_opcode() const;
     Segment get_segment() const;
 
-    // Setters
     void set_line_number(int lineNumber);
     void set_line_content(const std::string& lineContent);
     void set_opcode(const OpCode& opcode);
     void set_segment(const Segment& segment);
 
-    // Member functions
     std::string ToPicHEX(const OpCode& opcode, const std::vector<Operand*>& operands);
     bool CheckFormat() const;
 

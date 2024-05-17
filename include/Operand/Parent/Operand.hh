@@ -1,11 +1,9 @@
-#ifndef __OPERAND_HH__
-#define __OPERAND_HH__
+#ifndef OPERAND_HH
+#define OPERAND_HH
 
 #include <string>
 #include <iostream>
 #include "OpCode.hh"
-
-using namespace std;
 
 class OpCode; // Forward declaration
 
@@ -13,28 +11,33 @@ class Operand {
 private:
     OpCode *opcode;  // Pointer to associated OpCode
     uint64_t size;   // Size of the operand in bits
-    string raw;      // Raw string that was parsed
-    string binary;   // Binary value in string format
+    std::string raw;      // Raw string that was parsed
+    std::string binary;   // Binary value in string format
 
 public:
     // Constructors
-    Operand(OpCode *opcode, const string &raw);
+    Operand(OpCode *opcode, const std::string &raw);
 
     // Destructor
     virtual ~Operand();
 
     // Accessors
     uint64_t getSize() const;
-    const string &getRaw() const;
-    const string &getBinary() const; // Use camelCase
+    const std::string &getRaw() const;
+    const std::string &getBinary() const;
 
     // Modifiers
     void setSize(uint64_t size);
-    void setRaw(const string &raw);
-    void setBinary(const string &binary);
+    void setRaw(const std::string &raw);
+    void setBinary(const std::string &binary);
 
     // Inheritance
     virtual void identifyChild() const;
+
+    // Print value
+    virtual void printValue() const {
+        std::cout << "Operand value: " << raw << std::endl;
+    }
 };
 
 #endif

@@ -1,11 +1,10 @@
 #include "Translator.hh"
-#include <iostream>
-#include <fstream>
 #include <sstream>
 #include <iterator>
+#include <algorithm>  // Include algorithm for std::all_of
+#include <cctype>     // Include cctype for isspace
 
 // Static member initializations
-std::unordered_map<std::string, OpCode> Translator::op_code_enum;
 std::unordered_map<std::string, PseudoOpCode> Translator::pseudo_op_enum;
 std::unordered_map<std::string, Section> Translator::section_enum;
 std::unordered_map<std::string, ConstPrefix> Translator::const_prefix_enum;
@@ -61,7 +60,7 @@ EventEnum Translator::define_lines(const std::string& filePath) {
     std::string line;
     while (std::getline(inputFile, line)) {
         // Skip empty or comment lines
-        if (line.empty() || line[0] == '#' || std::all_of(line.begin(), line.end(), isspace)) {
+        if (line.empty() || line[0] == '#' || std::all_of(line.begin(), line.end(), [](unsigned char c){ return std::isspace(c); })) {
             continue;
         }
 
@@ -78,7 +77,8 @@ EventEnum Translator::define_lines(const std::string& filePath) {
             }
         } else {
             try {
-                lines_array.push_back(Line(line));  // Assuming Line has a constructor that takes a string
+                // Proper constructor call for Line
+                lines_array.push_back(Line(0, line, OpCode(), Segment()));  
             } catch (const std::exception& e) {
                 contains_error = true;
                 return return_message(EventEnum::SYNTAX_ERROR);
