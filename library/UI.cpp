@@ -2,7 +2,12 @@
 #include <iostream>
 #include <sstream>
 
-// Constructor
+// Default Constructor
+UI::UI() : state(StateEnum::START), translator("", "") {
+    initialize_tables();
+}
+
+// Parameterized Constructor
 UI::UI(const std::string& inputFilePath, const std::string& outputFilePath)
     : state(StateEnum::START), translator(inputFilePath, outputFilePath) {
     initialize_tables();
@@ -31,10 +36,7 @@ void UI::initialize_tables() {
 
 // Get an input from the user, parse the command, and validate it
 EventEnum UI::parse_request() {
-    std::string input;
-    std::cout << "Enter command: ";
-    std::getline(std::cin, input);
-
+    std::string input = getInput();
     std::istringstream iss(input);
     std::string command;
     iss >> command;
@@ -49,7 +51,7 @@ EventEnum UI::parse_request() {
         if (input_file.empty()) {
             return EventEnum::INVALID_FILE_PATH;
         }
-        translator.set_input_file_path(input_file);
+        translator.set_asmFilePath(input_file);
         state = StateEnum::WAITING_FOR_INPUT;
         return EventEnum::SUCCESS;
     } else if (command == "set_output") {
@@ -58,7 +60,7 @@ EventEnum UI::parse_request() {
         if (output_file.empty()) {
             return EventEnum::INVALID_FILE_PATH;
         }
-        translator.set_output_file_path(output_file);
+        translator.set_outputFilePath(output_file);
         state = StateEnum::WAITING_FOR_INPUT;
         return EventEnum::SUCCESS;
     } else if (command == "translate") {
@@ -84,4 +86,32 @@ EventEnum UI::parse_request() {
 void UI::set_response(EventEnum event) {
     std::string response = response_table[std::to_string(static_cast<int>(event))];
     std::cout << response << std::endl;
+}
+
+// Launches the CLI and prompts the user for input
+void UI::launchCLI() {
+    std::cout << "Assembler CLI launched. Please enter a command:" << std::endl;
+}
+
+// Gets input from the user
+std::string UI::getInput() {
+    std::string input;
+    std::getline(std::cin, input);
+    return input;
+}
+
+// Displays help information
+void UI::displayHelp() const {
+    std::cout << "Help information: Use 'translate <file path>' to translate an assembly file." << std::endl;
+    std::cout << "Use 'help' to display this information." << std::endl;
+}
+
+// Displays an error message
+void UI::displayError() const {
+    std::cout << "An error occurred. Please try again." << std::endl;
+}
+
+// Displays a success message
+void UI::displaySuccess() const {
+    std::cout << "Operation successful." << std::endl;
 }

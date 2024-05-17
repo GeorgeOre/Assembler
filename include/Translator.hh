@@ -15,21 +15,22 @@
 
 class Translator {
 public:
-    // Constructor
+    // Constructors
+    Translator();
     Translator(const std::string& inputFilePath, const std::string& outputFilePath);
 
     // Destructor
     ~Translator();
 
     // Accessors
-    std::string get_input_file_path() const;
-    std::string get_output_file_path() const;
-    std::string get_error_file_path() const;
+    std::string get_asmFilePath() const;
+    std::string get_outputFilePath() const;
+    std::string get_errorFilePath() const;
 
     // Mutators
-    void set_input_file_path(const std::string& newInputFilePath);
-    void set_output_file_path(const std::string& newOutputFilePath);
-    void set_error_file_path(const std::string& newErrorFilePath);
+    void set_asmFilePath(const std::string& newInputFilePath);
+    void set_outputFilePath(const std::string& newOutputFilePath);
+    void set_errorFilePath(const std::string& newErrorFilePath);
 
     // General methods
     EventEnum define_lines();
@@ -37,10 +38,15 @@ public:
     void first_pass();
     void second_pass();
 
+
+    // Method to handle translation process
+    EventEnum translate(const std::string& asmFilePath);
+
+
 private:
-    std::string input_file_path;
-    std::string output_file_path;
-    std::string error_file_path;
+    std::string asmFilePath;
+    std::string outputFilePath;
+    std::string errorFilePath;
     std::vector<Line> lines_array;
     std::ofstream output_file;
     bool contains_error = false;

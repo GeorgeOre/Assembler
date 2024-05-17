@@ -1,24 +1,28 @@
 #include "Section.hh"
-#include <string>
-#include <unordered_map>
 
-// Initialize the static member
 std::unordered_map<std::string, Section> Section::sections;
 
-// Constructor
+// Default constructor
+Section::Section() : name("default") {}
+
+// Constructor with name
 Section::Section(const std::string& name) : name(name) {}
 
-// Get name
-std::string Section::get_name() const {
-    return name;
-}
-
-// Get section by name
-const Section& Section::get(const std::string& name) {
-    return sections.at(name);
-}
-
-// Add a section by name
+// Static method to add a section
 void Section::add(const std::string& name) {
     sections.emplace(name, Section(name));
+}
+
+// Static method to get a section
+const Section& Section::get(const std::string& name) {
+    auto it = sections.find(name);
+    if (it == sections.end()) {
+        throw std::out_of_range("Section not found");
+    }
+    return it->second;
+}
+
+// Accessor for name
+std::string Section::get_name() const {
+    return name;
 }

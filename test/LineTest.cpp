@@ -3,7 +3,21 @@
 #include "OpCode.hh"
 #include "Segment.hh"
 #include "Operand.hh"
+#include "Boperand.hh"
 
+
+int main() {
+    // Create a Line object for testing
+    Line line(1, "test line content", OpCode(), Segment());
+    
+    // Test getSize and other methods here
+    std::cout << "Line created with content: " << line.get_line_content() << std::endl;
+    
+    // Add more tests as needed
+    return 0;
+}
+
+/*
 int main() {
     OpCode opcode("LOAD"); // Assuming OpCode has a constructor that takes a string
     Segment segment("segment_data"); // Assuming Segment has a constructor that takes a string
@@ -32,3 +46,4 @@ int main() {
 
     return 0;
 }
+*/

@@ -18,12 +18,29 @@ enum class StateEnum {
 
 class UI {
 public:
-    // Constructor
+    // Constructors
+    UI();
+
     UI(const std::string& inputFilePath, const std::string& outputFilePath);
 
     // General methods
     EventEnum parse_request();
     void set_response(EventEnum event);
+
+// Launches the CLI and prompts the user for input
+    void launchCLI();
+
+    // Gets input from the user
+    std::string getInput();
+
+    // Displays help information
+    void displayHelp() const;
+
+    // Displays an error message
+    void displayError() const;
+
+    // Displays a success message
+    void displaySuccess() const;
 
 private:
     StateEnum state;

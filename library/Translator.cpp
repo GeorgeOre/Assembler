@@ -14,40 +14,64 @@ std::unordered_map<std::string, std::string> Translator::const_hashmap;
 
 // Constructor
 Translator::Translator(const std::string& inputFilePath, const std::string& outputFilePath)
-    : input_file_path(inputFilePath), output_file_path(outputFilePath) {}
+    : asmFilePath(inputFilePath), outputFilePath(outputFilePath) {}
 
 // Destructor
 Translator::~Translator() {}
 
 // Accessors
-std::string Translator::get_input_file_path() const {
-    return input_file_path;
+std::string Translator::get_asmFilePath() const {
+    return asmFilePath;
 }
 
-std::string Translator::get_output_file_path() const {
-    return output_file_path;
+std::string Translator::get_outputFilePath() const {
+    return outputFilePath;
 }
 
-std::string Translator::get_error_file_path() const {
-    return error_file_path;
+std::string Translator::get_errorFilePath() const {
+    return errorFilePath;
 }
 
 // Mutators
-void Translator::set_input_file_path(const std::string& newInputFilePath) {
-    input_file_path = newInputFilePath;
+void Translator::set_asmFilePath(const std::string& newInputFilePath) {
+    asmFilePath = newInputFilePath;
 }
 
-void Translator::set_output_file_path(const std::string& newOutputFilePath) {
-    output_file_path = newOutputFilePath;
+void Translator::set_outputFilePath(const std::string& newOutputFilePath) {
+    outputFilePath = newOutputFilePath;
 }
 
-void Translator::set_error_file_path(const std::string& newErrorFilePath) {
-    error_file_path = newErrorFilePath;
+void Translator::set_errorFilePath(const std::string& newErrorFilePath) {
+    errorFilePath = newErrorFilePath;
 }
 
 // General methods
+EventEnum Translator::translate(const std::string& asmFilePath) {
+    this->asmFilePath = asmFilePath;
+    this->outputFilePath = asmFilePath + ".out";
+    this->errorFilePath = asmFilePath + ".err";
+
+    EventEnum result = define_lines();
+    if (result != EventEnum::SUCCESS) {
+        return result;
+    }
+
+    first_pass();
+    /*
+    result = first_pass();
+    if (result != EventEnum::SUCCESS) {
+        return result;
+    }
+    */
+
+   second_pass();
+   //result = second_pass();
+    
+    return result;
+}
+
 EventEnum Translator::define_lines() {
-    return define_lines(input_file_path);
+    return define_lines(asmFilePath);
 }
 
 EventEnum Translator::define_lines(const std::string& filePath) {
@@ -122,7 +146,7 @@ EventEnum Translator::return_message(EventEnum event) {
 }
 
 EventEnum Translator::make_error_file() {
-    std::ofstream errorFile(error_file_path);
+    std::ofstream errorFile(errorFilePath);
     if (!errorFile.is_open()) {
         return EventEnum::FILE_ERROR;
     }
