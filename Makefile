@@ -1,60 +1,92 @@
-# Compiler
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -Iinclude/OpCode/Parent -Iinclude/OpCode/Children -Iinclude/Operand/Parent -Iinclude/Operand/Children
 
 # Directories
 SRC_DIR = library
-OBJ_DIR = out
-BIN_DIR = bin
+INCLUDE_DIR = include
+OUT_DIR = out
 TEST_DIR = test
+BIN_DIR = bin
 
 # Source files
-SRC_FILES = $(shell find $(SRC_DIR) -name '*.cpp')
-OBJ_FILES = $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+SRC_FILES = $(wildcard $(SRC_DIR)/**/*.cpp)
+TEST_FILES = $(wildcard $(TEST_DIR)/*.cpp)
 
-# Test files
-TEST_FILES = $(shell find $(TEST_DIR) -name '*.cpp')
-TEST_OBJ_FILES = $(TEST_FILES:$(TEST_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+# Object files
+OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp, $(OUT_DIR)/%.o, $(SRC_FILES))
+TEST_OBJ_FILES = $(patsubst $(TEST_DIR)/%.cpp, $(OUT_DIR)/%.o, $(TEST_FILES))
 
-# Create necessary directories
-$(OBJ_FILES): | $(OBJ_DIR)
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+# Test executables
+TEST_EXECUTABLES = $(patsubst $(OUT_DIR)/%.o, $(BIN_DIR)/%, $(TEST_OBJ_FILES))
 
-# Compile source files to object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+# Rules
+all: $(TEST_EXECUTABLES)
 
-# Main executable
-$(BIN_DIR)/myprogram: $(OBJ_FILES) demo/main.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(OUT_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Operand test executable
-$(BIN_DIR)/operand_test: $(OBJ_FILES) $(TEST_DIR)/OperandTest.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(OUT_DIR)/%.o: $(TEST_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# OpCode test executable
-$(BIN_DIR)/opcode_test: $(OBJ_FILES) $(TEST_DIR)/OpCodeTest.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(BIN_DIR)/SegmentTest: $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Other test executables can be added similarly...
+$(BIN_DIR)/SectionTest: $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Phony targets
-.PHONY: all clean run test
+$(BIN_DIR)/OpCodeTest: $(OUT_DIR)/OpCode/Parent/OpCode.o $(OUT_DIR)/OpCode/Children/ALU_OpCode.o $(OUT_DIR)/OpCode/Children/B_OpCode.o $(OUT_DIR)/OpCode/Children/CTRL_OpCode.o $(OUT_DIR)/OpCode/Children/Misc_OpCode.o $(OUT_DIR)/OpCode/Children/W_OpCode.o $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Default target
-all: $(BIN_DIR)/myprogram $(BIN_DIR)/operand_test $(BIN_DIR)/opcode_test
+$(BIN_DIR)/OperandTest: $(OUT_DIR)/Operand/Parent/Operand.o $(OUT_DIR)/Operand/Children/Boperand.o $(OUT_DIR)/Operand/Children/Doperand.o $(OUT_DIR)/Operand/Children/Foperand.o $(OUT_DIR)/Operand/Children/Koperand.o $(OUT_DIR)/OpCode/Parent/OpCode.o $(OUT_DIR)/OpCode/Children/ALU_OpCode.o $(OUT_DIR)/OpCode/Children/B_OpCode.o $(OUT_DIR)/OpCode/Children/CTRL_OpCode.o $(OUT_DIR)/OpCode/Children/Misc_OpCode.o $(OUT_DIR)/OpCode/Children/W_OpCode.o $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Run the main program
-run: $(BIN_DIR)/myprogram
-	./$(BIN_DIR)/myprogram
+$(BIN_DIR)/LineTest: $(OUT_DIR)/Line.o $(OUT_DIR)/Operand/Parent/Operand.o $(OUT_DIR)/Operand/Children/Boperand.o $(OUT_DIR)/Operand/Children/Doperand.o $(OUT_DIR)/Operand/Children/Foperand.o $(OUT_DIR)/Operand/Children/Koperand.o $(OUT_DIR)/OpCode/Parent/OpCode.o $(OUT_DIR)/OpCode/Children/ALU_OpCode.o $(OUT_DIR)/OpCode/Children/B_OpCode.o $(OUT_DIR)/OpCode/Children/CTRL_OpCode.o $(OUT_DIR)/OpCode/Children/Misc_OpCode.o $(OUT_DIR)/OpCode/Children/W_OpCode.o $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Run tests
-test: $(BIN_DIR)/operand_test $(BIN_DIR)/opcode_test
-	./$(BIN_DIR)/operand_test
-	./$(BIN_DIR)/opcode_test
+$(BIN_DIR)/TranslatorTest: $(OUT_DIR)/Translator.o $(OUT_DIR)/Line.o $(OUT_DIR)/Operand/Parent/Operand.o $(OUT_DIR)/Operand/Children/Boperand.o $(OUT_DIR)/Operand/Children/Doperand.o $(OUT_DIR)/Operand/Children/Foperand.o $(OUT_DIR)/Operand/Children/Koperand.o $(OUT_DIR)/OpCode/Parent/OpCode.o $(OUT_DIR)/OpCode/Children/ALU_OpCode.o $(OUT_DIR)/OpCode/Children/B_OpCode.o $(OUT_DIR)/OpCode/Children/CTRL_OpCode.o $(OUT_DIR)/OpCode/Children/Misc_OpCode.o $(OUT_DIR)/OpCode/Children/W_OpCode.o $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
 
-# Clean up
+$(BIN_DIR)/UITest: $(OUT_DIR)/UI.o $(OUT_DIR)/Translator.o $(OUT_DIR)/Line.o $(OUT_DIR)/Operand/Parent/Operand.o $(OUT_DIR)/Operand/Children/Boperand.o $(OUT_DIR)/Operand/Children/Doperand.o $(OUT_DIR)/Operand/Children/Foperand.o $(OUT_DIR)/Operand/Children/Koperand.o $(OUT_DIR)/OpCode/Parent/OpCode.o $(OUT_DIR)/OpCode/Children/ALU_OpCode.o $(OUT_DIR)/OpCode/Children/B_OpCode.o $(OUT_DIR)/OpCode/Children/CTRL_OpCode.o $(OUT_DIR)/OpCode/Children/Misc_OpCode.o $(OUT_DIR)/OpCode/Children/W_OpCode.o $(OUT_DIR)/Section.o $(OUT_DIR)/Segment.o $(OBJ_FILES)
+	@mkdir -p $(@D)
+	$(CXX) $^ -o $@
+
+.PHONY: clean run-tests
+
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -rf $(OUT_DIR) $(BIN_DIR)
+
+run-tests: $(TEST_EXECUTABLES)
+	@for test in $(TEST_EXECUTABLES); do \
+		echo "Running $$test..."; \
+		$$test; \
+	done
+
+# Individual test rules
+run-segmenttest: $(BIN_DIR)/SegmentTest
+	$(BIN_DIR)/SegmentTest
+
+run-sectiontest: $(BIN_DIR)/SectionTest
+	$(BIN_DIR)/SectionTest
+
+run-opcodetest: $(BIN_DIR)/OpCodeTest
+	$(BIN_DIR)/OpCodeTest
+
+run-operandtest: $(BIN_DIR)/OperandTest
+	$(BIN_DIR)/OperandTest
+
+run-linetest: $(BIN_DIR)/LineTest
+	$(BIN_DIR)/LineTest
+
+run-translatortest: $(BIN_DIR)/TranslatorTest
+	$(BIN_DIR)/TranslatorTest
+
+run-uitest: $(BIN_DIR)/UITest
+	$(BIN_DIR)/UITest

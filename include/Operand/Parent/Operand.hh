@@ -35,9 +35,7 @@ public:
     virtual void identifyChild() const;
 
     // Print value
-    virtual void printValue() const {
-        std::cout << "Operand value: " << raw << std::endl;
-    }
+    virtual void printValue() const;
 };
 
 #endif
