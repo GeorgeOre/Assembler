@@ -17,7 +17,6 @@ private:
   u_int64_t line_number;
   u_int64_t address;
   string line;
-  OpCode opcode;
   Segment segment;
   string error_message;
   map<string, string> op_type_map = {
@@ -45,6 +44,7 @@ public:
   Line(u_int64_t line_num, u_int64_t address, string line, Segment segment);
   string to_pichex();
   u_int64_t get_line_num();
+  OpCode opcode;
 
   bool contains_error;
 };

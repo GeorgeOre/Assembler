@@ -1,6 +1,10 @@
 #include "UI.hh"
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
+#include <string>
+
+using namespace std;
 
 // Default Constructor
 UI::UI() : state(StateEnum::START), translator("", "") {
@@ -11,6 +15,44 @@ UI::UI() : state(StateEnum::START), translator("", "") {
 UI::UI(const std::string& inputFilePath, const std::string& outputFilePath)
     : state(StateEnum::START), translator(inputFilePath, outputFilePath) {
     initialize_tables();
+}
+
+void main(int argc, char *argv[]){
+	if (argc == 2){
+		if (argv[1] == "help"){
+			print_help();
+		}
+		else {
+			printf("Incorrect format for help. Format is './assemble help'.");
+		}
+		return;
+	}
+	if (argc == 1 or argc > 3){
+
+		printf("Improper format. Format is './assemble <input> <output>.'");
+		return;
+	}
+	string inputPath = argv[1];
+	string outputPath = argv[2];
+	Translator translator = Translator(inputPath, outputPath);
+	EventEnum overall = EventEnum::SUCCESS;
+	overall = translator.define_lines();
+	if (overall != EventEnum::SUCCESS) {
+		check_error(overall);
+		return;
+	}
+	overall = translator.first_pass();
+	if (overall != EventEnum::SUCCESS) {
+		check_error(overall);
+		return;
+	}
+	overall = translator.second_pass();
+	if (overall != EventEnum::SUCCESS) {
+		check_error(overall);
+	}
+	printf("-------------------------------------------------\n");
+	printf("Success! File %s has been assembled to output file %s \n", inputPath, outputPath);
+	return;
 }
 
 // Initialize the command and response tables
@@ -88,11 +130,6 @@ EventEnum UI::parse_request() {
 void UI::set_response(EventEnum event) {
     std::string response = response_table[std::to_string(static_cast<int>(event))];
     std::cout << response << std::endl;
-}
-
-// Launches the CLI and prompts the user for input
-void UI::launchCLI() {
-    std::cout << "Assembler CLI launched. Please enter a command:" << std::endl;
 }
 
 // Gets input from the user
