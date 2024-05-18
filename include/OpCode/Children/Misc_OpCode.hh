@@ -17,12 +17,12 @@ private:
 		{"SLEEP", "1100011"}, {"CLRWDT", "1100100"},
 		{"TRIS", "11001"}
 	};
-	list<Operand<string>> operands;
+	list<Operand> operands;
 	string code;
 	string pichex;
 
 public:
-	Misc_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
+	Misc_OpCode(const string opcode, list<Operand> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;

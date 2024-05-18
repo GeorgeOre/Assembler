@@ -17,12 +17,12 @@ private:
 		{"XORLW", "1010"}, {"SUBLW", "1100"},
 		{"ADDLW", "1110"}
 	};
-	list<Operand<string>> operands;
+	list<Operand> operands;
 	string code;
 	string pichex;
 
 public:
-	W_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
+	W_OpCode(const string opcode, list<Operand> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;
