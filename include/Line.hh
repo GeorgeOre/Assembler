@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "OpCode.hh"
+#include "Segment.hh"
 #include <map>
 
 
@@ -273,4 +274,4 @@ public:
 // Line_error (custom)
 // */
 
-// #endif // #ifndef __LINE_H__
+#endif // #ifndef __LINE_H__
