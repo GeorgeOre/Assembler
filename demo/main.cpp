@@ -11,59 +11,34 @@ enum ProgramState {
     SUCCESS
 };
 
-int main() {
-    UI ui;
-    Translator translator;
-    ProgramState state = STARTUP;
-
-    while (true) {
-        switch (state) {
-            case STARTUP:
-                ui.launchCLI();
-                state = PROCESSING;
-                break;
-
-            case PROCESSING: {
-                std::string command = ui.getInput();
-                if (command == "help") {
-                    state = HELP;
-                } else if (command.substr(0, 9) == "translate") {
-                    std::string asmFilePath = command.substr(10); // assuming 'translate <path>' format
-                    EventEnum result = translator.translate(asmFilePath);
-                    if (result == EventEnum::SUCCESS) {
-                        std::cout << "Translation successful. Output file path: " << translator.getOutputFilePath() << std::endl;
-                        state = SUCCESS;
-                    } else {
-                        std::cout << "Translation failed. See error file: " << translator.getErrorFilePath() << std::endl;
-                        state = ERROR;
-                    }
-                } else {
-                    std::cout << "Unknown command." << std::endl;
-                    state = ERROR;
-                }
-                break;
-            }
-
-            case HELP:
-                ui.displayHelp();
-                state = STARTUP;
-                break;
-
-            case ERROR:
-                ui.displayError();
-                state = STARTUP;
-                break;
-
-            case SUCCESS:
-                ui.displaySuccess();
-                state = STARTUP;
-                break;
-
-            default:
-                std::cerr << "Unknown state. Exiting." << std::endl;
-                return 1;
-        }
-    }
+int main(int argc, char *argv[]) {
+    if (argc == 2){
+		if (argv[1] == "help" or argv[1] == "-h"){
+			print_help();
+		}
+		else {
+			printf("Improper format. For help, enter './assemble help' or './assemble -h'.");
+		}
+		return;
+	}
+	if (argc == 1 or argc > 3){
+		printf("Improper format. For help, enter './assemble help' or './assemble -h'.");
+		return;
+	}
+	string inputPath = argv[1];
+	string outputPath = argv[2];
+	UI ui = UI(inputPath, outputPath);
+	ui.run();
 
     return 0;
+}
+
+void print_help(){
+	printf("------------------------------------------------------------- \n");
+	printf("-----------------------------HELP---------------------------- \n");
+	printf("------------------------------------------------------------- \n \n");
+	printf("To use this assembler, input the following into command line: \n");
+	printf("            ./assemble <INPUT_FILE> <OUTPUT_FILE>             \n");
+	printf("------------------------------------------------------------- \n");
+
 }
