@@ -17,6 +17,7 @@ int main() {
     return 0;
 }
 
+
 /*
 int main() {
     OpCode opcode("LOAD"); // Assuming OpCode has a constructor that takes a string
@@ -29,7 +30,7 @@ int main() {
 
     // Create operand array
     std::vector<Operand*> operands;
-    operands.push_back(new Boperand("100")); // Assuming Boperand has a constructor that takes a string
+    //operands.push_back(new Boperand("100")); // Assuming Boperand has a constructor that takes a string
 
     // Convert to PICHEX
     std::string pichex = line.ToPicHEX(opcode, operands);

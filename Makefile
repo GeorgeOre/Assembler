@@ -34,6 +34,28 @@ $(BIN_DIR)/%: $(OBJ) $(TEST_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
+# Define individual test targets
+LineTest: $(BIN_DIR)/LineTest
+	@$(BIN_DIR)/LineTest
+
+OpCodeTest: $(BIN_DIR)/OpCodeTest
+	@$(BIN_DIR)/OpCodeTest
+
+OperandTest: $(BIN_DIR)/OperandTest
+	@$(BIN_DIR)/OperandTest
+
+SectionTest: $(BIN_DIR)/SectionTest
+	@$(BIN_DIR)/SectionTest
+
+SegmentTest: $(BIN_DIR)/SegmentTest
+	@$(BIN_DIR)/SegmentTest
+
+TranslatorTest: $(BIN_DIR)/TranslatorTest
+	@$(BIN_DIR)/TranslatorTest
+
+UITest: $(BIN_DIR)/UITest
+	@$(BIN_DIR)/UITest
+
 run-tests: $(TEST_BIN)
 	@for test in $(TEST_BIN); do \
 		$$test; \
@@ -41,3 +63,5 @@ run-tests: $(TEST_BIN)
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+.PHONY: all clean run-tests LineTest OpCodeTest OperandTest SectionTest SegmentTest TranslatorTest UITest

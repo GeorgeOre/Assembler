@@ -41,6 +41,8 @@ EventEnum UI::parse_request() {
     std::string command;
     iss >> command;
 
+    
+
     if (command_table.find(command) == command_table.end()) {
         return EventEnum::INVALID_COMMAND;
     }
