@@ -8,3 +8,7 @@ using namespace std;
 string OpCode::get_code(){
 	return code;
 }
+
+bool is_pseudo_op(){
+    return false;
+}

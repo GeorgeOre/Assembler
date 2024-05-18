@@ -19,6 +19,7 @@ enum class StateEnum {
 class UI {
 public:
     // Constructors
+
     UI(string input, string output);
 	void run();
 

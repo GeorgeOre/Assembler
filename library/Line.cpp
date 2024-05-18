@@ -80,6 +80,51 @@ u_int64_t Line::get_line_num(){
 	return line_number;
 }
 
+
+
+string get_addr(u_int64_t addr){
+	std::stringstream stream;
+	stream << std::hex << addr;
+	string address = stream.str();
+	size_t length = address.size();
+	size_t to_add = 4 - length;
+	address.insert(0, to_add, '0');
+	return address;
+}
+
+string get_size(u_int64_t size){
+	std::stringstream stream;
+	stream << std::hex << size;
+	string address = stream.str();
+	size_t length = address.size();
+	size_t to_add = 2 - length;
+	address.insert(0, to_add, '0');
+	return address;
+}
+
+string checksum(int size, string line2, string line3, string line4){
+	int sum = size;
+	for (int i = 0; i < line2.size(); i += 2){
+		string sub = line2.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	for (int i = 0; i < line3.size(); i += 2){
+		string sub = line3.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	for (int i = 0; i < line4.size(); i += 2){
+		string sub = line4.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	int modded = sum % 256;
+	int next = 256 - modded;
+	std::stringstream stream;
+	stream << std::hex << next;
+	string cs = stream.str();
+	return cs;
+}
+
+
 string Line::to_pichex(){
 	string to_return = "";
 	unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();

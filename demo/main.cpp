@@ -11,6 +11,7 @@ enum ProgramState {
     SUCCESS
 };
 
+
 int main(int argc, char *argv[]) {
     if (argc == 2){
 		if (argv[1] == "help" or argv[1] == "-h"){
@@ -30,8 +31,10 @@ int main(int argc, char *argv[]) {
 	UI ui = UI(inputPath, outputPath);
 	ui.run();
 
+
     return 0;
 }
+
 
 void print_help(){
 	printf("------------------------------------------------------------- \n");
@@ -42,3 +45,4 @@ void print_help(){
 	printf("------------------------------------------------------------- \n");
 
 }
+
