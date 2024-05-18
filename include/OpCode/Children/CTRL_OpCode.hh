@@ -14,12 +14,12 @@ private:
 	map<string, string> pichex_map = {
 		{"CALL", "0"}, {"GOTO", "1"}
 	};
-	list<Operand<string>> operands;
+	list<Operand> operands;
 	string code;
 	string pichex;
 
 public:
-	CTRL_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
+	CTRL_OpCode(const string opcode, list<Operand> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;

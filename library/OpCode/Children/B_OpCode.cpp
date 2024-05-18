@@ -5,6 +5,6 @@
 using namespace std;
 
 string B_OpCode::get_hex(){
-	return format + pichex + operands.back().operand_get_value()
-		+ operands.front().operand_get_value();
+	return format + pichex + operands.back().getBinary()
+		+ operands.front().getBinary();
 }
