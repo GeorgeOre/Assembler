@@ -12,7 +12,7 @@ private:
 	string code;
 	string pichex;
 	string format;
-	list<Operand<string>> operands;
+	list<Operand> operands;
 
 public:
 	OpCode();
