@@ -1,3 +1,15 @@
+#ifndef FOPERAND_HH
+#define FOPERAND_HH
+
+#include "Operand.hh"
+
+class Foperand : public Operand {
+public:
+    Foperand(OpCode *opcode, const std::string &raw) : Operand(opcode, raw) {}
+};
+
+#endif
+
 #ifndef FOPERAND_HH  // Include guard to prevent multiple inclusion
 #define FOPERAND_HH
 

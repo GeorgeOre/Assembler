@@ -1,74 +1,67 @@
-# Compiler
+# Compiler and Flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -I$(INC_DIR)
-LDFLAGS = 
+CXXFLAGS = -Wall -Wextra -std=c++17
 
 # Directories
-SRC_DIR = library
+INCLUDES = -Iinclude -Iinclude/OpCode/Parent -Iinclude/OpCode/Children -Iinclude/Operand/Parent -Iinclude/Operand/Children
+LIB_DIR = library
 OBJ_DIR = out
 BIN_DIR = bin
-INC_DIR = include
-TEST_DIR = tests
-DEMO_DIR = demo
+TEST_DIR = test
 
-# Files
-MAIN_SRC = $(DEMO_DIR)/main.cpp
-TEST_SRC = $(TEST_DIR)/OperandTest.cpp
-EXECUTABLE = $(BIN_DIR)/myprogram
-TEST_EXECUTABLE = $(BIN_DIR)/runtest
+# Source Files
+SRC = $(wildcard $(LIB_DIR)/*.cpp) \
+      $(wildcard $(LIB_DIR)/OpCode/Parent/*.cpp) \
+      $(wildcard $(LIB_DIR)/OpCode/Children/*.cpp) \
+      $(wildcard $(LIB_DIR)/Operand/Parent/*.cpp) \
+      $(wildcard $(LIB_DIR)/Operand/Children/*.cpp)
 
-# Source files
-SRC_FILES = $(shell find $(SRC_DIR) -name '*.cpp')
+# Object Files
+OBJ = $(SRC:$(LIB_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-# Object files
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
+# Test Files
+TEST_SRC = $(wildcard $(TEST_DIR)/*.cpp)
+TEST_BIN = $(TEST_SRC:$(TEST_DIR)/%.cpp=$(BIN_DIR)/%)
 
-# Operand specific source and object files
-OPERAND_SRC_FILES = $(shell find $(SRC_DIR)/Operand -name '*.cpp')
-OPERAND_OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(OPERAND_SRC_FILES))
+# Targets
+all: $(TEST_BIN)
 
-# Create the necessary directories
-$(OBJ_FILES): | $(OBJ_DIR)
-$(EXECUTABLE): | $(BIN_DIR)
-$(TEST_EXECUTABLE): | $(BIN_DIR)
+$(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-	mkdir -p $(OBJ_DIR)/OpCode/Children
-	mkdir -p $(OBJ_DIR)/OpCode/Parent
-	mkdir -p $(OBJ_DIR)/Operand/Children
-	mkdir -p $(OBJ_DIR)/Operand/Parent
+$(BIN_DIR)/%: $(OBJ) $(TEST_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
+# Define individual test targets
+LineTest: $(BIN_DIR)/LineTest
+	@$(BIN_DIR)/LineTest
 
-# Target for the main executable
-$(EXECUTABLE): $(OBJ_FILES) $(MAIN_SRC)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+OpCodeTest: $(BIN_DIR)/OpCodeTest
+	@$(BIN_DIR)/OpCodeTest
 
-# Rule to compile source files to object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+OperandTest: $(BIN_DIR)/OperandTest
+	@$(BIN_DIR)/OperandTest
 
-# Operand tests executable
-operand_test: $(OPERAND_OBJ_FILES) $(TEST_DIR)/OperandTest.cpp
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/operand_test $^ $(LDFLAGS)
+SectionTest: $(BIN_DIR)/SectionTest
+	@$(BIN_DIR)/SectionTest
 
-# Phony targets
-.PHONY: all clean run test operand_test operand_test_run
+SegmentTest: $(BIN_DIR)/SegmentTest
+	@$(BIN_DIR)/SegmentTest
 
-# Default target
-all: $(EXECUTABLE)
+TranslatorTest: $(BIN_DIR)/TranslatorTest
+	@$(BIN_DIR)/TranslatorTest
 
-# Run the main program
-run: $(EXECUTABLE)
-	./$(EXECUTABLE)
+UITest: $(BIN_DIR)/UITest
+	@$(BIN_DIR)/UITest
 
-# Run the operand tests
-operand_test_run: operand_test
-	./$(BIN_DIR)/operand_test
+run-tests: $(TEST_BIN)
+	@for test in $(TEST_BIN); do \
+		$$test; \
+	done
 
-# Clean up
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(EXECUTABLE) $(TEST_EXECUTABLE)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+.PHONY: all clean run-tests LineTest OpCodeTest OperandTest SectionTest SegmentTest TranslatorTest UITest
