@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "OpCode.hh"
+#include "Segment.hh"
 #include <map>
 
 
@@ -14,32 +15,34 @@ class Line
 {
 private:
   u_int64_t line_number;
+  u_int64_t address;
   string line;
   OpCode opcode;
   Segment segment;
+  string error_message;
   map<string, string> op_type_map = {
     {"BCF", "B"}, {"BSF", "B"},
-		{"BTFSC", "B"}, {"BTFSS", "B"},
+	{"BTFSC", "B"}, {"BTFSS", "B"},
     {"MOVWF", "ALU"}, {"CLR", "ALU"},
-		{"SUBWF", "ALU"}, {"DECF", "ALU"},
-		{"IORWF", "ALU"}, {"ANDWF", "ALU"},
-		{"XORWF", "ALU"}, {"ADDWF", "ALU"},
-		{"MOVF", "ALU"}, {"COMF", "ALU"},
-		{"INCF", "ALU"}, {"DECFSZ", "ALU"},
-		{"RRF", "ALU"}, {"RLF", "ALU"},
-		{"SWAPF", "ALU"}, {"INFSZ", "ALU"},
+	{"SUBWF", "ALU"}, {"DECF", "ALU"},
+	{"IORWF", "ALU"}, {"ANDWF", "ALU"},
+	{"XORWF", "ALU"}, {"ADDWF", "ALU"},
+	{"MOVF", "ALU"}, {"COMF", "ALU"},
+	{"INCF", "ALU"}, {"DECFSZ", "ALU"},
+	{"RRF", "ALU"}, {"RLF", "ALU"},
+	{"SWAPF", "ALU"}, {"INFSZ", "ALU"},
     {"CALL", "CTRL"}, {"GOTO", "CTRL"},
     {"NOP", "MISC"}, {"RETURN", "MISC"},
-		{"RETFIE", "MISC"}, {"OPTION", "MISC"},
-		{"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
-		{"TRIS", "MISC"}, {"ADDLW", "W"}
+	{"RETFIE", "MISC"}, {"OPTION", "MISC"},
+	{"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
+	{"TRIS", "MISC"}, {"ADDLW", "W"},
     {"MOVLW", "W"}, {"RETLW", "W"},
-		{"IORLW", "W"}, {"ANDLW", "W"},
-		{"XORLW", "W"}, {"SUBLW", "W"}
+	{"IORLW", "W"}, {"ANDLW", "W"},
+	{"XORLW", "W"}, {"SUBLW", "W"}
   };
   
 public:
-  Line(u_int64_t line_num, string line, Segment segment);
+  Line(u_int64_t line_num, u_int64_t address, string line, Segment segment);
   string to_pichex();
   u_int64_t get_line_num();
 
@@ -273,4 +276,4 @@ public:
 // Line_error (custom)
 // */
 
-// #endif // #ifndef __LINE_H__
+#endif // #ifndef __LINE_H__

@@ -21,12 +21,12 @@ private:
 		{"RRF", "1100"}, {"RLF", "1101"},
 		{"SWAPF", "1110"}, {"INFSZ", "1111"}
 	};
-	list<Operand<string>> operands;
+	list<Operand> operands;
 	string code;
 	string pichex;
 
 public:
-	ALU_OpCode(const string opcode, list<Operand<string>> ob_operands){
+	ALU_OpCode(const string opcode, list<Operand> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;

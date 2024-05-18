@@ -15,12 +15,12 @@ private:
 		{"BCF", "00"}, {"BSF", "01"},
 		{"BTFSC", "10"}, {"BTFSS", "11"}
 	};
-	list<Operand<string>> operands;
+	list<Operand> operands;
 	string code;
 	string pichex;
 
 public:
-	B_OpCode(const string opcode, string pichex, list<Operand<string>> ob_operands){
+	B_OpCode(const string opcode, list<Operand> ob_operands){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;

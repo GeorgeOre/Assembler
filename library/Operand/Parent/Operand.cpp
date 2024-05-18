@@ -2,7 +2,7 @@
 #include "OpCode.hh"
 
 // Constructor
-Operand::Operand(OpCode *opcode, const std::string &raw) : opcode(opcode), raw(raw), size(0) {
+Operand::Operand(const std::string raw) : raw(raw), size(0) {
     // Conversion from raw to binary could be added here if needed
 }
 
@@ -52,8 +52,8 @@ void Operand::printValue() const {
 #include "OpCode.hh"
 
 // Constructor
-Operand::Operand(OpCode *opcode, const string &raw)
-    : opcode(opcode), raw(raw), size(0), binary("") {}
+Operand::Operand(string raw)
+    : raw(raw), size(0), binary("") {}
 
 // Destructor
 Operand::~Operand() {}

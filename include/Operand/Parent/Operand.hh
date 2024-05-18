@@ -16,7 +16,7 @@ private:
 
 public:
     // Constructors
-    Operand(OpCode *opcode, const std::string &raw);
+    Operand(std::string raw);
 
     // Destructor
     virtual ~Operand();
@@ -60,7 +60,7 @@ private:
 
 public:
     // Constructors
-    Operand(OpCode *opcode, const string &raw);
+    Operand(const string raw);
 
     // Destructor
     virtual ~Operand();
