@@ -58,6 +58,7 @@ public:
     std::string get_outputFilePath() const;
     std::string get_errorFilePath() const;
 
+
     std::vector<Line> get_lines_array();
 
     // Mutators

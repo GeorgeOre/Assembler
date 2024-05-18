@@ -2,7 +2,9 @@
 #include "OpCode.hh"
 
 // Constructor
-Operand::Operand(const std::string &raw) : raw(raw), size(0) {
+
+Operand::Operand(const std::string raw) : raw(raw), size(0) {
+
     // Conversion from raw to binary could be added here if needed
 }
 

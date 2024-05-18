@@ -17,8 +17,9 @@ public:
 
 
     // Constructors
-    Operand(const std::string &raw);
-    // Operand(OpCode *opcode, const std::string &raw);
+
+    Operand(std::string raw);
+
 
     // Destructor
     virtual ~Operand();
@@ -41,3 +42,4 @@ public:
 };
 
 #endif
+
