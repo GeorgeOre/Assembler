@@ -1,0 +1,275 @@
+Software System Specification
+Jeb Brysacz - 6 hours
+George Ore - 6 hours
+Description:
+This is an assembler intended for use with the PIC16F1XXX family of microcontroller chips with 14 bit instruction sets. The specific class of assembler that will be designed is two-pass and generates non-relocatable object code. As a result, this assembler will have to take into account sync errors caused by variable length instructions. It includes a command-line user interface and will be written in C++. It will take in assembly files in accordance with the rules laid out in this specification and output an object code file in the PIC Hex format (see Outputs section), a derivative of Intel Hex.
+Inputs:
+User Inputs:
+This assembler is operated through the terminal user interface (See User Interface section below), much like common compilers such as GCC (albeit less complex). Once the assembler is executed in the terminal, it will wait until it receives one of several flag commands. Table 1 below describes each flag and corresponding argument format, as well as required arguments.
+
+Flag
+Usage Format
+Description
+-a
+-a [name/ directory of assembly file]
+Assembles file at the imputed directory
+-h
+-h
+Shows how to use the assembler
+-o
+-o [name/directory of object file]
+Outputs the object file as named in the given directory.
+
+Table 1: Supported commands
+Command Inputs:
+The assembler’s -a and -o command requires that the file or directory exist in the system and that it is of a compatible file type. The default directory is the directory where the assembler is located. Therefore, input can be the name of the file if it is located in the same directory as the assembler. If the file is located in another directory, it must list the absolute or relative path. Forward, backward, and terminating slashes are handled.
+Example accepted -a command inputs:
+-a secretDip.asm
+-a C:\Program Files\DipTrace\secretDip.asm
+-a C:\Program Files\DipTrace\secretDip.asm\
+-a secret_folder\secretDip.asm\
+-o C:/Program Files/DipTrace/secretDip.asm/
+
+File Inputs:
+The accepted file types are .asm and .s files. The contents of the file must only contain ASCII characters and follow the following formatting rules:
+General Formatting Rules:
+Assembler ignores all spaces and tabs
+One line per instruction/declaration
+All symbols are case sensitive
+No line terminator
+Comments are denoted by ; and thereafter, assembler ignores the rest of the line
+Operands should be comma separated
+Format for a general assembly line in the text section:
+[spaces and tabs][Opcode][spaces and tabs][Operands][spaces and tabs] ; [comments]
+File Inclusion:
+Files should be included at the beginning of the document. The assembler will assemble the included file before assembling the current file. It is denoted by the ‘.include’ pseudo op. The files that are included should follow the same rules. 
+File Inclusion Example:
+.include constants.s
+.include functions.asm
+Segments:
+Segments are denoted by the ‘.’ pseudo op. There are three segments that the assembly file will look for. The first segment is the .text segment which contains the bulk of the assembly code.  After this there is the .data segment which contains constant and variable declarations. There is also a .info segment that contains information relevant to the production of the IntelHEX formatted output. All other parts of the assembly file must be contained in one of these segments. Anything after a segment pseudo op is placed in that segment. Each segment can only be declared once and they must be declared in the order, text first, then data, finally info.
+Segments Example:
+.text 
+.data
+.info
+Operation Codes:
+The PIC16F1XXX family has 54 instructions. Each has its own mnemonic and description. To condense this specification, this document will not contain too many details about how each instruction works and mostly list the types of instructions and list their mnemonics. To read more about the instructions, refer to Microchip’s documentation. The assembler will recognise the following case sensitive instructions. Some will be listed with their corresponding format and operands. All of these must be in the text segment.
+
+Miscellaneous instructions:
+NOP
+RETURN
+RETFIE
+OPTION
+SLEEP
+CLRWDT
+TRIS f
+
+ALU operations: dest ← OP(f,W):
+MOVWF 	f
+CLR 		f,	d
+SUBWF 	f,	d
+DECF 		f,	d
+IORWF 	f,	d
+ANDWF 	f,	d
+XORWF 	f,	d
+ADDWF 	f,	d
+MOVF 		f,	d	
+COMF 		f,	d
+INCF 		f,	d
+DECFSZ 	f,	d
+RRF 		f,	d
+RLF 		f,	d
+SWAPF 	f,	d
+INCFSZ 	f,	d
+
+Bit operations:
+BCF 		f,	b
+BSF 		f,	b
+BTFSC 	f,	b
+BTFSS 	f,	b
+
+Control transfers:
+CALL 		k
+GOTO 		k
+
+Operations with W and 8-bit literal: W ← OP(k,W):
+MOVLW	k
+RETLW 	k
+IORLW 	k
+ANDLW 	k
+XORLW 	k
+SUBLW 	k
+ADDLW 	k
+
+Miscellaneous special instructions:
+RESET
+CALLW
+BRW
+MOVIW 	++FSRn
+MOVIW 	−−FSRn
+MOVIW 	FSRn++
+MOVIW 	FSRn−−
+MOVWI 	using FSRn
+MOVLB 	k
+
+Special ALU operations: dest ← OP(f,W):
+LSLF 		f,	d
+LSRF 		f,	d
+ASRF 		f,	d
+SUBWFB 	f,	d
+ADDWFC 	f,	d
+
+Special operations with literal k:
+ADDFSR 	FSRn,	k
+MOVLP 	k
+BRA 		k
+MOVIW 	k[FSRn]
+MOVWI 	k[FSRn]
+
+Instruction set references:
+Microchip: microchip.com
+Example Microchip Instruction Set Spec: 31029a.pdf (microchip.com)
+General PIC instructions: PIC instruction listings - Wikipedia
+Compiled Instructions (Caltech email):EE150 Instuction Set
+Labels:
+Labels are defined in the text and data segments. They are used for defining and referencing places in either program or data memory depending on which section they are declared. They are declared by the ‘:’ suffix. Labels should not be named similarly to pseudo ops and operation codes.
+Labels Example:
+Main:
+MainLoop:
+MyVar:
+Symbolic Constants:
+Symbolic constants are defined in the data segment. They are for defining constants used in the text segment. They are declared by writing the name of the constant followed by the ‘.EQU’ pseudo op. All constants are aligned at a non-modifiable maximum size of 8 bits in big endian format. Like their memory allocation, their values cannot change (constants duh). The constant’s value should be set after .EQU. They should not be named similarly to pseudo ops and operation codes. They can be declared in any of the allowed bases (see Table 2). When called, they only need a prefix or suffix, not both.
+Symbolic Constants Example:
+Number		.EQU		0b01001101
+SomeOtherNumber	.EQU		088D
+Num1			.EQU		10
+Num2			.EQU		0x01
+
+Base
+Prefix
+Suffix
+2
+0b
+B
+4
+0f
+F
+8
+0d
+D
+10
+None
+None
+16
+0x
+H
+
+Table 2: Bases allowed
+Arithmetic Operations:
+The assembler supports arithmetic operations but not expressions. These are allowed inside the operands of the pseudo ops ONLY. Table 3 describes the allowed arithmetic operations. Users should keep in mind the size of the operands as they use arithmetic operations. These operations will be pre-evaluated by the assembler and throw an error if used incorrectly.
+
+Arithmetic Operations
+Symbol
+Example
+Addition
++
+ADDLW 3+2
+Subtraction
+-
+ADDLW 10-5
+Multiplication
+*
+ADDLW 2*4
+Division (Dropping remainder)
+/
+ADDLW 16/4
+Modulus
+%
+ADDLW 23478%2
+Logical Shift Left
+<
+ADDLW 2<1
+Logical Shift Right
+>
+ADDLW 8>2
+
+Table 3: Arithmetic operations
+Accessing Memory:
+If the user needs to access the data at a specific location, they must use square brackets. The user may assign variables in memory using the label pseudo op ‘:’. All variables are aligned at a non-modifiable maximum size of 8 bits in big endian format. The variable’s value should be set somewhere in the .text segment by using square brackets to access it’s data. They should not be named similarly to pseudo ops and operation codes. Although this assembler is designed to work with the PIC16F1XXX family, the user will have to manually define the memory map for their specific device. There are no predefined register maps in this version. 
+Accessing Memory Example:
+ADD PC, [0x73]
+myvar .VAR
+ADD myvar, [STATUS]
+Outputs:
+The main job of the assembler is to output object code files into directories specified by the users. To closely align our assembler with the PIC microcontroller family, we will be using the Intel Hex format, which is the standard for all PIC devices. Since Intel Hex represents binary data in ASCII form, these object files have the benefits of being human-readable, at the cost of file size (which shouldn’t really be an issue), and computing overhead due to parsing the ASCII data. Here we will cover the specifics of the Intel Hex format, which will now be referred to as PIC Hex, the PIC extension of the Intel Hex format.
+
+For example, the PIC16F17154 has a specific line format, shared by all PIC16F1xxx devices:
+:BBAAAATT{DDDD}CC
+The colon (:) defines the start of the line. The BB is the number of bytes of data stored on the line. The AAAA is the address, in bytes. The TT is the section type, where 00 denotes data, 01 denotes the end of file, 02 means linear address type and 04 means extended address type (will be discussed later). DDDD is the data, and the length will vary based on the BB section of the line. CC is the checksum, calculated as the complement of the sum of each 2-digit section of the line. The data, of course, is the hex code representation of the PIC16 assembly and can be found in the data sheet. Note that the data is in little endian format.
+
+This output file will be located in the working directory if no -o flag is used, with the file named <INPUT_NAME>_output.hex. If the -o flag is used, the file will be output as named in the absolute or relative address given by the user. See user interface section for more details.
+Communication Protocols:
+None.
+User Interface:
+The assembler is run through a terminal, much like gcc or comparable compilers (albeit less complex). We will use flags to enter commands and options. The table below describes each flag and corresponding argument, as well as required arguments, like asm files to be assembled down to object code. This user interface, much like the assembler, will be written in C++.
+
+
+State
+Prompt
+Possible User Responses
+Startup
+Welcome to ASSEMBLER! We are working on the name.
+Please enter a command or to enter -h for help. 
+Users can respond with any set of the available commands (see help for documentation).
+Help
+Commands (flag):
+Assemble (-a <FILENAME>) - Takes an input asm file and outputs the corresponding object code.
+Help (-h) - Displays this screen with all possible commands
+Output (-o <FILENAME>) - Specifies an output file
+None - the help message will simply display the list of possible commands and return.
+Processing
+While processing, there will be no writing done to the command line.
+ctrl-C can be used as an interrupt to stop the process of assembling
+Done
+Successfully assembled! See <OUTPUT_FILE_NAME> to view the object code files.
+None - will immediately return after this message.
+Error
+Depending on the type of error, the interface will display one of the following.
+
+The main type of error we will catch is a syntax error. Upon a syntax error getting caught, the assembler will display this:
+
+syntax error: <FILENAME>, line <LINE>
+
+Upon catching the error, the assembler will display that error line and terminate.
+
+Another error we will catch is an undefined label or symbol error, upon which the assembler will terminate and display this:
+
+undefined label/symbol: <FILENAME>, line <LINE>
+
+The final type of error is a user command-line input error. If this occurs, the following line with display and return:
+
+undefined command: <COMMAND>
+None - will immediately return after this message.
+
+Table 4: User Interface States
+Error Handling:
+File Formatting:
+If the file that is being assembled contains formatting or syntax violations such as arithmetic overflow or incorrect pseudo op usage, the user will receive an error message corresponding to the violation (see UI section).
+User Interface:
+If the user inputs an invalid argument with the -a command, they will receive an error message saying “-a invalid input” and go back to the main menu. If the user inputs an invalid command, it is simply ignored (see UI section).
+Database Requirements:
+The assembler has tables that store the operation codes of the PIC16 family, the pseudo ops, error checking/format rules, space for allocating user defined symbols, and the user interface’s state machine data. These will be implemented as lossless binned hash tables for quick lookups.
+Global Objects:
+None.
+Algorithms:
+Since we are storing the symbols in a hash table, we will use a basic O(1) hash search algorithm. This involves re-hashing the symbol, then doing a linear search of the corresponding bin in the hash table. We will implement a linear parsing algorithm to translate assembly into hex code, and a linear string matching algorithm to extract data from the above hash tables.
+Data Structures:
+We will be using lossless binned hash tables for all language features covered in the database requirements section (see above). They allow all symbols to be stored efficiently with a quick look up time.
+Limitations:
+The file types are limited to only .s and .asm. The assembler can only take PIC16 assembly and can only output Hex code designed for PIC16F1XXX microcontrollers. The optimizations are limited and speed is fixed. For very large assembly files, the storage space needed will be limited by the PICF1XXX microcontroller’s program memory size.
+Known Bugs:
+None.
+Special Notes:
+In order to test the assembler for correctness, the user should use a PIC disassembler to reverse the code, and check via a linear string matching algorithm. This will ensure that the assembler retains semantic equivalence between the assembly that it is given and the hex code that it generates. Note that this is not an indicator that the written assembly is bug-free, just that the assembler correctly converts asm code to hex code.
+Open Issues:
+The only assembly format that is accepted at the moment is the one specified in this document. In the future, it should be expanded to include different types of object code and assembly languages.
