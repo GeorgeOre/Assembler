@@ -9,6 +9,8 @@
 #include <list>
 using namespace std;
 
+class Operand;
+
 class OpCode
 {
 private:
