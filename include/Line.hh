@@ -8,17 +8,12 @@
 #include "Segment.hh"
 #include <map>
 
-
+class Segment;
 
 //Data Members:
 class Line
 {
 private:
-  u_int64_t line_number;
-  u_int64_t address;
-  string line;
-  Segment segment;
-  string error_message;
   map<string, string> op_type_map = {
     {"BCF", "B"}, {"BSF", "B"},
 	{"BTFSC", "B"}, {"BTFSS", "B"},
@@ -42,9 +37,16 @@ private:
   
 public:
   Line(u_int64_t line_num, u_int64_t address, string line, Segment segment);
+
   string to_pichex();
+
   u_int64_t get_line_num();
   OpCode opcode;
+  string line;
+  u_int64_t line_number;
+  u_int64_t address;
+  Segment segment;
+  string error_message;
 
   bool contains_error;
 };

@@ -14,20 +14,23 @@ class Operand;
 class OpCode
 {
 private:
-
+	
 public:
 	string code;
 	string pichex;
 	string format;
 	list<Operand> operands;
 
-	OpCode();
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
+    OpCode();
+    
+    // virtual ~OpCode() = default;
 
-    bool is_pseudo_op();
+	virtual string get_hex();
+	virtual string get_code();
+	virtual list<Operand> get_operands();
+	virtual string get_format();
+
+    virtual bool is_pseudo_op();
 	
 };
 

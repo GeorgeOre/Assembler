@@ -3,19 +3,18 @@
 
 // Constructor
 
-Operand::Operand(const std::string raw) : raw(raw), size(0) {
+// Operand::Operand(const std::string raw) : raw(raw), size(0) {
+    // Conversion from raw to binary could be added here if needed
+// }
 
+Operand::Operand(OpCode *opcode, const std::string &raw) : opcode(opcode), raw(raw), size(0) {
     // Conversion from raw to binary could be added here if needed
 }
 
-// Operand::Operand(OpCode *opcode, const std::string &raw) : opcode(opcode), raw(raw), size(0) {
-//     // Conversion from raw to binary could be added here if needed
-// }
-
 // Destructor
-Operand::~Operand() {
+// Operand::~Operand() {
     // Clean up resources if necessary
-}
+
 
 // Accessors
 uint64_t Operand::getSize() const {

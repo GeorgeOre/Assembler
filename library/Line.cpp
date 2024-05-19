@@ -15,6 +15,9 @@
 #include <inttypes.h>
 #include <sstream>
 
+
+class Segment;
+
 using namespace std;
 list<string> line_to_list(string line);
 string get_addr(u_int64_t addr);
@@ -47,18 +50,18 @@ Line::Line(u_int64_t line_num, u_int64_t address, string line, Segment segment){
 	if (op_type == "ALU") {
 		opcode = ALU_OpCode(op_code, operands);
 	}
-	if (op_type == "B") {
-		opcode = B_OpCode(op_code, operands);
-	}
-	if (op_type == "CTRL") {
-		opcode = CTRL_OpCode(op_code, operands);
-	}
-	if (op_type == "MISC") {
-		opcode = Misc_OpCode(op_code, operands);
-	}
-	if (op_type == "W") {
-		opcode = W_OpCode(op_code, operands);
-	}
+	// if (op_type == "B") {
+	// 	opcode = B_OpCode(op_code, operands);
+	// }
+	// if (op_type == "CTRL") {
+	// 	opcode = CTRL_OpCode(op_code, operands);
+	// }
+	// if (op_type == "MISC") {
+	// 	opcode = Misc_OpCode(op_code, operands);
+	// }
+	// if (op_type == "W") {
+	// 	opcode = W_OpCode(op_code, operands);
+	// }
 }
 
 list<string> line_to_list(string line){
@@ -86,7 +89,8 @@ u_int64_t Line::get_line_num(){
 
 string Line::to_pichex(){
 	string to_return = "";
-	unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
+	unsigned long binary = 10;
+	// unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
 	std::stringstream stream;
 	stream << std::hex << binary;
 	string data = stream.str();

@@ -36,7 +36,7 @@ private:
     EventEnum make_error_file();
 
     // Hashmaps
-    static std::unordered_map<std::string, PseudoOpCode> pseudo_op_enum;
+    // static std::unordered_map<std::string, PseudoOpCode> pseudo_op_enum;
     static std::unordered_map<std::string, Section> section_enum;
     static std::unordered_map<std::string, ConstPrefix> const_prefix_enum;
     static std::unordered_map<std::string, std::string> text_label_hashmap;
@@ -68,7 +68,7 @@ public:
 
     // General methods
     EventEnum define_lines();
-    EventEnum define_lines(const std::string& filePath);
+    EventEnum define_lines(std::string filePath);
 
     EventEnum first_pass();
 

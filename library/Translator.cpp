@@ -1,6 +1,7 @@
 #include "Translator.hh"
 
 #include "Line.hh"
+#include "OpCode.hh"
 
 #include <sstream>
 #include <iterator>
@@ -11,7 +12,7 @@
 #include <list>
 
 // Static member initializations
-std::unordered_map<std::string, PseudoOpCode> Translator::pseudo_op_enum;
+// std::unordered_map<std::string, PseudoOpCode> Translator::pseudo_op_enum;
 std::unordered_map<std::string, Section> Translator::section_enum;
 std::unordered_map<std::string, ConstPrefix> Translator::const_prefix_enum;
 std::unordered_map<std::string, std::string> Translator::text_label_hashmap;
@@ -63,36 +64,8 @@ void Translator::set_errorFilePath(const std::string& newErrorFilePath) {
 }
 
 // General methods
-// EventEnum Translator::translate(const std::string& asmFilePath) {
-//     this->asmFilePath = asmFilePath;
-//     this->outputFilePath = asmFilePath + ".out";
-//     this->errorFilePath = asmFilePath + ".err";
-
-//     EventEnum result = define_lines();
-//     if (result != EventEnum::SUCCESS) {
-//         return result;
-//     }
-
-//     first_pass();
-//     /*
-//     result = first_pass();
-//     if (result != EventEnum::SUCCESS) {
-//         return result;
-//     }
-//     */
-
-//    second_pass();
-//    //result = second_pass();
-    
-//     return result;
-// }
-
 EventEnum Translator::define_lines() {
     
-//     return define_lines(asmFilePath);
-// }
-
-// EventEnum Translator::define_lines(const std::string& filePath) {
     std::ifstream inputFile(this->asmFilePath);
     if (!inputFile.is_open()) {
         contains_error = true;
@@ -114,7 +87,7 @@ EventEnum Translator::define_lines() {
             std::istringstream iss(line);
             std::vector<std::string> tokens{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
             if (tokens.size() == 2) {
-                define_lines(tokens[1]);
+                //define_lines(tokens[1]);
             } else {
                 contains_error = true;
                 return EventEnum::FILE_ERROR;
@@ -123,7 +96,6 @@ EventEnum Translator::define_lines() {
         } else {
             try {
                 // Proper constructor call for Line
-                // lines_array.push_back(Line(0, line, OpCode(), Segment()));
                 lines_array.push_back(Line(cur_num, 0, line, Segment()));  
             } catch (const std::exception& e) {
                 // contains_error = true;
@@ -151,18 +123,18 @@ EventEnum Translator::first_pass() {
     // Loop through lines and store constants or labels
     for (const Line& line : lines_array) {
         // Get essential testing values
-         OpCode code = line.opcode;
-         list<Operand> operands = code.operands;
-         uint64_t num_operands = (uint64_t)operands.size();
+        //  OpCode code = line.opcode;
+        //  list<Operand> operands = code.operands;
+        //  uint64_t num_operands = (uint64_t)operands.size();
 
-                
+        int num_operands = 1;
         // Our first test will categorize each line by how many operands it has
         if (num_operands == 0) {
             // Check if the OpCode is a pseudo op
-            if (code.is_pseudo_op())
+            if (false)//code.is_pseudo_op())
             {
                 // Handle section change pseudo op
-                if ( code.get_code().compare(".text") | code.get_code().compare(".data") ) {
+                if ( false){//code.get_code().compare(".text") | code.get_code().compare(".data") ) {
                     // Set translator to now define labels in the newly set section/segment
                 } 
                 // Handle label pseudo op            
@@ -184,10 +156,10 @@ EventEnum Translator::first_pass() {
             // Now it will look to handle lines that have only one operand
 
             // Check if the OpCode is a pseudo op
-            if (code.is_pseudo_op())
+            if (false)//code.is_pseudo_op())
             {
                 // Handle variable definition pseudo op
-                if ( code.get_code().compare(".text") | code.get_code().compare(".data") ) {
+                if (false){// code.get_code().compare(".text") | code.get_code().compare(".data") ) {
                 // if (line.get_opcode() == Segment) {
                     // Add variables to variable map and assign it a memory address
                 } 
@@ -196,9 +168,9 @@ EventEnum Translator::first_pass() {
                     // Add the constant and its value to the corresponding map
                 }                
             }
-            else {
-                // If it is not a pseudo op, then we need not store anything
-            }
+            // else {
+            //     // If it is not a pseudo op, then we need not store anything
+            // }
         } else {
             // All other cases have two operands
             // There are no pseudo ops with two operands so we do not need to store anything

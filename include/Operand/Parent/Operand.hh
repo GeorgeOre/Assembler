@@ -10,7 +10,7 @@ class Operand {
 private:
 
 public:
-    //OpCode *opcode;  // Pointer to associated OpCode
+    OpCode *opcode;  // Pointer to associated OpCode
     uint64_t size;   // Size of the operand in bits
     std::string raw;      // Raw string that was parsed
     std::string binary;   // Binary value in string format
@@ -18,11 +18,9 @@ public:
 
     // Constructors
 
-    Operand(std::string raw);
+    Operand(OpCode *opcode, const std::string &raw);
 
 
-    // Destructor
-    virtual ~Operand();
 
     // Accessors
     uint64_t getSize() const;

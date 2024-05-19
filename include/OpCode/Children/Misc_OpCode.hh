@@ -22,15 +22,17 @@ private:
 	string pichex;
 
 public:
-	Misc_OpCode(const string opcode, list<Operand> ob_operands){
+	Misc_OpCode(const string opcode, list<Operand> ob_operands) : OpCode(){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;
 	};
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
+        
+	string get_hex() override;
+	string get_code() override;
+	list<Operand> get_operands() override;
+	string get_format() override;
+	bool is_pseudo_op() override;
 
 };
 

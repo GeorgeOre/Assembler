@@ -3,13 +3,13 @@
 #include <iostream>
 
 // Constructor
-Koperand::Koperand(const std::string &raw) : Operand(nullptr, raw) {
+Koperand::Koperand(const std::string &raw) : Operand(raw) {
     setSize(8);  // Set the size to 8 bits
     setBinary(raw);  // Set the binary value to match the raw string
 }
 
 // Destructor
-Koperand::~Koperand() {}
+// Koperand::~Koperand() {}
 
 // Member functions
 void Koperand::printValue() const {

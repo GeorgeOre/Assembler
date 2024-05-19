@@ -21,20 +21,22 @@ private:
 		{"RRF", "1100"}, {"RLF", "1101"},
 		{"SWAPF", "1110"}, {"INFSZ", "1111"}
 	};
+public:
 	list<Operand> operands;
 	string code;
 	string pichex;
+    
 
-public:
-	ALU_OpCode(const string opcode, list<Operand> ob_operands){
+	ALU_OpCode(const string opcode, list<Operand> ob_operands) : OpCode(){
 		code = opcode;
 		pichex = pichex_map.at(opcode);
 		operands = ob_operands;
 	};
-	string get_hex();
-	string get_code();
-	string get_operands();
-	string get_format();
+	string get_hex() override;
+	string get_code() override;
+	list<Operand> get_operands() override;
+	string get_format() override;
+	bool is_pseudo_op() override;
 
 };
 

@@ -9,10 +9,9 @@ public:
     Boperand(const std::string &raw);
 
     // Destructor
-    ~Boperand();
 
     // Member functions
-    void printValue() const;
+    void printValue() const override;
 
 };
 

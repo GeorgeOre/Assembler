@@ -1,4 +1,4 @@
-
+#include "Operand.hh"
 #include "Boperand.hh"
 #include <iostream>
 
@@ -14,7 +14,7 @@ Boperand::Boperand(const std::string &raw) : Operand(raw) {
 // }
 
 // Destructor
-Boperand::~Boperand() {}
+// Boperand::~Boperand() {}
 
 // Member functions
 void Boperand::printValue() const {

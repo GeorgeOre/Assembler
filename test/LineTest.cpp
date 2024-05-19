@@ -5,13 +5,15 @@
 #include "Operand.hh"
 #include "Boperand.hh"
 
+class Segment;
+
 
 int main() {
     // Create a Line object for testing
-    Line line(1, "test line content", OpCode(), Segment());
+    Line line =  Line(0, 1, "test line content", Segment());
     
     // Test getSize and other methods here
-    std::cout << "Line created with content: " << line.get_line_content() << std::endl;
+    std::cout << "Line created with content: " << line.line << std::endl;
     
     // Add more tests as needed
     return 0;

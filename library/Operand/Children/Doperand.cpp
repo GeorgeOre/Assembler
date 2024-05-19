@@ -3,13 +3,13 @@
 #include <iostream>
 
 // Constructor
-Doperand::Doperand(const std::string &raw) : Operand(nullptr, raw) {
+Doperand::Doperand(const std::string &raw) : Operand(raw) {
     setSize(1);  // Set the size to 1 bit
     setBinary(raw);  // Set the binary value to match the raw string
 }
 
 // Destructor
-Doperand::~Doperand() {}
+// Doperand::~Doperand() {}
 
 // Member functions
 void Doperand::printValue() const {

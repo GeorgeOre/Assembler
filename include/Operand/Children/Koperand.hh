@@ -9,10 +9,9 @@ public:
     Koperand(const std::string &raw);
 
     // Destructor
-    ~Koperand();
 
     // Member functions
-    void printValue() const;
+    void printValue() const override;
 
 };
 

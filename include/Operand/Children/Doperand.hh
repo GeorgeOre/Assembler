@@ -9,10 +9,9 @@ public:
     Doperand(const std::string &raw);
 
     // Destructor
-    ~Doperand();
 
     // Member functions
-    void printValue() const;
+    void printValue() const override;
 
 };
 

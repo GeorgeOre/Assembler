@@ -9,10 +9,9 @@ public:
     Foperand(const std::string &raw);
 
     // Destructor
-    ~Foperand();
 
     // Member functions
-    void printValue() const;
+    void printValue() const override;
 
 };
 
