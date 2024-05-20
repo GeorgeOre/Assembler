@@ -8,6 +8,7 @@
 
 #include "Operand.hh"
 
+
 Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0) {
     parseRawToBinary();
 }
