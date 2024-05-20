@@ -1,4 +1,3 @@
-
 #include "Doperand.hh"
 #include <iostream>
 
@@ -8,10 +7,10 @@ Doperand::Doperand(const std::string &raw) : Operand(raw) {
     setBinary(raw);  // Set the binary value to match the raw string
 }
 
-// Destructor
-// Doperand::~Doperand() {}
+void Doperand::identifyChild() const {
+    std::cout << "This is a Doperand." << std::endl;
+}
 
-// Member functions
 void Doperand::printValue() const {
-    std::cout << "Doperand value: " << getRaw() << std::endl;
+    std::cout << "Doperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
 }

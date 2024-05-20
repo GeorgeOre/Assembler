@@ -1,13 +1,9 @@
 #include "UI.hh"
+#include "EventEnum.hh"
 #include <cassert>
 #include <iostream>
 #include <sstream>
-
-// Function to simulate user input for testing
-void simulateInput(const std::string& input) {
-    std::istringstream iss(input);
-    std::cin.rdbuf(iss.rdbuf());
-}
+#include <functional>
 
 // Function to capture output for testing
 std::string captureOutput(std::function<void()> func) {
@@ -19,42 +15,44 @@ std::string captureOutput(std::function<void()> func) {
 }
 
 void test_launchCLI() {
-    UI ui;
+    std::cout << "Starting test_launchCLI" << std::endl;
+    UI ui("inputPath", "outputPath");
     std::string output = captureOutput([&]() { ui.launchCLI(); });
     assert(output == "Assembler CLI launched. Please enter a command:\n");
+    std::cout << "test_launchCLI passed!" << std::endl;
 }
 
 void test_parse_request() {
-    UI ui("input.asm", "output.hex");
+    std::cout << "Starting test_parse_request" << std::endl;
+    UI ui("inputPath", "outputPath");
 
-    // Test invalid command
-    simulateInput("invalid_command\n");
-    EventEnum result = ui.parse_request();
-    assert(result == EventEnum::INVALID_COMMAND);
+    std::istringstream input("load file.asm\n");
+    std::cin.rdbuf(input.rdbuf()); // Replace cin's buffer with input buffer
+    assert(ui.parse_request() == EventEnum::SUCCESS);
 
-    // Test load command with valid file path
-    simulateInput("load valid_path.asm\n");
-    result = ui.parse_request();
-    assert(result == EventEnum::SUCCESS);
+    input.str("set_output output.hex\n");
+    std::cin.rdbuf(input.rdbuf());
+    assert(ui.parse_request() == EventEnum::SUCCESS);
 
-    // Test set_output command with valid file path
-    simulateInput("set_output valid_output.hex\n");
-    result = ui.parse_request();
-    assert(result == EventEnum::SUCCESS);
+    input.str("translate\n");
+    std::cin.rdbuf(input.rdbuf());
+    assert(ui.parse_request() == EventEnum::SUCCESS);
 
-    // Test translate command
-    simulateInput("translate\n");
-    result = ui.parse_request();
-    assert(result == EventEnum::SUCCESS || result == EventEnum::ERROR_DETECTED);
+    input.str("quit\n");
+    std::cin.rdbuf(input.rdbuf());
+    assert(ui.parse_request() == EventEnum::SUCCESS);
 
-    // Test quit command
-    simulateInput("quit\n");
-    result = ui.parse_request();
-    assert(result == EventEnum::SUCCESS);
+    input.str("invalid_command\n");
+    std::cin.rdbuf(input.rdbuf());
+    assert(ui.parse_request() == EventEnum::INVALID_COMMAND);
+
+    std::cout << "test_parse_request passed!" << std::endl;
 }
 
 void test_set_response() {
-    UI ui;
+    std::cout << "Starting test_set_response" << std::endl;
+    UI ui("inputPath", "outputPath");
+
     std::string output;
 
     output = captureOutput([&]() { ui.set_response(EventEnum::SUCCESS); });
@@ -75,29 +73,42 @@ void test_set_response() {
     output = captureOutput([&]() { ui.set_response(EventEnum::FILE_FORMAT_ERROR); });
     assert(output == "File format error detected.\n");
 
+    output = captureOutput([&]() { ui.set_response(EventEnum::ERROR_DETECTED); });
+    assert(output == "Error detected during processing.\n");
+
     output = captureOutput([&]() { ui.set_response(EventEnum::OTHER_ERROR); });
     assert(output == "An unspecified error occurred.\n");
+
+    std::cout << "test_set_response passed!" << std::endl;
 }
 
 void test_displayHelp() {
-    UI ui;
+    std::cout << "Starting test_displayHelp" << std::endl;
+    UI ui("inputPath", "outputPath");
     std::string output = captureOutput([&]() { ui.displayHelp(); });
     assert(output == "Help information: Use 'translate <file path>' to translate an assembly file.\nUse 'help' to display this information.\n");
+    std::cout << "test_displayHelp passed!" << std::endl;
 }
 
 void test_displayError() {
-    UI ui;
+    std::cout << "Starting test_displayError" << std::endl;
+    UI ui("inputPath", "outputPath");
     std::string output = captureOutput([&]() { ui.displayError(); });
     assert(output == "An error occurred. Please try again.\n");
+    std::cout << "test_displayError passed!" << std::endl;
 }
 
 void test_displaySuccess() {
-    UI ui;
+    std::cout << "Starting test_displaySuccess" << std::endl;
+    UI ui("inputPath", "outputPath");
     std::string output = captureOutput([&]() { ui.displaySuccess(); });
     assert(output == "Operation successful.\n");
+    std::cout << "test_displaySuccess passed!" << std::endl;
 }
 
 int main() {
+    std::cout << "UI tests start!\n" << std::endl;
+
     test_launchCLI();
     test_parse_request();
     test_set_response();
@@ -105,6 +116,6 @@ int main() {
     test_displayError();
     test_displaySuccess();
 
-    std::cout << "All UI tests passed!" << std::endl;
+    std::cout << "All UI tests passed!\n" << std::endl;
     return 0;
 }

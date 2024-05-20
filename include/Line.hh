@@ -1,54 +1,41 @@
-#ifndef __LINE_H__
-#define __LINE_H__
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdint.h>
+// Line.hh
+#ifndef LINE_HH
+#define LINE_HH
+
+#include <string>
+#include <vector>
+#include <memory>
 #include "OpCode.hh"
-#include "Segment.hh"
-#include <map>
+#include "Operand.hh"
 
-class Segment;
-
-//Data Members:
-class Line
-{
+class Line {
 private:
-  map<string, string> op_type_map = {
-    {"BCF", "B"}, {"BSF", "B"},
-	{"BTFSC", "B"}, {"BTFSS", "B"},
-    {"MOVWF", "ALU"}, {"CLR", "ALU"},
-	{"SUBWF", "ALU"}, {"DECF", "ALU"},
-	{"IORWF", "ALU"}, {"ANDWF", "ALU"},
-	{"XORWF", "ALU"}, {"ADDWF", "ALU"},
-	{"MOVF", "ALU"}, {"COMF", "ALU"},
-	{"INCF", "ALU"}, {"DECFSZ", "ALU"},
-	{"RRF", "ALU"}, {"RLF", "ALU"},
-	{"SWAPF", "ALU"}, {"INFSZ", "ALU"},
-    {"CALL", "CTRL"}, {"GOTO", "CTRL"},
-    {"NOP", "MISC"}, {"RETURN", "MISC"},
-	{"RETFIE", "MISC"}, {"OPTION", "MISC"},
-	{"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
-	{"TRIS", "MISC"}, {"ADDLW", "W"},
-    {"MOVLW", "W"}, {"RETLW", "W"},
-	{"IORLW", "W"}, {"ANDLW", "W"},
-	{"XORLW", "W"}, {"SUBLW", "W"}
-  };
-  
+
 public:
-  Line(u_int64_t line_num, u_int64_t address, string line, Segment segment);
+    int lineNumber;
+    int programMemoryAddress;
+    std::string section;
+    std::string raw_line;
+    OpCode opcode;
+    std::vector<std::shared_ptr<Operand>> operands;
+    bool containsError;
+    std::string errorMessage;
 
-  string to_pichex();
+    Line(int lineNumber, const std::string& section, const std::string& line);
 
-  u_int64_t get_line_num();
-  OpCode opcode;
-  string line;
-  u_int64_t line_number;
-  u_int64_t address;
-  Segment segment;
-  string error_message;
+    void parseLine(const std::string& line);
 
-  bool contains_error;
+    // Accessors
+    int getLineNumber() const;
+    int getProgramMemoryAddress() const;
+    const std::string& getSection() const;
+    const OpCode& getOpCode() const;
+    const std::vector<std::shared_ptr<Operand>>& getOperands() const;
+    bool hasError() const;
+    const std::string& getErrorMessage() const;
+
+    // Setters
+    void setProgramMemoryAddress(int address);
 };
 
-#endif // #ifndef __LINE_H__
+#endif // LINE_HH

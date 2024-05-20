@@ -2,10 +2,9 @@
 #define UI_HH
 
 #include <string>
-#include <unordered_map>
+#include <iostream>
 #include "Translator.hh"
 #include "EventEnum.hh"
-#include "Line.hh"  // Include Line class
 
 // Define the state_enum
 enum class StateEnum {
@@ -17,18 +16,22 @@ enum class StateEnum {
 };
 
 class UI {
-public:
-    // Constructors
-
-    UI(string input, string output);
-	void run();
-
-
 private:
-	string inputPath;
-	string outputPath;
-	void check_error(EventEnum);
+    std::string inputPath;
+    std::string outputPath;
 
+public:
+    // UI();
+    UI(const std::string& input, const std::string& output);
+
+    void run();
+    EventEnum parse_request();
+    void set_response(EventEnum response);
+    void displayHelp();
+    void displayError();
+    void displaySuccess();
+    void check_error(EventEnum event);
+    void launchCLI();
 };
 
 #endif

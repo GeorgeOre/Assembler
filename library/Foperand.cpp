@@ -1,4 +1,3 @@
-
 #include "Foperand.hh"
 #include <iostream>
 
@@ -8,10 +7,10 @@ Foperand::Foperand(const std::string &raw) : Operand(raw) {
     setBinary(raw);  // Set the binary value to match the raw string
 }
 
-// Destructor
-// Foperand::~Foperand() {}
+void Foperand::identifyChild() const {
+    std::cout << "This is a Foperand." << std::endl;
+}
 
-// Member functions
 void Foperand::printValue() const {
-    std::cout << "Foperand value: " << getRaw() << std::endl;
+    std::cout << "Foperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
 }

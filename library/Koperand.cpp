@@ -1,4 +1,3 @@
-
 #include "Koperand.hh"
 #include <iostream>
 
@@ -8,10 +7,10 @@ Koperand::Koperand(const std::string &raw) : Operand(raw) {
     setBinary(raw);  // Set the binary value to match the raw string
 }
 
-// Destructor
-// Koperand::~Koperand() {}
+void Koperand::identifyChild() const {
+    std::cout << "This is a Koperand." << std::endl;
+}
 
-// Member functions
 void Koperand::printValue() const {
-    std::cout << "Koperand value: " << getRaw() << std::endl;
+    std::cout << "Koperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
 }

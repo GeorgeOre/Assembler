@@ -1,52 +1,95 @@
+// LineTest.cpp
 #include <iostream>
+#include <vector>
+#include <memory>
+#include <cassert>
+#include <functional>
+#include <sstream>
+
 #include "Line.hh"
 #include "OpCode.hh"
-#include "Segment.hh"
-#include "Operand.hh"
 #include "Boperand.hh"
 
-class Segment;
-
-
-int main() {
-    // Create a Line object for testing
-    Line line =  Line(0, 1, "test line content", Segment());
-    
-    // Test getSize and other methods here
-    std::cout << "Line created with content: " << line.line << std::endl;
-    
-    // Add more tests as needed
-    return 0;
+// Function to capture output for testing
+std::string captureOutput(std::function<void()> func) {
+    std::ostringstream oss;
+    std::streambuf* old_cout = std::cout.rdbuf(oss.rdbuf());
+    func();
+    std::cout.rdbuf(old_cout);
+    return oss.str();
 }
 
+void test_LineInitialization() {
+    std::cout << "Starting test_LineInitialization" << std::endl;
 
-/*
+    Line line(1, ".text", "MOVWF 0x20");
+
+    assert(line.getLineNumber() == 1);
+    assert(line.getSection() == ".text");
+    // std::cout << line.hasError() << !line.hasError() << std::endl;
+    assert(!line.hasError());
+
+    std::cout << "test_LineInitialization passed!" << std::endl;
+}
+
+void test_LineParsing() {
+    std::cout << "Starting test_LineParsing" << std::endl;
+
+    Line line(2, ".text", "MOVWF 0x20");
+
+    // std::cout << line.getOpCode().get_code() << std::endl;
+    // std::cout << line.getOperands().size() << std::endl;
+    // std::cout << line.getOperands()[0]->getRaw() << std::endl;
+
+    assert(line.getOpCode().get_code() == "MOVWF");
+    assert(line.getOperands().size() == 1);
+    assert(line.getOperands()[0]->getRaw() == "0x20");
+
+    std::cout << "test_LineParsing passed!" << std::endl;
+}
+
+void test_LineErrorHandling() {
+    std::cout << "Starting test_LineErrorHandling" << std::endl;
+
+    Line line(3, ".text", "INVALID_OP 0x20");
+
+    assert(line.hasError());
+
+    // std::cout << line.getErrorMessage() << "<ERR: " << line.getErrorMessage().compare("Unknown opcode: INVALID_OP") << std::endl;
+    
+    assert(line.getErrorMessage().compare("Unknown opcode: INVALID_OP") == 0);
+
+    std::cout << "test_LineErrorHandling passed!" << std::endl;
+}
+
+void test_LineGetters() {
+    std::cout << "Starting test_LineGetters" << std::endl;
+
+    // Line line(4, ".data", "MYVAR .EQU 10");
+    Line line(4, ".data", "MOVWF 0x20");
+
+
+    assert(line.getLineNumber() == 4);
+    assert(line.getSection() == ".data");
+    
+    std::cout << line.getOpCode().get_code() << "YOOO" << std::endl;
+    
+    
+    assert(line.getOpCode().get_code() == "MOVWF");
+    assert(line.getOperands().size() == 1);
+    assert(line.getOperands()[0]->getRaw() == "0x20");
+
+    std::cout << "test_LineGetters passed!" << std::endl;
+}
+
 int main() {
-    OpCode opcode("LOAD"); // Assuming OpCode has a constructor that takes a string
-    Segment segment("segment_data"); // Assuming Segment has a constructor that takes a string
-    Line line(1, "LOAD R1, #100", opcode, segment);
+    std::cout << "Line tests start!" << std::endl;
 
-    // Print line details
-    std::cout << "Line Number: " << line.get_line_number() << std::endl;
-    std::cout << "Line Content: " << line.get_line_content() << std::endl;
+    test_LineInitialization();
+    test_LineParsing();
+    test_LineErrorHandling();
+    test_LineGetters();
 
-    // Create operand array
-    std::vector<Operand*> operands;
-    //operands.push_back(new Boperand("100")); // Assuming Boperand has a constructor that takes a string
-
-    // Convert to PICHEX
-    std::string pichex = line.ToPicHEX(opcode, operands);
-    std::cout << "PICHEX: " << pichex << std::endl;
-
-    // Check format
-    bool is_format_correct = line.CheckFormat();
-    std::cout << "Format Correct: " << (is_format_correct ? "Yes" : "No") << std::endl;
-
-    // Clean up
-    for (Operand* operand : operands) {
-        delete operand;
-    }
-
+    std::cout << "All Line tests passed!" << std::endl;
     return 0;
 }
-*/

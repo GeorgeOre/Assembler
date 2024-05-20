@@ -2,83 +2,64 @@
 #define TRANSLATOR_HH
 
 #include <string>
-#include <vector>
 #include <fstream>
+#include <vector>
 #include <unordered_map>
-#include <algorithm>  // Include algorithm for std::all_of
-#include "Line.hh"
 #include "EventEnum.hh"
-#include "OpCode.hh"
-#include "PseudoOpCode.hh"
+#include "Line.hh"
 #include "Section.hh"
+#include "Segment.hh"
 #include "ConstPrefix.hh"
 
 class Translator {
+public:
+    Translator(const std::string& inputPath, const std::string& outputPath);
+    ~Translator();
+    
+    EventEnum first_pass();
+    EventEnum second_pass();
+    void write_output();
 
-private:
-    // File paths
-    std::string asmFilePath;
-    std::string outputFilePath;
-    std::string errorFilePath;
+    // Getter methods
+    std::string get_asmFilePath() const;
+    std::string get_outputFilePath() const;
+    std::string get_errorFilePath() const;
+    std::vector<Line> get_lines_array();
 
-    // File stream
-    std::ofstream input_file;
-    std::ofstream output_file;
+    // Setter methods
+    void set_asmFilePath(const std::string& newInputFilePath);
+    void set_outputFilePath(const std::string& newOutputFilePath);
+    void set_errorFilePath(const std::string& newErrorFilePath);
 
-    // Lines
-    std::vector<Line> lines_array;
-
-    // Error bool
-    bool contains_error = false;
-
-    // Private functions
+    // Other methods
+    EventEnum define_lines();
+    void receive_message(EventEnum event);
     EventEnum return_message();
     EventEnum make_error_file();
 
-    // Hashmaps
-    // static std::unordered_map<std::string, PseudoOpCode> pseudo_op_enum;
+    EventEnum message;
+
+private:
+    std::ifstream inputFile;
+    std::ofstream outputFile;
+    std::vector<Line> lines_array;
+    std::vector<Section> sections_array;
+    std::vector<Segment> segments_array;
+
+    std::string asmFilePath;
+    std::string outputFilePath;
+    std::string errorFilePath;
+    bool contains_error;
+
     static std::unordered_map<std::string, Section> section_enum;
     static std::unordered_map<std::string, ConstPrefix> const_prefix_enum;
     static std::unordered_map<std::string, std::string> text_label_hashmap;
     static std::unordered_map<std::string, std::string> data_label_hashmap;
     static std::unordered_map<std::string, std::string> const_hashmap;
 
-public:
-    EventEnum message;
-
-    // Constructors
-    Translator();
-    Translator(const std::string& inputFilePath, const std::string& outputFilePath);
-
-    // Destructor
-    ~Translator();
-
-    // Accessors
-    std::string get_asmFilePath() const;
-    std::string get_outputFilePath() const;
-    std::string get_errorFilePath() const;
-
-
-    std::vector<Line> get_lines_array();
-
-    // Mutators
-    void set_asmFilePath(const std::string& newInputFilePath);
-    void set_outputFilePath(const std::string& newOutputFilePath);
-    void set_errorFilePath(const std::string& newErrorFilePath);
-
-    // General methods
-    EventEnum define_lines();
-    EventEnum define_lines(std::string filePath);
-
-    EventEnum first_pass();
-
-    EventEnum second_pass();
-
-    // Method to handle translation process
-    // EventEnum translate(const std::string& asmFilePath);
-
-    void receive_message(EventEnum event);
-
+    // Delete copy constructor and assignment operator
+    Translator(const Translator&) = delete;
+    Translator& operator=(const Translator&) = delete;
 };
 
 #endif

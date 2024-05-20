@@ -1,75 +1,122 @@
-#include <iostream>
-// #include <vector>
-#include <list>
-
 #include "Operand.hh"
 #include "Boperand.hh"
-#include "Koperand.hh"
 #include "Doperand.hh"
 #include "Foperand.hh"
+#include "Koperand.hh"
 
+#include <cassert>
+#include <iostream>
+#include <sstream>
+#include <functional>
 
-void test_parent_operand_constructor() {
-    std::cout << "Testing parent constructor:" << std::endl;
+// Function to capture output for testing
+std::string captureOutput(std::function<void()> func) {
+    std::ostringstream oss;
+    std::streambuf* old_cout = std::cout.rdbuf(oss.rdbuf());
+    func();
+    std::cout.rdbuf(old_cout);
+    return oss.str();
+}
 
-    // Create a dummy OpCode object
-    OpCode code;
+void test_OperandInitialization() {
+    Boperand boperand("0B011");
+    boperand.printValue();
+    assert(boperand.getRaw() == "0B011");
+    assert(boperand.getSize() == 3);
+    assert(boperand.getBinary() == "011");
 
-    // Create a list of operands
-    list<Operand> operandList;
+    std::cout << "Operand initilaization tests passed!\n" << std::endl;
+}
 
-    // Add different types of operands to the list
-    operandList.push_back(new Boperand(code, "B_raw_data"));
-    operandList.push_back(new Koperand(code, "K_raw_data"));
-    operandList.push_back(new Doperand(code, "D_raw_data"));
-    operandList.push_back(new Foperand(code, "F_raw_data"));
+void test_OperandSettersAndGetters() {
+    Boperand boperand("B011");
+    boperand.setSize(16);
+    assert(boperand.getSize() == 16);
 
-    // Print the value of each operand
-    for (Operand* operand : operandList) {
-        operand->printValue();
-    }
+    boperand.setBinary("10101010");
+    assert(boperand.getBinary() == "10101010");
 
-    // Clean up
+    boperand.setRaw("B456");
+    assert(boperand.getRaw() == "B456");
 
-    printf("omg test is done\n");
+    std::cout << "Setters and getters tests passed!\n" << std::endl;
+}
 
+void test_OperandPrintValue() {
+    Boperand boperand("10");
+    // boperand.printValue();
+    std::string output = captureOutput([&]() { boperand.printValue(); });
+    assert(output == "Boperand - Raw: 10, Binary: 1010, Size: 4\n");
 
-    // std::cout << "Hex: " << (opcode.get_hex().empty() ? "Pass" : "Fail") << std::endl;
-    // std::cout << "Code: " << (opcode.get_code().empty() ? "Pass" : "Fail") << std::endl;
-    // std::cout << "Operands: " << (opcode.get_operands().empty() ? "Pass" : "Fail") << std::endl;
-    // std::cout << "Format: " << (opcode.get_format().empty() ? "Pass" : "Fail") << std::endl;
+    std::cout << "Print value tests passed!\n" << std::endl;
+}
+
+void test_OperandIdentifyChild() {
+    Boperand boperand("B123");
+    std::string output = captureOutput([&]() { boperand.identifyChild(); });
+    std::cout << output << std::endl;
+    assert(output == "This is a Boperand.\n");
+
+    Doperand doperand("D456");
+    output = captureOutput([&]() { doperand.identifyChild(); });
+    assert(output == "This is a Doperand.\n");
+
+    Foperand foperand("F789");
+    output = captureOutput([&]() { foperand.identifyChild(); });
+    assert(output == "This is a Foperand.\n");
+
+    Koperand koperand("K101");
+    output = captureOutput([&]() { koperand.identifyChild(); });
+    assert(output == "This is a Koperand.\n");
     
-    std::cout << "Parent constructor SUCCESS!!" << std::endl;
+    std::cout << "Operand identify child tests passed!\n" << std::endl;
 }
 
-void test_children_opereand_constructor() {
-    std::cout << "Testing parent constructor:" << std::endl;
-    // Create a dummy OpCode object
-    OpCode code;
+void test_OperandEquality() {
+    Boperand boperand1("B123");
+    Boperand boperand2("B123");
+    Boperand boperand3("B456");
 
-    // Create a list of operands
-    list<Operand> operandList;
+    assert(boperand1 == boperand2);
+    assert(boperand1 != boperand3);
 
-    // Add different types of operands to the list
-    operandList.push_back(new Boperand(code, "B_raw_data"));
-    operandList.push_back(new Koperand(code, "K_raw_data"));
-    operandList.push_back(new Doperand(code, "D_raw_data"));
-    operandList.push_back(new Foperand(code, "F_raw_data"));
-
-    // Print the value of each operand
-    for (Operand* operand : operandList) {
-        operand->printValue();
-    }
-    std::cout << "Children constructor SUCCESS!!" << std::endl;
+    std::cout << "Operand equality tests passed!\n" << std::endl;
 }
 
-void run_all_tests() {
-    test_parent_operand_constructor();
-    test_children_operand_constructor();
+void test_OperandCopyConstructor() {
+    Boperand boperand1("B123");
+    Boperand boperand2 = boperand1;
+
+    assert(boperand2.getRaw() == boperand1.getRaw());
+    assert(boperand2.getSize() == boperand1.getSize());
+    assert(boperand2.getBinary() == boperand1.getBinary());
+
+    std::cout << "Operand copy constructor tests passed!\n" << std::endl;
+}
+
+void test_OperandAssignmentOperator() {
+    Boperand boperand1("B123");
+    Boperand boperand2("B456");
+    boperand2 = boperand1;
+
+    assert(boperand2.getRaw() == boperand1.getRaw());
+    assert(boperand2.getSize() == boperand1.getSize());
+    assert(boperand2.getBinary() == boperand1.getBinary());
+
+    std::cout << "Operand assignment operator tests passed!\n" << std::endl;
 }
 
 int main() {
-    run_all_tests();
+    std::cout << "Operand tests starting!\n" << std::endl;
+
+    test_OperandInitialization();
+    test_OperandSettersAndGetters();
+    test_OperandPrintValue();
+    test_OperandIdentifyChild();
+    test_OperandEquality();
+    test_OperandCopyConstructor();
+    test_OperandAssignmentOperator();
+
+    std::cout << "All Operand tests passed!\n" << std::endl;
     return 0;
 }
-
