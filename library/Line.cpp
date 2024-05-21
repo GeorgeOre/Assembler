@@ -10,8 +10,8 @@
 #include <sstream>
 #include <algorithm>
 
-Line::Line(int lineNumber, const std::string& section, const std::string& line)
-    : lineNumber(lineNumber), programMemoryAddress(-1), section(section), containsError(false), raw_line(line) {
+Line::Line(int lineNumber, const std::string& section, const std::string& line,  const std::string& f_info)
+    : lineNumber(lineNumber), programMemoryAddress(-1), section(section), containsError(false), raw_line(line), file_info(f_info) {
     // Search the line for comment
     std::size_t comment_start = this->raw_line.find(';');
     
@@ -65,17 +65,82 @@ void Line::parseLine(const std::string& line) {
 
 }
 
+std::string get_addr(u_int64_t addr){
+	std::stringstream stream;
+	stream << std::hex << addr;
+	std::string address = stream.str();
+	size_t length = address.size();
+	size_t to_add = 4 - length;
+	address.insert(0, to_add, '0');
+	return address;
+}
+
+std::string get_size(u_int64_t size){
+	std::stringstream stream;
+	stream << std::hex << size;
+	std::string address = stream.str();
+	size_t length = address.size();
+	size_t to_add = 2 - length;
+	address.insert(0, to_add, '0');
+	return address;
+}
+
+std::string checksum(int size, std::string line2, std::string line3, std::string line4){
+	int sum = size;
+	for (int i = 0; i < line2.size(); i += 2){
+		std::string sub = line2.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	for (int i = 0; i < line3.size(); i += 2){
+		std::string sub = line3.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	for (int i = 0; i < line4.size(); i += 2){
+		std::string sub = line4.substr(i,i+2);
+		sum += std::stoi(sub, nullptr, 16);
+	}
+	int modded = sum % 256;
+	int next = 256 - modded;
+	std::stringstream stream;
+	stream << std::hex << next;
+	std::string cs = stream.str();
+	return cs;
+}
+
+std::string& Line::to_pichex() const{
+	std::string to_return = "";
+	unsigned long binary = 10;
+	// unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
+	std::stringstream stream;
+	stream << std::hex << binary;
+	std::string data = stream.str();
+	size_t length = data.size();
+	if (length % 2 == 1){	
+		data.insert(0, 1, '0');
+	}
+	
+    // THIS IS NO LONGER ALL BUT
+    std::string all_but_checksum = get_size(data.size()) +  get_addr(this->memoryAddress) + "02" + data + checksum(data.size(), get_addr(this->memoryAddress), "02", data);
+	return all_but_checksum;
+}
+
+
 int Line::getLineNumber() const {
     return this->lineNumber;
 }
 
-int Line::getProgramMemoryAddress() const {
-    return this->programMemoryAddress;
+int Line::getMemoryAddress() const {
+    return this->memoryAddress;
 }
 
 const std::string& Line::getSection() const {
     return this->section;
 }
+
+const std::string& Line::getRawStr() const {
+    return this->raw_line;
+}
+
 
 const OpCode& Line::getOpCode() const {
     return this->opcode;
@@ -83,6 +148,10 @@ const OpCode& Line::getOpCode() const {
 
 const std::vector<std::shared_ptr<Operand>>& Line::getOperands() const {
     return this->operands;
+}
+
+bool Line::is_user_defined() const {
+    return this->user_defined;
 }
 
 bool Line::hasError() const {
@@ -93,8 +162,8 @@ const std::string& Line::getErrorMessage() const {
     return this->errorMessage;
 }
 
-void Line::setProgramMemoryAddress(int address) {
-    programMemoryAddress = address;
+void Line::setMemoryAddress(int address) {
+    this->memoryAddress = address;
 }
 
 

@@ -28,7 +28,7 @@ void test_constructor(){
 void test_define_lines(){
     // Check that define lines works
     Translator translator("input.asm", "output.hex");
-    EventEnum result = translator.define_lines();
+    EventEnum result = translator.define_lines("input.asm");
     assert(result == EventEnum::SUCCESS);
 
     // Check the contents to make sure they are as expected

@@ -1,13 +1,15 @@
 #include <iostream>
-#include "UI.hh"
-#include "Translator.hh"
-#include "EventEnum.hh"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
 #include <thread>
 #include <chrono>
 
+#include "UI.hh"
+#include "Translator.hh"
+#include "EventEnum.hh"
+
+// State machine enums
 enum ProgramState {
     STARTUP,
     PROCESSING,
@@ -16,32 +18,43 @@ enum ProgramState {
     SUCCESS
 };
 
-
+// Main menu class
 class Menu {
 public:
+    // Constructor
     Menu(float width, float height);
+    // Render window
     void draw(sf::RenderWindow &window);
+    // Move selectred menu option up
     void moveUp();
+    // Move selectred menu option down
     void moveDown();
+    // Get the index of the selected menu item (SFML::Text)
     int getSelectedIndex() { return selectedIndex; }
 
+    // List of menu item names
     std::vector<sf::Text> menuItems;
+    // Font to use
     sf::Font font;
+    // Index currently selected by the user
     int selectedIndex;
 
 private:
 };
 
+// Init main menu
 Menu::Menu(float width, float height) {
     if (!font.loadFromFile("assets/arial/arial.ttf")) {
-        // Handle error
+        // Handle error if font load fails
     }
 
+    // Add items to the main menu
     std::string items[] = {"Run", "Options", "Help", "Exit"};
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < items->length(); ++i) {
         sf::Text text;
         text.setFont(font);
-        text.setFillColor(i == 0 ? sf::Color::Red : sf::Color::White);
+        // Make first option selected by default and make it blue
+        text.setFillColor(i == 0 ? sf::Color::Blue : sf::Color::White);
         text.setString(items[i]);
         text.setPosition(sf::Vector2f(width / 2, height / (4 + 1) * (i + 1)));
         menuItems.push_back(text);
@@ -50,28 +63,32 @@ Menu::Menu(float width, float height) {
     selectedIndex = 0;
 }
 
+// Render all Main Menu items
 void Menu::draw(sf::RenderWindow &window) {
     for (const auto &item : menuItems) {
         window.draw(item);
     }
 }
 
+// Move selected option up (does not wrap)
 void Menu::moveUp() {
     if (selectedIndex - 1 >= 0) {
         menuItems[selectedIndex].setFillColor(sf::Color::White);
         selectedIndex--;
-        menuItems[selectedIndex].setFillColor(sf::Color::Red);
+        menuItems[selectedIndex].setFillColor(sf::Color::Blue);
     }
 }
 
+// Move selected option down (does not wrap)
 void Menu::moveDown() {
     if (selectedIndex + 1 < menuItems.size()) {
         menuItems[selectedIndex].setFillColor(sf::Color::White);
         selectedIndex++;
-        menuItems[selectedIndex].setFillColor(sf::Color::Red);
+        menuItems[selectedIndex].setFillColor(sf::Color::Blue);
     }
 }
 
+// Show Help window
 void showHelp(sf::RenderWindow &window, sf::Font &font) {
     // Load help background texture
     sf::Texture helpBackgroundTexture;
@@ -112,6 +129,7 @@ void showHelp(sf::RenderWindow &window, sf::Font &font) {
     }
 }
 
+// Show the results after loading
 void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &message, const std::string &backgroundImage) {
     // Load message background texture
     sf::Texture messageBackgroundTexture;
@@ -152,6 +170,7 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
     }
 }
 
+// Show loading screen while loading
 void showLoadingScreen(sf::RenderWindow &window, sf::Font &font) {
     // Load loading background texture
     sf::Texture loadingBackgroundTexture;
@@ -176,6 +195,7 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font) {
     showMessage(window, font, "Translator code has finished running.\nPress any key or click the mouse to return to the main menu.", "assets/smileyface.png");
 }
 
+// Show options menu
 void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translator) {
     // Load options background texture
     sf::Texture optionsBackgroundTexture;
@@ -319,7 +339,8 @@ void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translato
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Menu");
+    // Init fullscreen
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "USA", sf::Style::Fullscreen);
 
     // Load background texture
     sf::Texture backgroundTexture;
@@ -343,30 +364,34 @@ int main() {
     Menu menu(window.getSize().x, window.getSize().y);
 
     // Initalize translator
-    Translator translator = Translator("input.asm", "output.hex");
+    Translator translator;// = Translator("input.asm", "output.hex");
 
+    // Main loop
     while (window.isOpen()) {
+        // Check for events
         sf::Event event;
         while (window.pollEvent(event)) {
+            // Handle close window
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-
+            // Handle specific key presses
             if (event.type == sf::Event::KeyReleased) {
                 if (event.key.code == sf::Keyboard::Up) {
                     menu.moveUp();
                 } else if (event.key.code == sf::Keyboard::Down) {
                     menu.moveDown();
                 } else if (event.key.code == sf::Keyboard::Return || event.key.code == sf::Keyboard::Space) {
+                    // Upon enter or space, handle selected option
                     int selectedIndex = menu.getSelectedIndex();
                     std::cout << "Selected option: " << selectedIndex << std::endl;
-                    if (selectedIndex == 0) {  // Run option
+                    if (selectedIndex == 0) {           // Run option
                         showLoadingScreen(window, font);
-                    } else if (selectedIndex == 1) {  // Options option
+                    } else if (selectedIndex == 1) {    // Options option
                         showOptions(window, font, translator);
-                    } else if (selectedIndex == 2) {  // Help option
+                    } else if (selectedIndex == 2) {    // Help option
                         showHelp(window, font);
-                    } else if (selectedIndex == 3) {  // Exit option
+                    } else if (selectedIndex == 3) {    // Exit option
                         window.close();
                     }
                 }
@@ -400,6 +425,18 @@ int main() {
 
     return 0;
 }
+
+void print_help(){
+	printf("------------------------------------------------------------- \n");
+	printf("-----------------------------HELP---------------------------- \n");
+	printf("------------------------------------------------------------- \n \n");
+	printf("To use this assembler, input the following into command line: \n");
+	printf("            ./assemble <INPUT_FILE> <OUTPUT_FILE>             \n");
+	printf("------------------------------------------------------------- \n");
+
+}
+
+// TERMINAL MAIN (DEPRICATED)
 // int main(int argc, char *argv[]) {
 //     if (argc == 2){
 // 		if (argv[1] == "help" or argv[1] == "-h"){
@@ -422,15 +459,4 @@ int main() {
 
 //     return 0;
 // }
-
-
-void print_help(){
-	printf("------------------------------------------------------------- \n");
-	printf("-----------------------------HELP---------------------------- \n");
-	printf("------------------------------------------------------------- \n \n");
-	printf("To use this assembler, input the following into command line: \n");
-	printf("            ./assemble <INPUT_FILE> <OUTPUT_FILE>             \n");
-	printf("------------------------------------------------------------- \n");
-
-}
 
