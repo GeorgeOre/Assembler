@@ -17,8 +17,8 @@ public:
     // }
 
     // Virtual methods
-    void identifyChild() const override;
-    void printValue() const override;
+    // void identifyChild() const override;
+    // void printValue() const override;
 };
 
 #endif

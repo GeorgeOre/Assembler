@@ -85,16 +85,24 @@ std::string Operand::parseHexadecimal(const std::string& hexStr) {
     return std::bitset<64>(n).to_string().substr(64 - (n > 0 ? static_cast<int>(log2(n)) + 1 : 1));
 }
 
-uint64_t Operand::get_size() const {
-    return size;
+
+
+
+
+uint64_t Operand::get_size(){
+    return this->size;
 }
 
-const std::string& Operand::get_raw() const {
-    return raw;
+std::string& Operand::get_raw(){
+    return  this->raw;
 }
 
-const std::string& Operand::get_binary() const {
-    return binary;
+std::string& Operand::get_binary(){
+    return this->binary;
+}
+
+bool Operand::get_is_user_defined(){
+    return this->is_user_defined;
 }
 
 void Operand::set_size(uint64_t size) {
@@ -107,6 +115,10 @@ void Operand::set_raw(const std::string& raw) {
 
 void Operand::set_binary(const std::string& binary) {
     this->binary = binary;
+}
+
+void Operand::set_is_user_defined(bool result) {
+    this->is_user_defined = result;
 }
 
 // void Operand::printValue() const {

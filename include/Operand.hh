@@ -19,10 +19,10 @@ public:
     // virtual ~Operand() = default;
 
     // Accessors and modifiers
-    uint64_t get_size() const;
-    const std::string& get_raw() const;
-    const std::string& get_binary() const;
-    bool is_user_defined;
+    uint64_t get_size();
+    std::string& get_raw();
+    std::string& get_binary();
+    bool get_is_user_defined();
     
     void set_size(uint64_t size);
     void set_raw(const std::string& raw);
@@ -45,11 +45,11 @@ public:
     // virtual void printValue() const;
 
     // Equality operators
-    bool operator==(const Operand &other) const {
+    bool operator==(Operand &other) {
         return raw == other.raw && size == other.size && binary == other.binary;
     }
 
-    bool operator!=(const Operand &other) const {
+    bool operator!=(Operand &other) {
         return !(*this == other);
     }
 };
