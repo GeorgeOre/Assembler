@@ -5,25 +5,30 @@
 #include "Operand.hh"
 #include <list>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 class W_OpCode : public OpCode {
 public:
-    W_OpCode(const std::string& opcode, const std::list<std::shared_ptr<Operand>>& operands);
-    std::string get_hex() const override;
-    std::string get_code() const override;
-    std::list<std::shared_ptr<Operand>> get_operands() const override;
-    std::string get_format() const override;
-    bool is_pseudo_op() const override;
+    static std::unordered_map<std::string, std::string> op_format_map;
+    static std::unordered_map<std::string, std::string> op_bin_map;
+    static std::unordered_map<std::string, std::string> op_operand_map;
 
-private:
-    std::map<std::string, std::string> w_map = {
-        {"MOVLW", "0000"}, {"RETLW", "0100"},
-		{"IORLW", "1000"}, {"ANDLW", "1001"},
-		{"XORLW", "1010"}, {"SUBLW", "1100"},
-		{"ADDLW", "1110"}
-        // Add other W opcodes and their corresponding values
-    };
+    W_OpCode(const std::string& opcode);
+    
+//     std::string get_hex() const override;
+//     std::string get_code() const override;
+//     std::list<std::shared_ptr<Operand>> get_operands() const override;
+//     std::string get_format() const override;
+//     bool is_pseudo_op() const override;
+
+// private:
+//     std::map<std::string, std::string> w_map = {
+//         {"MOVLW", "0000"}, {"RETLW", "0100"},
+// 		{"IORLW", "1000"}, {"ANDLW", "1001"},
+// 		{"XORLW", "1010"}, {"SUBLW", "1100"},
+// 		{"ADDLW", "1110"}
+//         // Add other W opcodes and their corresponding values
+//     };
 };
 
 #endif

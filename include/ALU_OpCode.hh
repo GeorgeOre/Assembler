@@ -3,21 +3,42 @@
 
 #include "OpCode.hh"
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <memory>
 
 class ALU_OpCode : public OpCode
 {
 private:
-    static const std::map<std::string, std::string> pichex_map;
-public:
-    ALU_OpCode(const std::string& opcode, const std::list<std::shared_ptr<Operand>>& operands);
+    
 
-    std::string get_hex() const override;
-    std::string get_code() const override;
-    std::list<std::shared_ptr<Operand>> get_operands() const override;
-    std::string get_format() const override;
-    bool is_pseudo_op() const override;
+public:
+    static std::unordered_map<std::string, std::string> op_format_map;
+    static std::unordered_map<std::string, std::string> op_bin_map;
+    static std::unordered_map<std::string, std::string> op_operand_map;
+
+    ALU_OpCode(const std::string& opcode);
+
+    // std::string get_code_str() const override;
+    // u_int64_t get_size() const override;
+    // std::string get_binary() const override;
+    // std::string get_format() const override;
+    // bool get_is_pseudo_op() const override;
+
+    // void set_code(std::string code) override;
+
+
+    // OMG THESE ARE NOT EVEN NEEDED???
+    // virtual void set_size(u_int64_t size) override;
+    // virtual void set_operand_info(std::string operand_info) override;
+    // virtual void set_format(std::string format) override;
+    // void set_binary(std::string binary) override;
+
+    // void set_format(std::string format) override;
+    // void set_is_pseudo_op(bool result) override;
+
+    // We dont want this for now
+    // std::list<std::shared_ptr<Operand>> get_operands() const override;
+
 };
 
 #endif

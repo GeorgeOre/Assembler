@@ -22,7 +22,7 @@ std::string captureOutput(std::function<void()> func) {
 void test_LineInitialization() {
     std::cout << "Starting test_LineInitialization" << std::endl;
 
-    Line line(1, ".text", "MOVWF 0x20");
+    Line line(1, ".text", "MOVWF 0x20", "test.asm");
 
     assert(line.getLineNumber() == 1);
     assert(line.getSection() == ".text");
@@ -35,7 +35,7 @@ void test_LineInitialization() {
 void test_LineParsing() {
     std::cout << "Starting test_LineParsing" << std::endl;
 
-    Line line(2, ".text", "MOVWF 0x20");
+    Line line(2, ".text", "MOVWF 0x20", "test.asm");
 
     // std::cout << line.getOpCode().get_code() << std::endl;
     // std::cout << line.getOperands().size() << std::endl;
@@ -51,7 +51,7 @@ void test_LineParsing() {
 void test_LineErrorHandling() {
     std::cout << "Starting test_LineErrorHandling" << std::endl;
 
-    Line line(3, ".text", "INVALID_OP 0x20");
+    Line line(3, ".text", "INVALID_OP 0x20", "test.asm");
 
     assert(line.hasError());
 
@@ -66,7 +66,7 @@ void test_LineGetters() {
     std::cout << "Starting test_LineGetters" << std::endl;
 
     // Line line(4, ".data", "MYVAR .EQU 10");
-    Line line(4, ".data", "MOVWF 0x20");
+    Line line(4, ".data", "MOVWF 0x20", "test.asm");
 
 
     assert(line.getLineNumber() == 4);

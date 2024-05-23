@@ -14,7 +14,6 @@ Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0) {
 }
 
 void Operand::parseRawToBinary() {
-    // printf("we parsing to binary\n");
     // Return if the string was empty
     if (raw.empty()) {
         return;
@@ -48,8 +47,13 @@ void Operand::parseRawToBinary() {
     
     } else if (std::regex_match(tempRaw, std::regex("^[0-9]+$"))) {
         this->binary = parseDecimal(tempRaw);
+    } else {
+        // If there was no constant number to turn into binary
+        // Then it needs to be a user defined value
+        this->is_user_defined = true;
     }
 
+    // Will be 0 if it was not defined
     size = binary.length();
 
     // std::cout << "SETTING CONSTURCTOR ENDING " << binary << std::endl;
@@ -81,30 +85,30 @@ std::string Operand::parseHexadecimal(const std::string& hexStr) {
     return std::bitset<64>(n).to_string().substr(64 - (n > 0 ? static_cast<int>(log2(n)) + 1 : 1));
 }
 
-uint64_t Operand::getSize() const {
+uint64_t Operand::get_size() const {
     return size;
 }
 
-const std::string& Operand::getRaw() const {
+const std::string& Operand::get_raw() const {
     return raw;
 }
 
-const std::string& Operand::getBinary() const {
+const std::string& Operand::get_binary() const {
     return binary;
 }
 
-void Operand::setSize(uint64_t size) {
+void Operand::set_size(uint64_t size) {
     this->size = size;
 }
 
-void Operand::setRaw(const std::string& raw) {
+void Operand::set_raw(const std::string& raw) {
     this->raw = raw;
 }
 
-void Operand::setBinary(const std::string& binary) {
+void Operand::set_binary(const std::string& binary) {
     this->binary = binary;
 }
 
-void Operand::printValue() const {
-    std::cout << "Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
-}
+// void Operand::printValue() const {
+//     std::cout << "Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
+// }

@@ -1,17 +1,62 @@
 // Line.cpp
 #include "Line.hh"
+
+// OpCodes
 #include "OpCode.hh"
+#include "ALU_OpCode.hh"
+#include "B_OpCode.hh"
+#include "CTRL_OpCode.hh"
+#include "W_OpCode.hh"
 #include "Boperand.hh"
 
+// Structures and Utils
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cctype>
 #include <sstream>
 #include <algorithm>
+#include <unordered_map>
+#include <string>
 
-Line::Line(int lineNumber, const std::string& section, const std::string& line,  const std::string& f_info)
-    : lineNumber(lineNumber), programMemoryAddress(-1), section(section), containsError(false), raw_line(line), file_info(f_info) {
+std::unordered_map<std::string, std::string> Line::op_type_map = {
+    // Bit-Oriented Instructions
+    {"BCF", "B"}, {"BSF", "B"},
+    {"BTFSC", "B"}, {"BTFSS", "B"},
+
+    // Byte-Oriented Instructions
+    {"MOVWF", "ALU"}, {"CLRF", "ALU"},  // CLR IS SOMETIMES CALLED CLRF or CLR?? MAYBE HANDLE THIS MAPPING LATER
+    {"SUBWF", "ALU"}, {"DECF", "ALU"},
+    {"IORWF", "ALU"}, {"ANDWF", "ALU"},
+    {"XORWF", "ALU"}, {"ADDWF", "ALU"},
+    {"MOVF", "ALU"}, {"COMF", "ALU"},
+    {"INCF", "ALU"}, {"DECFSZ", "ALU"},
+    {"RRF", "ALU"}, {"RLF", "ALU"},
+    {"SWAPF", "ALU"}, {"INCFSZ", "ALU"},
+
+    // Literal Operations
+    {"ADDLW", "W"}, {"MOVLW", "W"}, 
+    {"RETLW", "W"}, {"IORLW", "W"}, 
+    {"ANDLW", "W"}, {"XORLW", "W"}, 
+    {"SUBLW", "W"},
+    
+    // Control Operations
+    {"CALL", "CTRL"}, {"GOTO", "CTRL"},
+
+    // Miscellaneous Instructions
+    {"NOP", "MISC"}, {"RETURN", "MISC"},
+    {"RETFIE", "MISC"}, {"OPTION", "MISC"},
+    {"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
+    {"TRIS", "MISC"}, {"CLRW", "ALU"}  // Check if CLRW exists later
+};
+
+
+
+Line::Line(uint64_t line_num, const std::string& section,
+ const std::string& line,  const std::string& f_info)
+ : line_number(line_num), memory_address(-1), section(section), 
+ contains_error(false), raw_line(line), file_name(f_info) {
+
     // Search the line for comment
     std::size_t comment_start = this->raw_line.find(';');
     
@@ -21,17 +66,13 @@ Line::Line(int lineNumber, const std::string& section, const std::string& line, 
     }
     
     // Parse line
-    parseLine(line);
+    parseLine();
 
 }
 
 void Line::parseLine(const std::string& line) {
-    // std::vector<std::string> result;
-    
-    // Make a stream iterator for the line
+    // Make a stream iterator for the line and a holder for the opcode
     std::istringstream str_stream(line);
-    
-    // Make a string holder for parsing words from the line
     std::string potential_opcode;
 
     // Get the first word, eliminating spaces and such
@@ -43,25 +84,91 @@ void Line::parseLine(const std::string& line) {
     // this can throw an exception if the opcode is invalid
     try
     {
+        if (op_type_map.find(potential_opcode) != op_type_map.end()) {
+            std::string op_type = op_type_map.at(potential_opcode);
+            
+            if (op_type == "ALU") {
+		        opcode = ALU_OpCode(potential_opcode);
+            }
+            else if (op_type == "B") {
+                opcode = B_OpCode(potential_opcode, operands);
+            }
+            else if (op_type == "CTRL") {
+                opcode = CTRL_OpCode(potential_opcode, operands);
+            }
+            else if (op_type == "MISC") {
+                opcode = Misc_OpCode(potential_opcode, operands);
+            }
+            else if (op_type == "W") {
+                opcode = W_OpCode(potential_opcode, operands);
+            }
+            if (opcode_type.compare("ALU") == 0) {
+                operands.push_back(std::make_unique<FOperand>(operandValue));
+            } else if (type == 'k') {
+                operands.push_back(std::make_unique<KOperand>(operandValue));
+            } else if (type == 'b') {
+                operands.push_back(std::make_unique<BOperand>(operandValue));
+            }
+            
+
+        }
+
         this->opcode = OpCode(potential_opcode);
     }
     catch(const std::exception& e)
     {
-        // std::cerr << e.what() << '\n';
-        // this->opcode.code
-        this->containsError = true;
-        this->errorMessage = e.what();
+        // If there was an error in making the OpCode, set error messages
+        this->contains_error = true;
+        this->error_message = e.what();
     }
      
 
-    // Parse the rest of the line as operands
+    // Parse the rest of the line as potential operands    
+    std::string potential_operand;
+    while (str_stream >> potential_operand) {
+        // THIS LOGIC THAT CHOOSES THE TYPES OF OPCODES BASED
+        // ON THE NUMBER OF OPERANDS AND THE OPCODE
+        try
+        {
+            //
+            std::string operandValue;
+                        Operand operand = Operand(potential_operand);
+            this->operands.push_back(operand);  // Assuming Boperand is a concrete Operand subclass
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
 
-    // ADD LOGIC THAT CHOOSES THE TYPES OF OPCODES BASED
-    // ON THE NUMBER OF OPERANDS AND THE OPCODE
-    std::string operand;    // filler for now
-    while (str_stream >> operand) {
-        this->operands.push_back(std::make_shared<Boperand>(operand));  // Assuming Boperand is a concrete Operand subclass
     }
+
+// void Line::parseLine(const std::string& line, 
+//                      const std::unordered_map<std::string, std::string>& op_type_map) {
+//     std::istringstream iss(line);
+//     std::string opcodeStr;
+//     iss >> opcodeStr;
+
+//     opcode = OpCode(opcodeStr);
+
+//     auto it = op_type_map.find(opcodeStr);
+//     if (it != op_type_map.end()) {
+//         std::string operandTypes = it->second;
+//         std::string operandValue;
+
+//         for (char type : operandTypes) {
+//             if (iss >> operandValue) {
+//                 if (type == 'f') {
+//                     operands.push_back(std::make_unique<FOperand>(operandValue));
+//                 } else if (type == 'k') {
+//                     operands.push_back(std::make_unique<KOperand>(operandValue));
+//                 } else if (type == 'b') {
+//                     operands.push_back(std::make_unique<BOperand>(operandValue));
+//                 }
+//             }
+//         }
+//     }
+// }
 
 }
 
@@ -120,50 +227,42 @@ std::string& Line::to_pichex() const{
 	}
 	
     // THIS IS NO LONGER ALL BUT
-    std::string all_but_checksum = get_size(data.size()) +  get_addr(this->memoryAddress) + "02" + data + checksum(data.size(), get_addr(this->memoryAddress), "02", data);
+    std::string all_but_checksum = get_size(data.size()) +  get_addr(this->memory_address) + "02" + data + checksum(data.size(), get_addr(this->memory_address), "02", data);
 	return all_but_checksum;
 }
 
 
-int Line::getLineNumber() const {
-    return this->lineNumber;
+int Line::get_line_number() const {
+    return this->line_number;
 }
 
-int Line::getMemoryAddress() const {
-    return this->memoryAddress;
+int Line::get_memory_address() const {
+    return this->memory_address;
 }
 
-const std::string& Line::getSection() const {
+const std::string& Line::get_section() const {
     return this->section;
 }
 
-const std::string& Line::getRawStr() const {
+const std::string& Line::get_raw_line() const {
     return this->raw_line;
 }
 
 
-const OpCode& Line::getOpCode() const {
+const OpCode& Line::get_opcode() const {
     return this->opcode;
 }
 
-const std::vector<std::shared_ptr<Operand>>& Line::getOperands() const {
+const std::vector<Operand>& Line::get_operands() const {
     return this->operands;
 }
 
-bool Line::is_user_defined() const {
-    return this->user_defined;
+const std::string& Line::get_error_message() const {
+    return this->error_message;
 }
 
-bool Line::hasError() const {
-    return this->containsError;
-}
-
-const std::string& Line::getErrorMessage() const {
-    return this->errorMessage;
-}
-
-void Line::setMemoryAddress(int address) {
-    this->memoryAddress = address;
+void Line::set_memory_address(u_int64_t address) {
+    this->memory_address = address;
 }
 
 

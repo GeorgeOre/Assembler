@@ -12,10 +12,22 @@ protected:
     std::string raw;      // Raw string that was parsed
     std::string binary;   // Binary value in string format
     uint64_t size;        // Size of the operand in bits
+    bool is_user_defined;   // Boolean that represents if the operand is user defined
 
 public:
     Operand(const std::string& raw);
-    virtual ~Operand() = default;
+    // virtual ~Operand() = default;
+
+    // Accessors and modifiers
+    uint64_t get_size() const;
+    const std::string& get_raw() const;
+    const std::string& get_binary() const;
+    bool is_user_defined;
+    
+    void set_size(uint64_t size);
+    void set_raw(const std::string& raw);
+    void set_binary(const std::string& binary);
+    void set_is_user_defined(bool result);
 
     // Method to parse raw operand to binary
     void parseRawToBinary();
@@ -26,21 +38,11 @@ public:
     std::string parseDecimal(const std::string& raw);
     std::string parseHexadecimal(const std::string& raw);
 
-    // Accessors
-    uint64_t getSize() const;
-    const std::string& getRaw() const;
-    const std::string& getBinary() const;
-
-    // Modifiers
-    void setSize(uint64_t size);
-    void setRaw(const std::string& raw);
-    void setBinary(const std::string& binary);
-
     // Inheritance
-    virtual void identifyChild() const = 0;
+    // virtual void identifyChild() const = 0;
 
     // Print value
-    virtual void printValue() const;
+    // virtual void printValue() const;
 
     // Equality operators
     bool operator==(const Operand &other) const {

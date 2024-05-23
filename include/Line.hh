@@ -2,6 +2,7 @@
 #ifndef LINE_HH
 #define LINE_HH
 
+#include <unordered_map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -12,45 +13,59 @@ class Line {
 private:
 
 public:
-    int lineNumber;
-    int memoryAddress;
+    // Data members
+    uint64_t line_number;     // Line number in source file
+    uint64_t memory_address;  // Memory address (either data or program memory)
+    std::string file_name;  // Name of source file
+    std::string section;    // Name of section
+    std::string raw_line;   // Raw line info
+    OpCode opcode;      // OpCode in the line 
+    std::vector<Operand> operands; // List of Operands
+    // std::vector<std::shared_ptr<Operand>> operands; // List of pointers to Operands
 
-    std::string file_info;
+    // This must be changed to map from a string to a constructor
+    // STATIC IS NEEDED SO THAT THE SAME ONE CAN BE USED IN ALL INSTANCES OF LINE
+    static std::unordered_map<std::string, std::string> op_type_map;   // This is for knowing which child class constructor to call
 
-    std::string section;
-    
-    std::string raw_line;
-    
-    OpCode opcode;
-    std::vector<std::shared_ptr<Operand>> operands;
-    
-    bool user_defined;
-
-    bool containsError;
-    std::string errorMessage;
+    bool contains_error;    // Boolean that represents if the line contains an error
+    std::string error_message;  // Error message in case the line's error needs to be identified
 
     // Constructors
-    Line(int lineNumber, const std::string& section, const std::string& line, const std::string& f_info);
-
-    // Parse?
-    void parseLine(const std::string& line);
-
-    // Return pixhex
-    std::string& to_pichex() const;
+    // Lines should be initalized by the Translator class. 
+    // The Translator instance should be able to provide all these parameters.
+    Line(uint64_t line_number, const std::string& section,
+     const std::string& line, const std::string& f_name);
 
     // Accessors
-    int getLineNumber() const;
-    int getMemoryAddress() const;
-    const std::string& getSection() const;
-    const std::string& getRawStr() const;
-    const OpCode& getOpCode() const;
-    const std::vector<std::shared_ptr<Operand>>& getOperands() const;
-    bool hasError() const;
-    bool is_user_defined() const;
-    const std::string& getErrorMessage() const;
+    int get_line_number() const;
+    int get_memory_address() const;
+    const std::string& get_file_name() const;
+    const std::string& get_section() const;
+    const std::string& get_raw_line() const;
+    const OpCode& get_opcode() const;
+    const std::vector<Operand>& get_operands() const;
+    // const std::vector<std::shared_ptr<Operand>>& getOperands() const;
+    bool get_contains_error() const;
+    const std::string& get_error_message() const;
 
     // Setters
-    void setMemoryAddress(int address);
+    void set_line_number(uint64_t line);
+    void set_memory_address(uint64_t address);
+    void set_file_name(std::string name);
+    void set_section(std::string section);
+    void set_raw_line(std::string line);
+    // void set_opcode(std::string name);
+    // void set_operands(std::string name);
+    // const std::vector<std::shared_ptr<Operand>>& getOperands() const;
+    void set_contains_error(bool result);
+    void set_error_message(std::string message);
+
+    // Parse line should be used to simplify the parsing process visually
+    // MAYBE DONT USE
+    // void parseLine(const std::string& line, const std::unordered_map<std::string, std::string>& op_type_map);
+
+    // to_pichex should return the pichex output of the line to be printed to the output file
+    std::string& to_pichex() const;
 };
 
 #endif // LINE_HH
