@@ -9,10 +9,10 @@ Boperand::Boperand(const std::string &raw) : Operand(raw) {
 }
 
 // Implementation of virtual methods
-// void Boperand::identifyChild() const {
-//     std::cout << "This is a Boperand." << std::endl;
-// }
+void Boperand::identifyChild() const {
+    std::cout << "This is a Boperand." << std::endl;
+}
 
-// void Boperand::printValue() const {
-//     std::cout << "Boperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
-// }
+void Boperand::printValue() const {
+    std::cout << "Boperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
+}

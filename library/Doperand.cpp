@@ -7,10 +7,10 @@ Doperand::Doperand(const std::string &raw) : Operand(raw) {
     // set_binary(raw);  // Set the binary value to match the raw string
 }
 
-// void Doperand::identifyChild() const {
-//     std::cout << "This is a Doperand." << std::endl;
-// }
+void Doperand::identifyChild() const {
+    std::cout << "This is a Doperand." << std::endl;
+}
 
-// void Doperand::printValue() const {
-//     std::cout << "Doperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
-// }
+void Doperand::printValue() const {
+    std::cout << "Doperand - Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
+}

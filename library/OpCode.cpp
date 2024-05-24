@@ -111,7 +111,8 @@
 // };
 
 // OpCode::OpCode(const std::string& code) : code(code) {}
-OpCode::OpCode(const std::string& code) : code_str(code) {
+OpCode::OpCode(const std::string& code) 
+    : code_str(code), size(0), operand_info(""), format(""), binary("") {
     // This constructor should theoretically never be called, but we can make it exist to set the code_str
 
     // std::cout << "WE IN" << code << std::endl;
@@ -155,6 +156,10 @@ std::string OpCode::get_format(){
     return this->format;
 }
 
+std::string OpCode::get_binary(){
+    return this->binary;
+}
+
 // bool OpCode::get_is_pseudo_op(){
 //     return this->is_pseudo_op;
 // }
@@ -177,6 +182,10 @@ void OpCode::set_operand_info(std::string operand_info){
 }
 void OpCode::set_format(std::string format){
     this->format = format;
+}
+
+void OpCode::set_binary(std::string binary){
+    this->binary = binary;
 }
 
 // void OpCode::set_is_pseudo_op(bool result){

@@ -121,6 +121,6 @@ void Operand::set_is_user_defined(bool result) {
     this->is_user_defined = result;
 }
 
-// void Operand::printValue() const {
-//     std::cout << "Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
-// }
+void Operand::printValue() const {
+    std::cout << "BASE OPERAND Raw: " << raw << ", Binary: " << binary << ", Size: " << size << std::endl;
+}

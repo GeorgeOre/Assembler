@@ -15,6 +15,18 @@ public:
 
     B_OpCode(const std::string& opcode);
 
+    void set_size(u_int64_t size) override;
+    void set_operand_info(std::string operand_info) override;
+    void set_format(std::string format) override;
+    void set_binary(std::string binary) override;
+
+
+    // FOR TESTING
+    void print_value() const;
+
+
+
+
 //     B_OpCode(const std::string& opcode, const std::list<std::shared_ptr<Operand>>& operands);
 //     std::string get_hex() const override;
 //     std::string get_code() const override;

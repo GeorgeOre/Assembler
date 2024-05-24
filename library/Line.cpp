@@ -60,9 +60,14 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
 
 
 Line::Line(uint64_t line_number, const std::string& section,
- const std::string& line,  const std::string& f_name): 
- line_number(line_number), memory_address(-1), section(section), 
- contains_error(false), raw_line(line), file_name(f_name) {
+    const std::string& line,  const std::string& f_name): 
+        line_number(line_number), 
+        memory_address(0), 
+        section(section), 
+        contains_error(false), 
+        raw_line(line), 
+        file_name(f_name), 
+        contains_user_defined(false) {
 
     // Search the line for comment
     std::size_t comment_start = this->raw_line.find(';');
@@ -95,19 +100,19 @@ void Line::parseLine() {
             std::string op_type = op_type_map.at(potential_opcode);
             
             if (op_type == "ALU") {
-		        this->opcode = std::make_unique<ALU_OpCode>(potential_opcode);// ALU_OpCode(potential_opcode);
+		        this->opcode = std::make_shared<ALU_OpCode>(potential_opcode);// ALU_OpCode(potential_opcode);
             }
             else if (op_type == "B") {
-                this->opcode = std::make_unique<B_OpCode>(potential_opcode);
+                this->opcode = std::make_shared<B_OpCode>(potential_opcode);
             }
             else if (op_type == "CTRL") {
-                this->opcode = std::make_unique<CTRL_OpCode>(potential_opcode);
+                this->opcode = std::make_shared<CTRL_OpCode>(potential_opcode);
             }
             else if (op_type == "MISC") {
-                this->opcode = std::make_unique<Misc_OpCode>(potential_opcode);
+                this->opcode = std::make_shared<Misc_OpCode>(potential_opcode);
             }
             else if (op_type == "W") {
-                this->opcode = std::make_unique<W_OpCode>(potential_opcode);
+                this->opcode = std::make_shared<W_OpCode>(potential_opcode);
             }
             else {
                 // If none of these were detected, then set error
@@ -126,7 +131,7 @@ void Line::parseLine() {
 
     // Parse the rest of the line as potential operands    
     std::string potential_operand;
-    std::string info = this->opcode.get()->operand_info;//  .get_operand_info();
+    std::string info = this->opcode->operand_info;//  .get_operand_info();
     int count = 0;
     while (str_stream >> potential_operand) {
         // Attempt to init each operand based on the opcode operand info
@@ -134,13 +139,13 @@ void Line::parseLine() {
         {
             // Try to init each operand according to the operand info
             if (info.at(count) == 'b') {
-                this->operands.push_back(Boperand(potential_operand));
+                this->operands.push_back(std::make_shared<Boperand>(potential_operand));
             } else if (info.at(count) == 'd') {
-                this->operands.push_back(Doperand(potential_operand));
+                this->operands.push_back(std::make_shared<Doperand>(potential_operand));
             } else if (info.at(count) == 'f') {
-                this->operands.push_back(Foperand(potential_operand));
+                this->operands.push_back(std::make_shared<Foperand>(potential_operand));
             } else if (info.at(count) == 'k') {
-                this->operands.push_back(Koperand(potential_operand));
+                this->operands.push_back(std::make_shared<Koperand>(potential_operand));
             } else {
                 // If the operand type was not detected, set error
                 this->contains_error = true;
@@ -153,6 +158,14 @@ void Line::parseLine() {
             this->contains_error = true;
             this->error_message = e.what();
         }
+
+        // CURRENTLY ONLY OPERANDS WILL BE USER DEFINED
+        // Check to see if the line contains a user defined operand
+        if (this->operands[count]->get_is_user_defined()) {
+            this->contains_user_defined = true;
+        }
+        
+        // Update operand count
         count++;
     }
 
@@ -224,8 +237,8 @@ std::string checksum(int size, std::string line2, std::string line3, std::string
 	return cs;
 }
 
-std::string& Line::to_pichex() const{
-	std::string to_return = "";
+std::string Line::to_pichex() const{
+	// std::string to_return = "";
 	unsigned long binary = 10;
 	// unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
 	std::stringstream stream;
@@ -255,25 +268,28 @@ u_int64_t Line::get_line_number() {//
 u_int64_t Line::get_memory_address() {//
     return this->memory_address;
 }
-const std::string& Line::get_file_name() {//
+std::string& Line::get_file_name() {//
     return this->file_name;
 }
-const std::string& Line::get_section() {//
+std::string& Line::get_section() {//
     return this->section;
 }
-const std::string& Line::get_raw_line() {//
+std::string& Line::get_raw_line() {//
     return this->raw_line;
 }
-const OpCode& Line::get_opcode() {//
+OpCode& Line::get_opcode() {//
     return *this->opcode;
 }
-const std::vector<Operand>& Line::get_operands() {//
+std::vector<std::shared_ptr<Operand>>& Line::get_operands() {//
     return this->operands;
 }
 bool Line::get_contains_error() {//
     return this->contains_error;
 }
-const std::string& Line::get_error_message() {//
+bool Line::get_contains_user_defined() {//
+    return this->contains_user_defined;
+}
+std::string& Line::get_error_message() {//
     return this->error_message;
 }
 
@@ -294,6 +310,9 @@ void Line::set_raw_line(std::string line){
 }
 void Line::set_contains_error(bool result){
     this->contains_error = result;
+}
+void Line::set_contains_user_defined(bool result){
+    this->contains_user_defined = result;
 }
 void Line::set_error_message(std::string message){
     this->error_message = message;

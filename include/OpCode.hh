@@ -10,9 +10,13 @@
 #include <string>
 #include <cstdint>
 #include <iostream>
+#include <list>
+#include <memory>
 
 // THIS CAN BE ADDED LATER TO ADD SOME SORT OF VALIDATION FUNCTION
 // extern std::unordered_map<std::string, std::string> valid_opcodes;
+
+class Operand;
 
 class OpCode
 {
@@ -34,6 +38,9 @@ public:
     // Should I delete this or make it virtual? i feel like it can just be set default
     // THE GOAL IS THAT THIS ONLY SETS code_str AND THE REST IS HANDLED BY THE CHILD
     OpCode(const std::string& code);
+
+
+    // virtual ~OpCode() = default;
 
     // Accessors and modifiers
     std::string get_code_str();

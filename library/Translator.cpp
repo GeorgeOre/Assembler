@@ -1,35 +1,64 @@
 #include "Translator.hh"
+#include "EventEnum.hh"
 
+#include <memory>
+#include <string>
+#include <iostream>
+#include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <vector>
+#include <algorithm>
 
-// Initialize static members
-std::unordered_map<std::string, Section> Translator::section_enum;
-std::unordered_map<std::string, ConstPrefix> Translator::const_prefix_enum;
+// Initialize maps
+std::unordered_map<std::string, std::string> Translator::text_label_hashmap = {};
+std::unordered_map<std::string, std::string> Translator::data_label_hashmap = {};
+std::unordered_map<std::string, std::string> Translator::const_hashmap = {};
+// std::unordered_map<std::string, Section> Translator::section_enum;
+// std::unordered_map<std::string, ConstPrefix> Translator::const_prefix_enum;
 
-std::unordered_map<std::string, std::string> Translator::text_label_hashmap;
-std::unordered_map<std::string, std::string> Translator::data_label_hashmap;
-std::unordered_map<std::string, std::string> Translator::const_hashmap;
 
 // Constructors and destructors
 Translator::Translator(){}
 Translator::Translator(const std::string& inputPath, const std::string& outputPath)
-    : asmFilePath(inputPath), outputFilePath(outputPath), contains_error(false) {}
-Translator::~Translator() {}
+    : input_file_path(inputPath), output_file_path(outputPath), contains_error(false) {}
+// Translator::~Translator() {}
 
 // Accessors and setters
-std::string Translator::get_asmFilePath() const {return this->asmFilePath;}
-std::string Translator::get_outputFilePath() const {return this->outputFilePath;}
-std::string Translator::get_errorFilePath() const {return this->errorFilePath;}
-std::vector<Line> Translator::get_lines_array() {return this->lines_array;}
-void Translator::set_asmFilePath(const std::string& newInputFilePath) {asmFilePath = newInputFilePath;}
-void Translator::set_outputFilePath(const std::string& newOutputFilePath) {outputFilePath = newOutputFilePath;}
-void Translator::set_errorFilePath(const std::string& newErrorFilePath) {errorFilePath = newErrorFilePath;}
+std::string Translator::get_input_file_path() const {return this->input_file_path;}
+std::string Translator::get_output_file_path() const {return this->output_file_path;}
+std::string Translator::get_error_file_path() const {return this->error_file_path;}
+std::string Translator::get_cur_section() const {return this->cur_section;}
+EventEnum Translator::get_message() const {return this->message;}
+std::string Translator::get_error_message() const {return this->error_message;}
+bool Translator::get_contains_error() const {return this->contains_error;}
+std::vector<std::shared_ptr<Line>> Translator::get_lines_array() {return this->lines_array;}
+void Translator::set_input_file_path(const std::string& new_input_file_path){
+    this->input_file_path = new_input_file_path;
+    }
+void Translator::set_output_file_path(const std::string& new_output_file_path){
+    this->output_file_path = new_output_file_path;
+}
+void Translator::set_error_file_path(const std::string& new_error_file_path){
+    this->error_file_path = new_error_file_path;
+}
+void Translator::set_cur_section(const std::string& new_section){
+    this->cur_section = new_section;
+}
+void Translator::set_message(EventEnum new_message){
+    this->message = new_message;
+}
+void Translator::set_error_message(const std::string& new_error_message){
+    this->error_message = new_error_message;
+}
+void Translator::set_contains_error(bool new_result){
+    this->contains_error = new_result;
+}
 
 // Essential translator functions
 EventEnum Translator::define_lines(const std::string& file_info) {
     // Error handle that the file path is valid and open
-    std::string filePath = this->asmFilePath; 
+    std::string filePath = file_info;
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cerr << "Error opening file: " << filePath << std::endl;
@@ -51,25 +80,24 @@ EventEnum Translator::define_lines(const std::string& file_info) {
         std::istringstream iss(lineContent);
         std::string word;
         iss >> word;
-        if (word == ".include") {
+        if(word == ".include") {
             std::string includeFile;
             iss >> includeFile;
-            if (!includeFile.empty()) {
+            if(!includeFile.empty()) {
                 // Remove quotes if present
-                if (includeFile.front() == '"' && includeFile.back() == '"') {
+                if(includeFile.front() == '"' && includeFile.back() == '"') {
                     includeFile = includeFile.substr(1, includeFile.size() - 2);
                 }
                 define_lines(includeFile); // Recursive call to include the file
             }
-        } else if ((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
+        } else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
             this->cur_section = word;
         } 
         
-        
         // Check that section is working well
         // Line line(lineNumber, lineSection, lineContent, this->asmFilePath);
-        Line line(lineNumber, this->cur_section, lineContent, this->asmFilePath);
-        this->lines_array.push_back(line);
+        std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, this->input_file_path);
+        this->lines_array.push_back(std::move(line));
 
         // Check if the line is a pseudo op
 
@@ -86,24 +114,24 @@ EventEnum Translator::first_pass() {
     // Loop through each line
     for (size_t i = 0; i < this->lines_array.size(); ++i) {
         // Remove empty or commented out lines from the array
-        if (this->lines_array[i].getRawStr().empty() == true) {
+        if (this->lines_array[i]->get_raw_line().empty() == true) {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
         } 
         
         // Store user defined values into corresponding hashmaps
-        else if (this->lines_array[i].is_user_defined())
+        else if (this->lines_array[i]->get_contains_user_defined())
         {
             // Handle constant declarations
-            if (this->lines_array[i].getOpCode().get_code().compare(".EQU") == 0)
+            if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0)
             {
                 // Fetch key value pair
-                auto user_key = this->lines_array[i].getOperands()[0].get()->getRaw();
-                auto user_value = this->lines_array[i].getOperands()[1].get()->getRaw();
+                std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
+                std::string user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
 
                 // Store in hashmap
-                // const_hashmap.insert(user_key, user_value);
+                const_hashmap.insert(std::make_pair(user_key, user_value));
 
                 // Remove line from array
                 this->lines_array.erase(this->lines_array.begin() + i);
@@ -111,28 +139,28 @@ EventEnum Translator::first_pass() {
                 currentProgramAddress--;
             } 
             // Handle label definitions
-            else if (this->lines_array[i].getOpCode().get_code().back() == ':')
+            else if (this->lines_array[i]->get_opcode().get_code_str().back() == ':')
             {
                 // Handle text section label
-                if (this->lines_array[i].getSection().compare(".text") == 0) {
+                if (this->lines_array[i]->get_section().compare(".text") == 0) {
                     // Fetch key value pair
-                    auto user_key = this->lines_array[i].getOpCode().get_code().substr(0, this->lines_array[i].getOpCode().get_code().size()-2);
-                    auto user_value = std::to_string(currentProgramAddress);
+                    std::string user_key = this->lines_array[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-2);
+                    std::string user_value = std::to_string(currentProgramAddress);
 
                     // Store in hashmap
-                    // const_hashmap.insert(user_key, user_value);
+                    const_hashmap.insert(std::make_pair(user_key, user_value));
                 } 
                 // Handle data section label
-                else if (this->lines_array[i].getSection().compare(".data") == 0) {
+                else if (this->get_lines_array()[i]->get_section().compare(".data") == 0) {
                     // Fetch key value pair
-                    auto user_key = this->lines_array[i].getOpCode().get_code().substr(0, this->lines_array[i].getOpCode().get_code().size()-2);
-                    auto user_value = std::to_string(currentDataAddress);
+                    std::string user_key = this->get_lines_array()[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-2);
+                    std::string user_value = std::to_string(currentDataAddress);
 
                     // Update data addresses
                     currentDataAddress++;
 
                     // Store in hashmap
-                    // const_hashmap.insert(user_key, user_value);
+                    const_hashmap.insert(std::make_pair(user_key, user_value));
                 }
                 
                 
@@ -152,36 +180,43 @@ EventEnum Translator::first_pass() {
 
 EventEnum Translator::second_pass() {
     // Check to make sure that the output file is valid
-    std::ofstream outputFile(outputFilePath);
+    std::ofstream outputFile(this->output_file_path);
     if (!outputFile.is_open()) {
-        std::cerr << "Error opening output file: " << outputFilePath << std::endl;
+        std::cerr << "Error opening output file: " << this->output_file_path << std::endl;
         return EventEnum::FILE_NOT_FOUND;
     }
 
     for (const auto& line : this->lines_array) {
         // Translate instruction
-        outputFile << line.to_pichex() << std::endl;
+        outputFile << line->to_pichex() << std::endl;
     }
 
     outputFile.close();
     return EventEnum::SUCCESS;
 }
 
+
 void Translator::write_output() {
     // Implementation
 }
 
-void Translator::receive_message(EventEnum event) {
+EventEnum Translator::handle_message(EventEnum event) {
     // Implementation
     this->message = event;
-}
-
-EventEnum Translator::return_message() {
-    // Implementation
     return EventEnum::SUCCESS;
 }
 
-EventEnum Translator::make_error_file() {
-    // Implementation
-    return EventEnum::SUCCESS;
-}
+// void Translator::receive_message(EventEnum event) {
+//     // Implementation
+//     this->message = event;
+// }
+
+// EventEnum Translator::return_message() {
+//     // Implementation
+//     return EventEnum::SUCCESS;
+// }
+
+// EventEnum Translator::make_error_file() {
+//     // Implementation
+//     return EventEnum::SUCCESS;
+// }

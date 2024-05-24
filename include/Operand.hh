@@ -16,7 +16,7 @@ protected:
 
 public:
     Operand(const std::string& raw);
-    // virtual ~Operand() = default;
+    virtual ~Operand() = default;
 
     // Accessors and modifiers
     uint64_t get_size();
@@ -38,12 +38,6 @@ public:
     std::string parseDecimal(const std::string& raw);
     std::string parseHexadecimal(const std::string& raw);
 
-    // Inheritance
-    // virtual void identifyChild() const = 0;
-
-    // Print value
-    // virtual void printValue() const;
-
     // Equality operators
     bool operator==(Operand &other) {
         return raw == other.raw && size == other.size && binary == other.binary;
@@ -52,6 +46,11 @@ public:
     bool operator!=(Operand &other) {
         return !(*this == other);
     }
+
+    // Testing functions
+    virtual void identifyChild() const = 0;
+    virtual void printValue() const;
+
 };
 
 #endif

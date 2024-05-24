@@ -10,7 +10,7 @@ TEST_DIR = test
 DEMO_DIR = demo
 
 # Compiler flags
-CXXFLAGS = -Wall -Wextra -std=c++17 -I$(INC_DIR)
+CXXFLAGS = -Wall -Wextra -pedantic -std=c++17 -g -I$(INC_DIR)
 
 # SFML library flags
 SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system

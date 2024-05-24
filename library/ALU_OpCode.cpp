@@ -93,6 +93,23 @@ ALU_OpCode::ALU_OpCode(const std::string& opcode) : OpCode(opcode) {
     }
 }
 
+void ALU_OpCode::set_size(u_int64_t size){
+    this->size = size;    
+}
+void ALU_OpCode::set_operand_info(std::string operand_info){
+    this->operand_info = operand_info;
+}
+void ALU_OpCode::set_format(std::string format){
+    this->format = format;
+}
+void ALU_OpCode::set_binary(std::string binary){
+    this->binary = binary;
+}
+
+void ALU_OpCode::print_value() const {
+    std::cout << "ALU OpCode - Code: " << code_str << ", Binary: " << binary << ", Format: " << format << ", Size: " << size << std::endl;
+}
+
 // std::string ALU_OpCode::get_binary() const{
 //     return this->binary;
 // }

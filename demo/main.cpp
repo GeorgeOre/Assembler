@@ -50,7 +50,8 @@ Menu::Menu(float width, float height) {
 
     // Add items to the main menu
     std::string items[] = {"Run", "Options", "Help", "Exit"};
-    for (size_t i = 0; i < items->length(); ++i) {
+    size_t numberOfItems = sizeof(items) / sizeof(items[0]);
+    for (size_t i = 0; i < numberOfItems; ++i) {
         sf::Text text;
         text.setFont(font);
         // Make first option selected by default and make it blue
@@ -101,6 +102,13 @@ void showHelp(sf::RenderWindow &window, sf::Font &font) {
     sf::Sprite helpBackgroundSprite;
     helpBackgroundSprite.setTexture(helpBackgroundTexture);
 
+    // Scale the help background sprite to fit the window
+    sf::Vector2u windowSize = window.getSize();
+    sf::Vector2u textureSize = helpBackgroundTexture.getSize();
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+    helpBackgroundSprite.setScale(scaleX, scaleY);
+
     // Create help text
     sf::Text helpText;
     helpText.setFont(font);
@@ -141,6 +149,13 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
     // Create message background sprite
     sf::Sprite messageBackgroundSprite;
     messageBackgroundSprite.setTexture(messageBackgroundTexture);
+
+    // Scale the help background sprite to fit the window
+    sf::Vector2u windowSize = window.getSize();
+    sf::Vector2u textureSize = messageBackgroundTexture.getSize();
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+    messageBackgroundSprite.setScale(scaleX, scaleY);
 
     // Create message text
     sf::Text messageText;
@@ -183,6 +198,13 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font) {
     sf::Sprite loadingBackgroundSprite;
     loadingBackgroundSprite.setTexture(loadingBackgroundTexture);
 
+    // Scale the help background sprite to fit the window
+    sf::Vector2u windowSize = window.getSize();
+    sf::Vector2u textureSize = loadingBackgroundTexture.getSize();
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+    loadingBackgroundSprite.setScale(scaleX, scaleY);
+
     // Display loading screen
     window.clear();
     window.draw(loadingBackgroundSprite);
@@ -207,6 +229,13 @@ void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translato
     // Create options background sprite
     sf::Sprite optionsBackgroundSprite;
     optionsBackgroundSprite.setTexture(optionsBackgroundTexture);
+
+    // Scale the help background sprite to fit the window
+    sf::Vector2u windowSize = window.getSize();
+    sf::Vector2u textureSize = optionsBackgroundTexture.getSize();
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+    optionsBackgroundSprite.setScale(scaleX, scaleY);
 
     // Create input boxes and labels
     sf::Text assemblyLabel("Enter assembly file path:", font, 20);
@@ -286,11 +315,11 @@ void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translato
                     if (saveBox1.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                         // Save assembly file path
                         std::cout << "Save assembly file path: " << assemblyText.getString().toAnsiString() << std::endl;
-                        translator.set_asmFilePath(assemblyText.getString().toAnsiString());
+                        translator.set_input_file_path(assemblyText.getString().toAnsiString());
                     } else if (saveBox2.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                         // Save output file path
                         std::cout << "Save output file path: " << outputText.getString().toAnsiString() << std::endl;
-                        translator.set_outputFilePath(outputText.getString().toAnsiString());
+                        translator.set_output_file_path(outputText.getString().toAnsiString());
                     }
                 }
             }
@@ -352,6 +381,13 @@ int main() {
     // Create background sprite
     sf::Sprite backgroundSprite;
     backgroundSprite.setTexture(backgroundTexture);
+
+    // Scale the background sprite to fit the window
+    sf::Vector2u windowSize = window.getSize();
+    sf::Vector2u textureSize = backgroundTexture.getSize();
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+    backgroundSprite.setScale(scaleX, scaleY);
 
     // Load font
     sf::Font font;

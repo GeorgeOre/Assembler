@@ -1,6 +1,7 @@
 #ifndef TRANSLATOR_HH
 #define TRANSLATOR_HH
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -24,7 +25,7 @@ public:
     // std::ofstream outputFile;
 
     // Object instance arrays
-    std::vector<Line> lines_array;
+    std::vector<std::shared_ptr<Line>> lines_array;
     // std::vector<Section> sections_array;
     // std::vector<Segment> segments_array;
 
@@ -53,7 +54,7 @@ public:
     //Translator(const Translator&);    // Delete copy constructor and assignment operator = delete;
     // Translator& operator=(const Translator&);       // Delete copy constructor and assignment operator = delete;
     Translator(const std::string& inputPath, const std::string& outputPath);
-    ~Translator();
+    // ~Translator();
 
     // Accessor and modifier methods
     std::string get_input_file_path() const;
@@ -63,7 +64,7 @@ public:
     EventEnum get_message() const;
     std::string get_error_message() const;
     bool get_contains_error() const;
-    std::vector<Line> get_lines_array();
+    std::vector<std::shared_ptr<Line>> get_lines_array();
 
     // Setter methods
     void set_input_file_path(const std::string& new_input_file_path);

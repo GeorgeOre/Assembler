@@ -6,8 +6,9 @@
 class Koperand : public Operand {
 public:
     Koperand(const std::string& raw);
-    // void identifyChild() const override;
-    // void printValue() const override;
+
+    void identifyChild() const override;
+    void printValue() const override;
 };
 
 #endif

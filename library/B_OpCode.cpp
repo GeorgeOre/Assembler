@@ -65,6 +65,30 @@ B_OpCode::B_OpCode(const std::string& opcode) : OpCode(opcode) {
     // }
 }
 
+void B_OpCode::set_size(u_int64_t size){
+    this->size = size;    
+}
+void B_OpCode::set_operand_info(std::string operand_info){
+    this->operand_info = operand_info;
+}
+void B_OpCode::set_format(std::string format){
+    this->format = format;
+}
+void B_OpCode::set_binary(std::string binary){
+    this->binary = binary;
+}
+
+
+void B_OpCode::print_value() const {
+    std::cout << "B OpCode - Code: " << code_str << ", Binary: " << binary << ", Format: " << format << ", Size: " << size << std::endl;
+}
+
+
+
+
+
+
+
 // std::string B_OpCode::get_hex() const {
 //     return pichex;
 // }

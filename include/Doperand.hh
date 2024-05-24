@@ -6,8 +6,9 @@
 class Doperand : public Operand {
 public:
     Doperand(const std::string& raw);
-    // void identifyChild() const override;
-    // void printValue() const override;
+
+    void identifyChild() const override;
+    void printValue() const override;
 };
 
 #endif

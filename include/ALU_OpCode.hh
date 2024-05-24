@@ -18,6 +18,18 @@ public:
 
     ALU_OpCode(const std::string& opcode);
 
+
+    void set_size(u_int64_t size) override;
+    void set_operand_info(std::string operand_info) override;
+    void set_format(std::string format) override;
+    void set_binary(std::string binary) override;
+
+    // FOR TESTING
+    void print_value() const;
+
+
+
+    
     // std::string get_code_str() const override;
     // u_int64_t get_size() const override;
     // std::string get_binary() const override;
