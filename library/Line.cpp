@@ -6,8 +6,15 @@
 #include "ALU_OpCode.hh"
 #include "B_OpCode.hh"
 #include "CTRL_OpCode.hh"
+#include "Misc_OpCode.hh"
 #include "W_OpCode.hh"
+
+// Operands
+#include "Operand.hh"
 #include "Boperand.hh"
+#include "Doperand.hh"
+#include "Foperand.hh"
+#include "Koperand.hh"
 
 // Structures and Utils
 #include <iostream>
@@ -25,7 +32,7 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
     {"BTFSC", "B"}, {"BTFSS", "B"},
 
     // Byte-Oriented Instructions
-    {"MOVWF", "ALU"}, {"CLRF", "ALU"},  // CLR IS SOMETIMES CALLED CLRF or CLR?? MAYBE HANDLE THIS MAPPING LATER
+    {"MOVWF", "ALU"}, {"CLR", "ALU"},  // CLR IS SOMETIMES CALLED CLRF or CLRW?? MAYBE HANDLE THIS MAPPING LATER
     {"SUBWF", "ALU"}, {"DECF", "ALU"},
     {"IORWF", "ALU"}, {"ANDWF", "ALU"},
     {"XORWF", "ALU"}, {"ADDWF", "ALU"},
@@ -47,15 +54,15 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
     {"NOP", "MISC"}, {"RETURN", "MISC"},
     {"RETFIE", "MISC"}, {"OPTION", "MISC"},
     {"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
-    {"TRIS", "MISC"}, {"CLRW", "ALU"}  // Check if CLRW exists later
+    {"TRIS", "MISC"}//, {"CLRW", "ALU"}  // Check if CLRW exists later
 };
 
 
 
-Line::Line(uint64_t line_num, const std::string& section,
- const std::string& line,  const std::string& f_info)
- : line_number(line_num), memory_address(-1), section(section), 
- contains_error(false), raw_line(line), file_name(f_info) {
+Line::Line(uint64_t line_number, const std::string& section,
+ const std::string& line,  const std::string& f_name): 
+ line_number(line_number), memory_address(-1), section(section), 
+ contains_error(false), raw_line(line), file_name(f_name) {
 
     // Search the line for comment
     std::size_t comment_start = this->raw_line.find(';');
@@ -65,14 +72,14 @@ Line::Line(uint64_t line_num, const std::string& section,
         this->raw_line.substr(0, comment_start);
     }
     
-    // Parse line
+    // Start parsing line
     parseLine();
 
 }
 
-void Line::parseLine(const std::string& line) {
+void Line::parseLine() {
     // Make a stream iterator for the line and a holder for the opcode
-    std::istringstream str_stream(line);
+    std::istringstream str_stream(this->raw_line);
     std::string potential_opcode;
 
     // Get the first word, eliminating spaces and such
@@ -88,36 +95,30 @@ void Line::parseLine(const std::string& line) {
             std::string op_type = op_type_map.at(potential_opcode);
             
             if (op_type == "ALU") {
-		        opcode = ALU_OpCode(potential_opcode);
+		        this->opcode = std::make_unique<ALU_OpCode>(potential_opcode);// ALU_OpCode(potential_opcode);
             }
             else if (op_type == "B") {
-                opcode = B_OpCode(potential_opcode, operands);
+                this->opcode = std::make_unique<B_OpCode>(potential_opcode);
             }
             else if (op_type == "CTRL") {
-                opcode = CTRL_OpCode(potential_opcode, operands);
+                this->opcode = std::make_unique<CTRL_OpCode>(potential_opcode);
             }
             else if (op_type == "MISC") {
-                opcode = Misc_OpCode(potential_opcode, operands);
+                this->opcode = std::make_unique<Misc_OpCode>(potential_opcode);
             }
             else if (op_type == "W") {
-                opcode = W_OpCode(potential_opcode, operands);
+                this->opcode = std::make_unique<W_OpCode>(potential_opcode);
             }
-            if (opcode_type.compare("ALU") == 0) {
-                operands.push_back(std::make_unique<FOperand>(operandValue));
-            } else if (type == 'k') {
-                operands.push_back(std::make_unique<KOperand>(operandValue));
-            } else if (type == 'b') {
-                operands.push_back(std::make_unique<BOperand>(operandValue));
+            else {
+                // If none of these were detected, then set error
+                this->contains_error = true;
+                this->error_message = "OpCode type undefined in optype hashtable";
             }
-            
-
         }
-
-        this->opcode = OpCode(potential_opcode);
     }
     catch(const std::exception& e)
     {
-        // If there was an error in making the OpCode, set error messages
+        // If there was an error in making the specific OpCode, set error
         this->contains_error = true;
         this->error_message = e.what();
     }
@@ -125,22 +126,34 @@ void Line::parseLine(const std::string& line) {
 
     // Parse the rest of the line as potential operands    
     std::string potential_operand;
+    std::string info = this->opcode.get()->operand_info;//  .get_operand_info();
+    int count = 0;
     while (str_stream >> potential_operand) {
-        // THIS LOGIC THAT CHOOSES THE TYPES OF OPCODES BASED
-        // ON THE NUMBER OF OPERANDS AND THE OPCODE
+        // Attempt to init each operand based on the opcode operand info
         try
         {
-            //
-            std::string operandValue;
-                        Operand operand = Operand(potential_operand);
-            this->operands.push_back(operand);  // Assuming Boperand is a concrete Operand subclass
+            // Try to init each operand according to the operand info
+            if (info.at(count) == 'b') {
+                this->operands.push_back(Boperand(potential_operand));
+            } else if (info.at(count) == 'd') {
+                this->operands.push_back(Doperand(potential_operand));
+            } else if (info.at(count) == 'f') {
+                this->operands.push_back(Foperand(potential_operand));
+            } else if (info.at(count) == 'k') {
+                this->operands.push_back(Koperand(potential_operand));
+            } else {
+                // If the operand type was not detected, set error
+                this->contains_error = true;
+                this->error_message = "Operand type undefined in operand elif";
+            }
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            // If there was an error in making the specific Operand, set error
+            this->contains_error = true;
+            this->error_message = e.what();
         }
-        
-
+        count++;
     }
 
 // void Line::parseLine(const std::string& line, 
@@ -148,14 +161,11 @@ void Line::parseLine(const std::string& line) {
 //     std::istringstream iss(line);
 //     std::string opcodeStr;
 //     iss >> opcodeStr;
-
 //     opcode = OpCode(opcodeStr);
-
 //     auto it = op_type_map.find(opcodeStr);
 //     if (it != op_type_map.end()) {
 //         std::string operandTypes = it->second;
 //         std::string operandValue;
-
 //         for (char type : operandTypes) {
 //             if (iss >> operandValue) {
 //                 if (type == 'f') {
@@ -227,47 +237,70 @@ std::string& Line::to_pichex() const{
 	}
 	
     // THIS IS NO LONGER ALL BUT
-    std::string all_but_checksum = get_size(data.size()) +  get_addr(this->memory_address) + "02" + data + checksum(data.size(), get_addr(this->memory_address), "02", data);
-	return all_but_checksum;
+    std::string total_checksum = get_size(data.size()) +  get_addr(this->memory_address) + "02" + data + checksum(data.size(), get_addr(this->memory_address), "02", data);
+	return total_checksum;
 }
 
 
-int Line::get_line_number() const {
+
+
+
+
+
+
+
+u_int64_t Line::get_line_number() {//
     return this->line_number;
 }
-
-int Line::get_memory_address() const {
+u_int64_t Line::get_memory_address() {//
     return this->memory_address;
 }
-
-const std::string& Line::get_section() const {
+const std::string& Line::get_file_name() {//
+    return this->file_name;
+}
+const std::string& Line::get_section() {//
     return this->section;
 }
-
-const std::string& Line::get_raw_line() const {
+const std::string& Line::get_raw_line() {//
     return this->raw_line;
 }
-
-
-const OpCode& Line::get_opcode() const {
-    return this->opcode;
+const OpCode& Line::get_opcode() {//
+    return *this->opcode;
 }
-
-const std::vector<Operand>& Line::get_operands() const {
+const std::vector<Operand>& Line::get_operands() {//
     return this->operands;
 }
-
-const std::string& Line::get_error_message() const {
+bool Line::get_contains_error() {//
+    return this->contains_error;
+}
+const std::string& Line::get_error_message() {//
     return this->error_message;
 }
 
-void Line::set_memory_address(u_int64_t address) {
+void Line::set_line_number(uint64_t line){
+    this->line_number = line;
+}
+void Line::set_memory_address(uint64_t address){
     this->memory_address = address;
+}
+void Line::set_file_name(std::string name){
+    this->file_name = name;
+}
+void Line::set_section(std::string section){
+    this->section = section;
+}
+void Line::set_raw_line(std::string line){
+    this->raw_line = line;
+}
+void Line::set_contains_error(bool result){
+    this->contains_error = result;
+}
+void Line::set_error_message(std::string message){
+    this->error_message = message;
 }
 
 
 // #include "Line.hh"
-
 // #include "ALU_OpCode.hh"
 // #include "B_OpCode.hh"
 // #include "CTRL_OpCode.hh"
@@ -277,7 +310,6 @@ void Line::set_memory_address(u_int64_t address) {
 // #include "Doperand.hh"
 // #include "Foperand.hh"
 // #include "Koperand.hh"
-
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include <stdint.h>
@@ -286,13 +318,11 @@ void Line::set_memory_address(u_int64_t address) {
 // #include <bitset>
 // #include <list>
 // #include <inttypes.h>
-
 // #include <sstream>
 // #include <algorithm>
 // #include <cctype>
 // #include <iostream>
 // #include <regex>
-
 // Line::Line(int lineNumber, const std::string& section, const std::string& line)
 //     : lineNumber(lineNumber), programMemoryAddress(-1), section(section),  error(false) {
 //     parseLine(line);
@@ -301,8 +331,6 @@ void Line::set_memory_address(u_int64_t address) {
 //     //     errorMessage = "Invalid opcode or operands.";
 //     // }
 // }
-
-
 // // void Line::parseLine(const std::string& line) {
 // //     std::string trimmedLine = line;
 // //     // Remove comments
@@ -310,10 +338,8 @@ void Line::set_memory_address(u_int64_t address) {
 // //     if (commentPos != std::string::npos) {
 // //         trimmedLine = trimmedLine.substr(0, commentPos);
 // //     }
-
 // //     std::istringstream stream(trimmedLine);
 // //     std::string token;
-
 // //     // Parse opcode and operands
 // //     if (stream >> token) {
 // //         opcode = OpCode(token);
@@ -335,7 +361,6 @@ void Line::set_memory_address(u_int64_t address) {
 //         setError("Failed to initialize OpCode: " + std::string(e.what()));
 //         return;
 //     }
-
 //     while (iss >> token) {
 //         try {
 //             operands.push_back(std::make_shared<Operand>(token));
@@ -344,7 +369,6 @@ void Line::set_memory_address(u_int64_t address) {
 //             return;
 //         }
 //     }
-
 //     std::cout << "Parsed line: " << line << "\n";
 //     std::cout << "OpCode: " << opcode.get_code() << "\n";
 //     std::cout << "Operands: ";
@@ -353,17 +377,14 @@ void Line::set_memory_address(u_int64_t address) {
 //     }
 //     std::cout << "\n";
 // }
-
 // bool Line::validateOpcode(const std::string& opcode) const {
 //     // Placeholder validation logic
 //     return !opcode.empty() && std::all_of(opcode.begin(), opcode.end(), ::isalpha);
 // }
-
 // bool Line::validateOperands(const std::vector<std::shared_ptr<Operand>>& operands) const {
 //     // Placeholder validation logic
 //     return !operands.empty();
 // }
-
 // std::shared_ptr<Operand> Line::createOperand(const std::string& token) const {
 //     // Placeholder logic to create specific operand type
 //     if (token.find("B") != std::string::npos) {
@@ -378,34 +399,27 @@ void Line::set_memory_address(u_int64_t address) {
 //         return nullptr; // Invalid operand type
 //     }
 // }
-
 // int Line::getLineNumber() const {
 //     return lineNumber;
 // }
-
 // int Line::getProgramMemoryAddress() const {
 //     return programMemoryAddress;
 // }
-
 // const std::string& Line::getSection() const {
 //     return section;
 // }
-
 // const OpCode& Line::getOpCode() const {
 //     return opcode;
 // }
 // const std::vector<std::shared_ptr<Operand>>& Line::getOperands() const {
 //     return operands;
 // }
-
 // bool Line::hasError() const {
 //     return containsError;
 // }
-
 // std::string Line::getErrorMessage() const {
 //     return errorMessage;
 // }
-
 // void Line::setProgramMemoryAddress(int address) {
 //     programMemoryAddress = address;
 // }

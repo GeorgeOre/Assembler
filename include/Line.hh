@@ -19,7 +19,7 @@ public:
     std::string file_name;  // Name of source file
     std::string section;    // Name of section
     std::string raw_line;   // Raw line info
-    OpCode opcode;      // OpCode in the line 
+    std::unique_ptr<OpCode> opcode;      // OpCode in the line 
     std::vector<Operand> operands; // List of Operands
     // std::vector<std::shared_ptr<Operand>> operands; // List of pointers to Operands
 
@@ -37,16 +37,16 @@ public:
      const std::string& line, const std::string& f_name);
 
     // Accessors
-    int get_line_number() const;
-    int get_memory_address() const;
-    const std::string& get_file_name() const;
-    const std::string& get_section() const;
-    const std::string& get_raw_line() const;
-    const OpCode& get_opcode() const;
-    const std::vector<Operand>& get_operands() const;
+    uint64_t get_line_number(); //const;
+    u_int64_t get_memory_address(); //const;
+    const std::string& get_file_name(); //const;
+    const std::string& get_section(); //const;
+    const std::string& get_raw_line(); //const;
+    const OpCode& get_opcode(); //const;
+    const std::vector<Operand>& get_operands(); //const;
     // const std::vector<std::shared_ptr<Operand>>& getOperands() const;
-    bool get_contains_error() const;
-    const std::string& get_error_message() const;
+    bool get_contains_error(); //const;
+    const std::string& get_error_message(); //const;
 
     // Setters
     void set_line_number(uint64_t line);
@@ -61,8 +61,7 @@ public:
     void set_error_message(std::string message);
 
     // Parse line should be used to simplify the parsing process visually
-    // MAYBE DONT USE
-    // void parseLine(const std::string& line, const std::unordered_map<std::string, std::string>& op_type_map);
+    void parseLine();
 
     // to_pichex should return the pichex output of the line to be printed to the output file
     std::string& to_pichex() const;
