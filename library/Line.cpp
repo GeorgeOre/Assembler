@@ -185,6 +185,121 @@ void Line::parseLine() {
         // printf("We have added %d operands\n", count);
     }
 
+/* THIS IS THE PROTOTYPE VERSION
+void Line::parseLine() {
+    // Make a stream iterator for the line and start parsing the line
+    // Assume everything is space delimited
+    std::istringstream str_stream(this->raw_line);
+    std::vector<std::string> words;
+    std::string word;
+
+    // Read all words from the stream
+    while (str_stream >> word) {
+        words.push_back(word);
+    }
+
+
+    // Go through all words until the opcode/pseudo op is found
+    std::string potential_opcode;
+    bool op_found = false;
+    while (!op_found) {
+        // Attempt to create the OpCode object; 
+        // this can throw an exception if the opcode is invalid
+        try
+        {
+            if (op_type_map.find(potential_opcode) != op_type_map.end()) {
+                std::string op_type = op_type_map.at(potential_opcode);
+                
+                if (op_type == "ALU") {
+    		        this->opcode = std::make_shared<ALU_OpCode>(potential_opcode);// ALU_OpCode(potential_opcode);
+                }
+                else if (op_type == "B") {
+                    this->opcode = std::make_shared<B_OpCode>(potential_opcode);
+                }
+                else if (op_type == "CTRL") {
+                    this->opcode = std::make_shared<CTRL_OpCode>(potential_opcode);
+                }
+                else if (op_type == "MISC") {
+                    this->opcode = std::make_shared<Misc_OpCode>(potential_opcode);
+                }
+                else if (op_type == "PSEUDO") {
+                    this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
+                }
+                else if (op_type == "W") {
+                    this->opcode = std::make_shared<W_OpCode>(potential_opcode);
+                }
+                else {
+                    // Fetch the second word for a final check for equ
+                    str_stream >> potential_opcode;
+                    if (potential_opcode.compare("equ")==0) {
+                        // If it is, then we have a special pseudo op
+                        this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
+                        str_stream << potential_opcode;
+                        this->operands
+                    }
+                    
+                    // If none of these were detected, then set error
+                    this->contains_error = true;
+                    this->error_message = "OpCode type undefined in optype hashtable";
+                }
+            }
+        }
+        catch(const std::exception& e)
+        {
+            // If there was an error in making the specific OpCode, set error
+            this->contains_error = true;
+            this->error_message = e.what();
+        }
+    }
+   
+
+
+     
+
+    // Parse the rest of the line as potential operands    
+    std::string potential_operand;
+    std::string info = this->opcode->get_operand_info();
+    int count = 0;
+    while (str_stream >> potential_operand) {
+        // Attempt to init each operand based on the opcode operand info
+        try
+        {
+            // Try to init each operand according to the operand info
+            if (info.at(count) == 'b') {
+                this->operands.push_back(std::make_shared<Boperand>(potential_operand));
+            } else if (info.at(count) == 'd') {
+                this->operands.push_back(std::make_shared<Doperand>(potential_operand));
+            } else if (info.at(count) == 'f') {
+                this->operands.push_back(std::make_shared<Foperand>(potential_operand));
+            } else if (info.at(count) == 'k') {
+                this->operands.push_back(std::make_shared<Koperand>(potential_operand));
+            } else if (info.at(count) == 'p') {
+                this->operands.push_back(std::make_shared<Poperand>(potential_operand));
+            } else {
+                // If the operand type was not detected, set error
+                this->contains_error = true;
+                this->error_message = "Operand type undefined in operand elif";
+            }
+        }
+        catch(const std::exception& e)
+        {
+            // If there was an error in making the specific Operand, set error
+            this->contains_error = true;
+            this->error_message = e.what();
+        }
+
+        // CURRENTLY ONLY OPERANDS WILL BE USER DEFINED
+        // Check to see if the line contains a user defined operand
+        if (this->operands[count]->get_is_user_defined()) {
+            this->contains_user_defined = true;
+        }
+        
+        // Update operand count
+        count++;
+        // printf("We have added %d operands\n", count);
+    }
+*/
+
 // void Line::parseLine(const std::string& line, 
 //                      const std::unordered_map<std::string, std::string>& op_type_map) {
 //     std::istringstream iss(line);

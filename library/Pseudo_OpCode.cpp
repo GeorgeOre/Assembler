@@ -6,12 +6,13 @@
 
 // Initialize the static members
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_format_map = {
-    {"Label:", ":$"},    // Label definition
-    {".text", "^."},     // Start text space
-    {".data", "^."},     // Start data space
-    {".info", "^."},     // Start info space
-    {".equ", "^."},      // Constant definition
-    {".include", "^."}   // Include file
+    {"Label:", ":$"},   // Label definition
+    {".text", "^."},    // Start text space
+    {".data", "^."},    // Start data space
+    {".info", "^."},    // Start info space
+    {".equ", "^."},     // Constant definition
+    {"include", "inc"}, // Include file
+    {"org", "^org"}     // Set program counter reference value
 };
 
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_bin_map = {
@@ -20,7 +21,8 @@ std::unordered_map<std::string, std::string> Pseudo_OpCode::op_bin_map = {
     {".data", ""},     // Start data space
     {".info", ""},     // Start info space
     {".equ", ""},      // Constant definition
-    {".include", ""}   // Include file
+    {".include", ""},  // Include file
+    {"org", ""}        // Set program counter reference value
 };
 
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_operand_map = {
@@ -28,8 +30,9 @@ std::unordered_map<std::string, std::string> Pseudo_OpCode::op_operand_map = {
     {".text", ""},      // Start text space
     {".data", ""},      // Start data space
     {".info", ""},      // Start info space
-    {".equ", "pp"},      // Constant definition, pp
-    {".include", "p"}   // Include file, p
+    {".equ", "pp"},     // Constant definition, pp
+    {".include", "p"},  // Include file, p
+    {"org", "p"}        // Set program counter reference value, p
 };
 
 // Constructor

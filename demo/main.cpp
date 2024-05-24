@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include <string>
 #include <thread>
@@ -106,7 +107,7 @@ void Menu::moveDown() {
 void showHelp(sf::RenderWindow &window, sf::Font &font) {
     // Load help background texture
     sf::Texture helpBackgroundTexture;
-    if (!helpBackgroundTexture.loadFromFile("assets/bootlogo.png")) {
+    if (!helpBackgroundTexture.loadFromFile("assets/Among_Us_American_theme.jpeg")) {
         std::cerr << "Error loading help_background.jpg" << std::endl;
         return;
     }
@@ -222,7 +223,7 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
 }
 
 // Show loading screen while loading
-void showLoadingScreen(sf::RenderWindow &window, sf::Font &font) {
+void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &translator) {
     // Load loading background texture
     sf::Texture loadingBackgroundTexture;
     if (!loadingBackgroundTexture.loadFromFile("assets/MUSH3.jpg")) {
@@ -246,11 +247,32 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font) {
     window.draw(loadingBackgroundSprite);
     window.display();
 
-    // Simulate some work (e.g., running translator code)
-    std::this_thread::sleep_for(std::chrono::seconds(2)); // Simulate delay
+    // Running translator code
+    std::string resulting_message;
+    if (translator.define_lines(translator.get_input_file_path()) == EventEnum::SUCCESS) {
+        if (translator.first_pass() == EventEnum::SUCCESS) {
+            if (translator.second_pass() ==  EventEnum::SUCCESS) {
+                resulting_message = "Translator code has finished running successfully!";
+            }
+            else {
+                resulting_message = translator.get_error_message();
+            }
+            
+        } else {
+            resulting_message = translator.get_error_message();
+        }
+    }
+    else {
+        resulting_message = translator.get_error_message();
+    }
+
+    // THE LINE BELOW IS A DELAY
+    // std::this_thread::sleep_for(std::chrono::seconds(2)); // Simulate delay
 
     // Show message screen after loading
-    showMessage(window, font, "Translator code has finished running.\nPress any key or click the mouse to return to the main menu.", "assets/smileyface.png");
+    resulting_message.append("\nPress any key or click the mouse to return to the main menu.");
+    showMessage(window, font, resulting_message, "assets/smileyface.png");
+    //OLD DEFAULT: "Translator code has finished running.\nPress any key or click the mouse to return to the main menu."
 }
 
 // Show options menu
@@ -261,7 +283,7 @@ void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translato
 
     // Load options background texture
     sf::Texture optionsBackgroundTexture;
-    if (!optionsBackgroundTexture.loadFromFile("assets/IMG_3050.JPG")) {
+    if (!optionsBackgroundTexture.loadFromFile("assets/Darker_industrial_vintage_scene_for_white_text_overlay.jpg")) {
         std::cerr << "Error loading options_background.jpg" << std::endl;
         return;
     }
@@ -452,7 +474,17 @@ int main() {
     Menu menu(window.getSize().x, window.getSize().y);
 
     // Initalize translator
-    Translator translator;// = Translator("input.asm", "output.hex");
+    // WE WILL HAVE DEFAULT FILES FOR NOW
+    Translator translator = Translator("demo/input.asm", "demo/output.hex");
+
+    // Load music
+    sf::Music backgroundMusic;
+    if (!backgroundMusic.openFromFile("assets/Star_Spangled_Banner_choral.ogg")) {
+        std::cerr << "Error loading background music" << std::endl;
+        return -1;
+    }
+    backgroundMusic.setLoop(true);  // Loop the music
+    backgroundMusic.play();
 
     // Main loop
     while (window.isOpen()) {
@@ -474,7 +506,7 @@ int main() {
                     int selectedIndex = menu.getSelectedIndex();
                     std::cout << "Selected option: " << selectedIndex << std::endl;
                     if (selectedIndex == 0) {           // Run option
-                        showLoadingScreen(window, font);
+                        showLoadingScreen(window, font, translator);
                     } else if (selectedIndex == 1) {    // Options option
                         showOptions(window, font, translator);
                     } else if (selectedIndex == 2) {    // Help option
@@ -491,7 +523,7 @@ int main() {
                         if (menu.menuItems[i].getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                             std::cout << "Selected option: " << i << std::endl;
                             if (i == 0) {  // Run option
-                                showLoadingScreen(window, font);
+                                showLoadingScreen(window, font, translator);
                             } else if (i == 1) {  // Options option
                                 showOptions(window, font, translator);
                             } else if (i == 2) {  // Help option

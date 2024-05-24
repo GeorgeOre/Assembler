@@ -13,7 +13,7 @@ DEMO_DIR = demo
 CXXFLAGS = -Wall -Wextra -pedantic -std=c++17 -g -I$(INC_DIR)
 
 # SFML library flags
-SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 # Source and object files
 LIB_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
