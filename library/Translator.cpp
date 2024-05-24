@@ -66,6 +66,8 @@ EventEnum Translator::define_lines(const std::string& file_info) {
     }
     
     // Make sure that section is defined
+    //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
+    this->cur_section = ".text";
     if (this->cur_section.compare("")==0) {
         this->contains_error = true;
         this->error_message = "Section is not defined!";
@@ -167,7 +169,9 @@ EventEnum Translator::first_pass() {
             }
             
         }
+        // Store program address here??
         currentProgramAddress++;
+        
         // std::cout << "Address: " << lines[i].getAddress() << " Content: " << lines[i].getContent() << std::endl;
     }    
     // Optionally, you can print the symbol table for debugging

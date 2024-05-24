@@ -7,6 +7,7 @@
 #include "B_OpCode.hh"
 #include "CTRL_OpCode.hh"
 #include "Misc_OpCode.hh"
+#include "Pseudo_OpCode.hh"
 #include "W_OpCode.hh"
 
 // Operands
@@ -15,6 +16,7 @@
 #include "Doperand.hh"
 #include "Foperand.hh"
 #include "Koperand.hh"
+#include "Poperand.hh"
 
 // Structures and Utils
 #include <iostream>
@@ -54,7 +56,15 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
     {"NOP", "MISC"}, {"RETURN", "MISC"},
     {"RETFIE", "MISC"}, {"OPTION", "MISC"},
     {"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
-    {"TRIS", "MISC"}//, {"CLRW", "ALU"}  // Check if CLRW exists later
+    {"TRIS", "MISC"},//, {"CLRW", "ALU"}  // Check if CLRW exists later
+
+    // Pseudo Ops
+    {"Label:", "PSEUDO"},    // Label definition
+    {".text", "PSEUDO"},     // Start text space
+    {".data", "PSEUDO"},     // Start data space
+    {".info", "PSEUDO"},     // Start info space
+    {".equ", "PSEUDO"},      // Constant definition
+    {".include", "PSEUDO"}   // Include file
 };
 
 
@@ -111,6 +121,9 @@ void Line::parseLine() {
             else if (op_type == "MISC") {
                 this->opcode = std::make_shared<Misc_OpCode>(potential_opcode);
             }
+            else if (op_type == "PSEUDO") {
+                this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
+            }
             else if (op_type == "W") {
                 this->opcode = std::make_shared<W_OpCode>(potential_opcode);
             }
@@ -131,7 +144,7 @@ void Line::parseLine() {
 
     // Parse the rest of the line as potential operands    
     std::string potential_operand;
-    std::string info = this->opcode->operand_info;//  .get_operand_info();
+    std::string info = this->opcode->get_operand_info();
     int count = 0;
     while (str_stream >> potential_operand) {
         // Attempt to init each operand based on the opcode operand info
@@ -146,6 +159,8 @@ void Line::parseLine() {
                 this->operands.push_back(std::make_shared<Foperand>(potential_operand));
             } else if (info.at(count) == 'k') {
                 this->operands.push_back(std::make_shared<Koperand>(potential_operand));
+            } else if (info.at(count) == 'p') {
+                this->operands.push_back(std::make_shared<Poperand>(potential_operand));
             } else {
                 // If the operand type was not detected, set error
                 this->contains_error = true;
