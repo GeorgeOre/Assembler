@@ -167,6 +167,7 @@ void Line::parseLine() {
         
         // Update operand count
         count++;
+        // printf("We have added %d operands\n", count);
     }
 
 // void Line::parseLine(const std::string& line, 

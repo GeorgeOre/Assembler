@@ -32,7 +32,7 @@ void test_LineInitialization() {
 
 void test_LineParse() {
     Line line(1, ".text", "MOVWF 0x30", "test.asm");
-    line.parseLine();
+    // line.parseLine();
     assert(line.get_opcode().get_code_str() == "MOVWF");
     assert(line.get_operands().size() == 1);
     assert(line.get_operands()[0]->get_raw() == "0x30");

@@ -1,3 +1,4 @@
+#include "Operand.hh"
 #include "Koperand.hh"
 #include <iostream>
 

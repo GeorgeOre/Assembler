@@ -49,7 +49,7 @@ public:
 
     // Testing functions
     virtual void identifyChild() const = 0;
-    virtual void printValue() const;
+    // virtual void printValue() const;
 
 };
 

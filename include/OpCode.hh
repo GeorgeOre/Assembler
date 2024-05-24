@@ -40,7 +40,7 @@ public:
     OpCode(const std::string& code);
 
 
-    // virtual ~OpCode() = default;
+    virtual ~OpCode() = default;
 
     // Accessors and modifiers
     std::string get_code_str();

@@ -4,8 +4,8 @@
 
 // Constructor
 Boperand::Boperand(const std::string &raw) : Operand(raw) {
-    //setSize(3);  // Set the size to 3 bits
-    //setBinary(raw);  // Set the binary value to match the raw string
+    // set_size(3);  // Set the size to 3 bits
+    // set_binary(raw);  // Set the binary value to match the raw string
 }
 
 // Implementation of virtual methods

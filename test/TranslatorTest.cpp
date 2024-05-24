@@ -1,8 +1,10 @@
-#include <iostream>
 #include "Translator.hh"
 #include "Line.hh"
 #include "OpCode.hh"
 #include "ALU_OpCode.hh"
+#include "EventEnum.hh"
+
+#include <iostream>
 #include <cassert>
 #include <sstream>
 #include <functional>
@@ -17,10 +19,10 @@ std::string capture_output(std::function<void()> func) {
 }
 
 void test_translator_initialization() {
-    Translator translator("input.txt", "output.txt");
+    Translator translator("test/input.asm", "test/output.hex");
 
-    assert(translator.get_input_file_path() == "input.txt");
-    assert(translator.get_output_file_path() == "output.txt");
+    assert(translator.get_input_file_path() == "test/input.asm");
+    assert(translator.get_output_file_path() == "test/output.hex");
     assert(translator.get_cur_section().empty());
     assert(!translator.get_contains_error());
 
@@ -28,55 +30,55 @@ void test_translator_initialization() {
 }
 
 void test_define_lines() {
-    Translator translator("input.txt", "output.txt");
-    std::ofstream test_file("input.txt");
+    Translator translator("test/input.asm", "test/output.hex");
+    std::ofstream test_file("test/input.asm");
     test_file << ".text\nMOVWF some_operands\n";
     test_file.close();
 
-    EventEnum result = translator.define_lines("input.txt");
+    EventEnum result = translator.define_lines("test/input.asm");
     assert(result == EventEnum::SUCCESS);
     assert(translator.get_lines_array().size() == 2);
 
-    std::remove("input.txt");
+    std::remove("test/input.asm");
 
     std::cout << "Define lines tests passed!\n" << std::endl;
 }
 
 void test_first_pass() {
-    Translator translator("input.txt", "output.txt");
-    std::ofstream test_file("input.txt");
+    Translator translator("test/input.asm", "test/output.hex");
+    std::ofstream test_file("test/input.asm");
     test_file << ".text\nMOVWF some_operands\n";
     test_file.close();
 
-    translator.define_lines("input.txt");
+    translator.define_lines("test/input.asm");
     EventEnum result = translator.first_pass();
     assert(result == EventEnum::SUCCESS);
 
-    std::remove("input.txt");
+    std::remove("test/input.asm");
 
     std::cout << "First pass tests passed!\n" << std::endl;
 }
 
 void test_second_pass() {
-    Translator translator("input.txt", "output.txt");
-    std::ofstream test_file("input.txt");
+    Translator translator("test/input.asm", "test/output.hex");
+    std::ofstream test_file("test/input.asm");
     test_file << ".text\nMOVWF some_operands\n";
     test_file.close();
 
-    translator.define_lines("input.txt");
+    translator.define_lines("test/input.asm");
     translator.first_pass();
     EventEnum result = translator.second_pass();
     assert(result == EventEnum::SUCCESS);
 
-    std::ifstream output_file("output.txt");
+    std::ifstream output_file("test/output.hex");
     assert(output_file.is_open());
     std::string line;
     std::getline(output_file, line);
     assert(!line.empty());
     output_file.close();
 
-    std::remove("input.txt");
-    std::remove("output.txt");
+    std::remove("test/input.asm");
+    std::remove("test/output.hex");
 
     std::cout << "Second pass tests passed!\n" << std::endl;
 }

@@ -52,12 +52,17 @@ void test_OperandPrintValue() {
 
 void test_OperandIdentifyChild() {
     Boperand boperand("B123");
+    // boperand.identifyChild();
     std::string output = captureOutput([&]() { boperand.identifyChild(); });
-    std::cout << output << std::endl;
+    // std::cout << output << std::endl;
     assert(output == "This is a Boperand.\n");
 
+    // std::cout << "WE ABOUT TO MAKE THE DOPERAND" << std::endl;
     Doperand doperand("D456");
+    // std::cout << "HE MADE" << std::endl;
     output = captureOutput([&]() { doperand.identifyChild(); });
+    // std::cout << output << std::endl;
+        // std::cout << "SHIT SHOULD HAVE PRINTED" << std::endl;
     assert(output == "This is a Doperand.\n");
 
     Foperand foperand("F789");
