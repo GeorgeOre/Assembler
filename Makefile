@@ -22,9 +22,10 @@ TEST_SRCS = $(wildcard $(TEST_DIR)/*.cpp)
 TEST_BINS = $(patsubst $(TEST_DIR)/%.cpp, $(BIN_DIR)/%, $(TEST_SRCS))
 DEMO_SRCS = $(wildcard $(DEMO_DIR)/*.cpp)
 DEMO_BIN = $(BIN_DIR)/menu
+TERMINAL_BIN = $(BIN_DIR)/terminal
 
 # Default target
-all: $(TEST_BINS) $(DEMO_BINS)
+all: $(TEST_BINS) $(DEMO_BIN) $(TERMINAL_BIN)
 
 # Create directories if they do not exist
 $(OBJ_DIR):
@@ -47,6 +48,12 @@ $(BIN_DIR)/%: $(TEST_DIR)/%.cpp $(LIB_OBJS) | $(BIN_DIR)
 $(DEMO_BIN): $(DEMO_DIR)/main.cpp $(LIB_OBJS) | $(BIN_DIR)
 	@echo "Compiling demo $<..."
 	$(CXX) $(CXXFLAGS) $< $(LIB_OBJS) -o $@ $(SFMLFLAGS)
+
+# Compile and link terminal demo source file
+$(TERMINAL_BIN): $(DEMO_DIR)/terminal.cpp $(LIB_OBJS) | $(BIN_DIR)
+	@echo "Compiling terminal demo $<..."
+	$(CXX) $(CXXFLAGS) $< $(LIB_OBJS) -o $@
+
 
 # Test all
 test: $(TEST_BINS)
@@ -88,8 +95,13 @@ demo: $(DEMO_BIN)
 	@echo "Running demo..."
 	./$(DEMO_BIN)
 
+# Compile and run terminal demo
+terminal: $(TERMINAL_BIN)
+	@echo "Running terminal demo..."
+	./$(TERMINAL_BIN)
+
 # Clean up
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean test Linetest OpCodetest Operandtest Sectiontest Segmenttest Translatortest UItest demo
+.PHONY: all clean test Linetest OpCodetest Operandtest Sectiontest Segmenttest Translatortest UItest demo terminal
