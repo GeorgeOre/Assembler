@@ -1,6 +1,11 @@
 #include <iostream>
+// #include <SFML/Graphics.hpp>
+// #include <SFML/Audio.hpp>
+
+// FOR CROSS COMPILING
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+
 #include <vector>
 #include <string>
 #include <thread>

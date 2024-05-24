@@ -8,6 +8,8 @@
 
 // THIS IS ONLY FOR TESTING
 #include <string>
+#include <inttypes.h>
+#include <cinttypes>
 #include <cstdint>
 #include <iostream>
 #include <list>
@@ -27,7 +29,7 @@ public:
     std::string code_str;   // *** OpCode in string representation
     
     // THE FOLLOWING REQUIRES THE CHILD TO SET BASED ON A MAP IN THE CHILD FILES BUT ALL SHOULD HAVE
-    u_int64_t size;         // Size of the OpCode portion in bits (This is parts of the 14 bit instruction that are non-negotiables)
+    uint64_t size;         // Size of the OpCode portion in bits (This is parts of the 14 bit instruction that are non-negotiables)
     std::string operand_info; // String representation of the OpCode operand_info
     std::string format;     // Regex expression of the OpCode
     std::string binary;     // Binary in string form (CAN BE CHANGED TO BITSET OR BITWISE SOMETHIGN LATER)
@@ -44,7 +46,7 @@ public:
 
     // Accessors and modifiers
     std::string get_code_str();
-    u_int64_t get_size();
+    uint64_t get_size();
     std::string get_operand_info();
     std::string get_format();
     std::string get_binary();
@@ -52,7 +54,7 @@ public:
 
     // THESE THREE SHOULD BE SET BY THE CHLIDREN
     // virtual void set_code(std::string code); THIS SHOULD NEVER CHANGE AFTER CONSTRUCTION
-    virtual void set_size(u_int64_t size);
+    virtual void set_size(uint64_t size);
     virtual void set_operand_info(std::string operand_info);
     virtual void set_format(std::string format);
     virtual void set_binary(std::string binary);
@@ -62,13 +64,13 @@ public:
 
     // THESE DO NOT NEED TO BE VIRTUAL
     // virtual std::string get_code_str();
-    // virtual u_int64_t get_size();
+    // virtual uint64_t get_size();
     // virtual std::string get_operand_info();
     // virtual std::string get_format();
     // virtual bool get_is_pseudo_op();
 
     // virtual void set_code(std::string code);
-    // virtual void set_size(u_int64_t size);
+    // virtual void set_size(uint64_t size);
     // virtual void set_operand_info(std::string operand_info);
     // virtual void set_format(std::string format);
     // virtual void set_is_pseudo_op(bool result);

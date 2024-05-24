@@ -2,6 +2,8 @@
 #ifndef LINE_HH
 #define LINE_HH
 
+#include <inttypes.h>
+#include <cinttypes>
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -47,7 +49,7 @@ public:
 
     // Accessors
     uint64_t get_line_number(); //const;
-    u_int64_t get_memory_address(); //const;
+    uint64_t get_memory_address(); //const;
     std::string& get_file_name(); //const;
     std::string& get_section(); //const;
     std::string& get_raw_line(); //const;
