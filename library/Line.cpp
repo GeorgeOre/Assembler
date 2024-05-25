@@ -75,12 +75,26 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
     {"TRIS", "MISC"},//, {"CLRW", "ALU"}  // Check if CLRW exists later
 
     // Pseudo Ops
-    // {"Label:", "PSEUDO"},    // Label definition
-    {".text", "PSEUDO"},     // Start text space
-    {".data", "PSEUDO"},     // Start data space
-    {".info", "PSEUDO"},     // Start info space
-    {".equ", "PSEUDO"},      // Constant definition
-    {".include", "PSEUDO"}   // Include file
+    // {"Label:", "PSEUDO"},// Label definition
+    {".TEXT", "PSEUDO"},    // Start text space
+    {".DATA", "PSEUDO"},    // Start data space
+    {".INFO", "PSEUDO"},    // Start info space
+    {".EQU", "PSEUDO"},     // Constant definition
+    {".INCLUDE", "PSEUDO"}, // Include file
+
+    // Lowercase
+    {"bcf", "B"}, {"bsf", "B"}, {"btfsc", "B"}, {"btfss", "B"},
+    {"movwf", "ALU"}, {"clr", "ALU"}, {"subwf", "ALU"}, {"decf", "ALU"},
+    {"iorwf", "ALU"}, {"andwf", "ALU"}, {"xorwf", "ALU"}, {"addwf", "ALU"},
+    {"movf", "ALU"}, {"comf", "ALU"}, {"incf", "ALU"}, {"decfsz", "ALU"},
+    {"rrf", "ALU"}, {"rlf", "ALU"}, {"swapf", "ALU"}, {"incfsz", "ALU"},
+    {"addlw", "W"}, {"movlw", "W"}, {"retlw", "W"}, {"iorlw", "W"},
+    {"andlw", "W"}, {"xorlw", "W"}, {"sublw", "W"}, {"call", "CTRL"},
+    {"goto", "CTRL"}, {"nop", "MISC"}, {"return", "MISC"}, {"retfie", "MISC"},
+    {"option", "MISC"}, {"sleep", "MISC"}, {"clrw", "MISC"}, {"clrw", "ALU"},
+    {"tris", "MISC"}, {".text", "PSEUDO"}, {".data", "PSEUDO"},
+    {".info", "PSEUDO"}, {".equ", "PSEUDO"}, {".include", "PSEUDO"}
+
 };
 
 // Constructor helper functions
@@ -94,7 +108,7 @@ std::string remove_comments(const std::string &line) {
     return line;
 }
 
-std::vector<std::string> parse_line(const std::string &line) {
+std::vector<std::string> parse_line(std::string &line) {
     // Make a stream iterator for the line and start parsing the line
     std::istringstream str_stream(line);
     std::vector<std::string> words;
@@ -113,78 +127,131 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
     // Local vars
     std::string potential_opcode;
     bool op_found = false;
-    size_t valid = elements.size();
+    size_t opcode_i;
+
+    // Ensure that the elements vector is not empty
+    // if (elements.empty()) {
+    //     return;
+    // }    
 
     // Attempt to create the OpCode object within the valid searching range
-    for (size_t i = 0; i < MAX_OPCODE_POS && i < valid; i++) { 
-            // std::cout << "\ttesting parse opcode" << i << std::endl;
+    for (size_t i = 0; ((i < MAX_OPCODE_POS) && (i < elements.size())); i++) { 
+// std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
 
         potential_opcode = elements[i];
-    // std::cout << "\tpot op: |" << potential_opcode << "|" << std::endl;
+// std::cout << "\t\tpot op: |" << potential_opcode.c_str() << "|" << std::endl;
 
         try // Try-catch to handle OpCode initalization errors
         {
 
-    // std::cout << "\tinside the try" << std::endl;
+// std::cout << "\t\tinside the try" << std::endl;
             // Test for label first
+// std::cout << "\t\t\top:" << potential_opcode << std::endl;
+// std::cout << "\t\t\tback:" << potential_opcode.back() << std::endl;
+// std::cout << "\t\t\tfront:" << potential_opcode.front() << std::endl;
+// std::cout << "\t\t\tfound:" << (op_type_map.find(potential_opcode) != op_type_map.end()) << std::endl;
+
             if (potential_opcode.back() == ':') {
-    // std::cout << "\tdetected : at end" << std::endl;
+// std::cout << "\t\tdetected : at end" << std::endl;
                 this->opcode = std::make_shared<Label_OpCode>(potential_opcode);
                 // Add the element to the list to be parsed as a pseudo op
                 // elements.push_back(potential_opcode.substr(0, potential_opcode.size()-1));
                 elements.push_back(potential_opcode);
-                // std::cout << "\tpushed back into elements" << std::endl;
+// std::cout << "\t\tpushed back into elements" << std::endl;
+
+                opcode_i = i;
+                op_found = true;
+                break;
+
             }   // Test for pseudo op next
             else if (potential_opcode.front() == '.') {
-    // std::cout << "We got to line 3 found ." << std::endl;
+// std::cout << "\t\tWe got to line 3 found ." << std::endl;
                 this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
+
+                opcode_i = i;
+                op_found = true;
+                break;
+
             }   // Try to find predefined OpCodes
             else if (op_type_map.find(potential_opcode) != op_type_map.end()) {
-    // std::cout << "We got to line 3 predefined opcode" << std::endl;
+// std::cout << "\t\tWe got to line predefined opcode" << std::endl;
                 std::string op_type = op_type_map.at(potential_opcode);
+// std::cout << "\t\tWe got to line predefined opcode2" << std::endl;
+
+                std::string copy = potential_opcode;
 
                 if (op_type == "ALU") {
-    		        this->opcode = std::make_shared<ALU_OpCode>(potential_opcode);
+// std::cout << "\t\t\twas ALU B4" << std::endl;
+    		        this->opcode = std::make_shared<ALU_OpCode>(copy);
+// std::cout << "\t\t\twas ALU" << std::endl;
+                    // break;
                 }
                 else if (op_type == "B") {
-                    this->opcode = std::make_shared<B_OpCode>(potential_opcode);
+// std::cout << "\t\t\twas B B4" << std::endl;
+                    
+                    this->opcode = std::make_shared<B_OpCode>(copy);
+// std::cout << "\t\t\twas B" << std::endl;
+                    // break;
                 }
                 else if (op_type == "CTRL") {
-                    this->opcode = std::make_shared<CTRL_OpCode>(potential_opcode);
+// std::cout << "\t\t\twas CTRL B4" << std::endl;
+                    this->opcode = std::make_shared<CTRL_OpCode>(copy);
+// std::cout << "\t\t\twas CTRL" << std::endl;
+                    // break;
                 }
                 else if (op_type == "MISC") {
-                    this->opcode = std::make_shared<Misc_OpCode>(potential_opcode);
+// std::cout << "\t\t\twas MISC B4" << std::endl;
+                    this->opcode = std::make_shared<Misc_OpCode>(copy);
+// std::cout << "\t\t\twas MISC" << std::endl;
+                    // break;
                 }
                 else if (op_type == "W") {
-                    this->opcode = std::make_shared<W_OpCode>(potential_opcode);
+// std::cout << "\t\t\twas W B4" << std::endl;
+                    this->opcode = std::make_shared<W_OpCode>(copy);
+// std::cout << "\t\t\twas W" << std::endl;
+                    // break;
                 }
                 else {  // If none of these children were detected, then set error
+// std::cout << "\t\t\tUH OH ERROR" << std::endl;         
                     this->contains_error = true;
                     this->error_message = "OpCode child type undefined in op_type_map (see Line.cpp)";
                 }
+    //    elements.erase(elements.begin() + i);
+                opcode_i = i;
+                op_found = true;
+// std::cout << "\t\tset op_found to true in order to break: " << op_found << std::endl;
+                break;
             }   
-            // Set found flag and remove the OpCode from the parsed elements
-            elements.erase(elements.begin() + i);
-            op_found = true;         
+
+// std::cout << "\t\tSKIPPED LAST ONE FOR SOME REASON: " << op_found << std::endl;
         }
         catch(const std::exception& e)
         {
             // If there was an error in initalizing the OpCode, set error
             this->contains_error = true;
             this->error_message = e.what();
+            // std::cout << "HOLY FUCK IT WAS JUST CATCHING" << std::endl;
         }
 
+            // Set found flag and remove the OpCode from the parsed elements            
+
         // Exit the for loop if an OpCode was created
-        if (op_found == true) {
-            break;
-        }
+//         if (op_found == true) {
+// std::cout << "\tWE BREAKING??\n" << std::endl;
+//             break;
+//         }
     }
+
+// std::cout << "\tOMG WE OUTIE" << std::endl;
 
     // Set an error if no OpCode was detected
     if (op_found == false) {
         this->contains_error = true;
         this->error_message = "No OpCode or pseudo op found";
+    } else {
+        elements.erase(elements.begin() + opcode_i);
     }
+    
 
     // Set line to contain user defined if true for OpCode
     if (this->opcode->get_is_user_defined()) {
@@ -193,7 +260,7 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
 }
 
-void Line::parse_operands(const std::vector<std::string> &elements, const std::string operand_info) {
+void Line::parse_operands(std::vector<std::string> &elements, std::string operand_info) {
     // This function assumes that parse_opcode was called before it. The correct operand_info 
     // parameter should not have been attainable without parse_opcode being called. This is why
     // it is necesarry for the user to have passed in the info parameter even though it can be
@@ -201,6 +268,12 @@ void Line::parse_operands(const std::vector<std::string> &elements, const std::s
 
 // std::cout << elements.size() << std::endl;
 // std::cout << operand_info.size() << std::endl;
+
+
+    // Ensure that the elements vector is not empty
+    if (elements.empty()) {
+        return;
+    }
 
     // We were pipelined the elements that were modified by parse_opcode, we need the full string
     std::string operands_only = join_strings(elements, " ");
@@ -264,30 +337,36 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
-    // std::cout << "We got to line 3 init constructor\n" << std::endl;
+// std::cout << "\tWe are inside line init constructor\n" << std::endl;
 
 
     // Search the line for comments and remove
+    // std::string copy = line;
     std::string stripped = remove_comments(line);
+    stripped = trim_left(stripped);
+    this->no_comments = stripped;
 
-    // std::cout << "We got to line 3 strip good\n" << std::endl;
+// std::cout << "\t\tstripped line: |" << stripped <<  "|\n" << std::endl;
 
 
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
-    // std::cout << "We got to line 3 parse good\n" << std::endl;
+// std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements\n" << std::endl;
+
+    if (elements.size() != 0) {
+            
 
     // Define OpCode
     parse_opcode(elements);
 
-    // std::cout << "We got to line 3 opcode good\n" << std::endl;
+// std::cout << "\tWe got to line 3 opcode good\n" << std::endl;
 
 
     // Define Operands
     std::string info = this->opcode->get_operand_info();
     parse_operands(elements, info);
-
+    }
 }
 
 

@@ -11,7 +11,11 @@ std::unordered_map<std::string, std::string> W_OpCode::op_format_map = {
     {"MOVLW", "^11...."},  // Move literal to W
     {"RETLW", "^11...."},  // Return with literal in W
     {"SUBLW", "^11...."},  // Subtract W from literal
-    {"XORLW", "^11...."}   // Exclusive OR literal with W
+    {"XORLW", "^11...."},  // Exclusive OR literal with W
+    // Lowercase versions
+    {"addlw", "^11...."}, {"andlw", "^11...."}, {"iorlw", "^11...."},
+    {"movlw", "^11...."}, {"retlw", "^11...."}, {"sublw", "^11...."}, {"xorlw", "^11...."}
+
 };
 
 std::unordered_map<std::string, std::string> W_OpCode::op_bin_map = {
@@ -21,7 +25,10 @@ std::unordered_map<std::string, std::string> W_OpCode::op_bin_map = {
     {"MOVLW", "111001"},  // Move literal to W
     {"RETLW", "111010"},  // Return with literal in W
     {"SUBLW", "111011"},  // Subtract W from literal
-    {"XORLW", "111110"}   // Exclusive OR literal with W
+    {"XORLW", "111110"},  // Exclusive OR literal with W
+    // Lowercase versions
+    {"addlw", "110000"}, {"andlw", "110100"}, {"iorlw", "111000"},
+    {"movlw", "111001"}, {"retlw", "111010"}, {"sublw", "111011"}, {"xorlw", "111110"}
 };
 
 std::unordered_map<std::string, std::string> W_OpCode::op_operand_map = {
@@ -31,7 +38,10 @@ std::unordered_map<std::string, std::string> W_OpCode::op_operand_map = {
     {"MOVLW", "k"},  // Move literal to W
     {"RETLW", "k"},  // Return with literal in W
     {"SUBLW", "k"},  // Subtract W from literal
-    {"XORLW", "k"}   // Exclusive OR literal with W
+    {"XORLW", "k"},  // Exclusive OR literal with W
+    // Lowercase versions
+    {"addlw", "k"}, {"andlw", "k"}, {"iorlw", "k"},
+    {"movlw", "k"}, {"retlw", "k"}, {"sublw", "k"}, {"xorlw", "k"}
 };
 
 W_OpCode::W_OpCode(const std::string& opcode) : OpCode(opcode) {

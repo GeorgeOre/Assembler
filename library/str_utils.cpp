@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <numeric>
+#include <algorithm>
 
 // From internet
 std::string join_strings(const std::vector<std::string>& vec, const std::string& separator) {
@@ -26,5 +27,13 @@ std::vector<std::string> split_string(const std::string& str, char delimiter) {
     }
     result.push_back(str.substr(start)); // Add the last segment
     
+    return result;
+}
+
+std::string trim_left(const std::string& str) {
+    std::string result = str;
+    result.erase(result.begin(), std::find_if(result.begin(), result.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
     return result;
 }

@@ -19,9 +19,12 @@ std::unordered_map<std::string, std::string> Translator::const_hashmap = {};
 
 
 // Constructors and destructors
-Translator::Translator(){}
-Translator::Translator(const std::string& inputPath, const std::string& outputPath)
-    : input_file_path(inputPath), output_file_path(outputPath), contains_error(false) {}
+Translator::Translator(){}  // WE DONT NEED THIS FOO???
+Translator::Translator(const std::string& inputPath, const std::string& outputPath) : 
+    input_file_path(inputPath), 
+    output_file_path(outputPath), 
+    cur_section(".text"),
+    contains_error(false) {}
 // Translator::~Translator() {}
 
 // Accessors and setters
@@ -55,6 +58,16 @@ void Translator::set_contains_error(bool new_result){
     this->contains_error = new_result;
 }
 
+// std::string remove_comments2(const std::string &line) {
+//     std::size_t comment_start = line.find(';');
+//     // Strip line of comment if it exists
+//     if (comment_start != std::string::npos) {
+//         return line.substr(0, comment_start);
+//     }
+//     // If not, return the original line
+//     return line;
+// }
+
 // Essential translator functions
 EventEnum Translator::define_lines(const std::string& file_info) {
     // Error handle that the file path is valid and open
@@ -69,13 +82,19 @@ EventEnum Translator::define_lines(const std::string& file_info) {
     std::string lineContent;
     uint64_t lineNumber = 1; 
     while (std::getline(file, lineContent)) {
-// std::cout << "\tinside while\n" << std::endl;
+std::cout << "inside define_lines while at line " << lineNumber << "\n"<< std::endl;
+
+    // std::string stripped = remove_comments(lineContent);
+    // lineContent = remove_comments2(lineContent); YOOOO YOU NEED
+    // YOU NEED TO DECIDE ABOUT THIS ^^^^
+
         // Search file for URGENT pseudo ops
         std::istringstream iss(lineContent);
         std::string word;
         iss >> word;
-        // std::cout << "\tdid something with iss steam\n" << std::endl;
+// std::cout << "\topened iss steam about to test for include\n" << std::endl;
         if(word == ".include") {
+// std::cout << "\ttrying to includ for some reason????\n" << std::endl;
             std::string includeFile;
             iss >> includeFile;
             if(!includeFile.empty()) {
@@ -86,19 +105,26 @@ EventEnum Translator::define_lines(const std::string& file_info) {
                 define_lines(includeFile); // Recursive call to include the file
             }
         } else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
-            // std::cout << "\tmatched with either text or data\n" << std::endl;
+// std::cout << "\tmatched with either text or data\n" << std::endl;
             this->cur_section = word;
         } 
         
-        // Check that section is working well
-        // std::cout << "\tabout to make the line\n" << std::endl;
-        // printf("lineN:%ld,sec:%s,line:%s,file:%s\n", lineNumber, this->cur_section.c_str(), lineContent.c_str(), this->input_file_path.c_str());
-        std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, this->input_file_path);
-// std::cout << "\tmade the line\n" << std::endl;
-        this->lines_array.push_back(std::move(line));
-// std::cout << "\tpushed that shit back\n" << std::endl;
-        // Check if the line is a pseudo op
+// std::cout << "\tnot pseudo about to make the line\n" << std::endl;
+        if (!lineContent.empty() && !word.empty() && word.at(0) != ';') {
+        // if (!lineContent.empty()) {
+            // Only place the line in the array if it is non-empty
 
+// printf("\tLine preview: \n\t\tlineN:%ld,\n\t\tsec:%s,\n\t\tline:%s,\n\t\tfile:%s,\n\t\tWORD:%s\n", lineNumber, this->cur_section.c_str(), lineContent.c_str(), this->input_file_path.c_str(), word.c_str());
+            std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, this->input_file_path);
+// std::cout << "\tDecided to make the line: |" << line->no_comments << "|\n" << std::endl;
+            if (!line->no_comments.empty()) {
+            this->lines_array.push_back(std::move(line));
+std::cout << "\tpushed that shit into the array\n" << std::endl;
+
+            }
+            
+        }
+        // Increment file line number
         lineNumber++;
     }
 

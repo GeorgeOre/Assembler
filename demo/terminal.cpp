@@ -38,7 +38,9 @@ void runAssembler(Translator &translator) {
 
     // Create lines
 
+    translator.define_lines(translator.get_input_file_path());
     // Bruhber
+    // std::cout << "\n\n\n\nlines were defined YAY\n\n\n" << std::endl;
 
     EventEnum result = translator.first_pass();
     if (result == EventEnum::SUCCESS) {
@@ -53,10 +55,11 @@ void runAssembler(Translator &translator) {
 }
 
 int main() {
-    Translator translator;
+    // These are the default dirs
+    Translator translator("demo/input.asm", "demo/output.hex");
 
-    std::string inputPath;
-    std::string outputPath;
+    std::string inputPath = translator.get_input_file_path();
+    std::string outputPath = translator.get_output_file_path();
     bool exit = false;
 
     while (!exit) {
@@ -85,8 +88,10 @@ int main() {
             case 2:
                 std::cout << "Enter assembly file path: ";
                 std::cin >> inputPath;
+                translator.set_input_file_path(inputPath);
                 std::cout << "Enter output file path: ";
                 std::cin >> outputPath;
+                translator.set_output_file_path(outputPath);
                 break;
             case 3:
                 printHelp();

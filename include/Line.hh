@@ -23,6 +23,7 @@ public:
     std::string file_name;  // Name of source file
     std::string section;    // Name of section
     std::string raw_line;   // Raw line info
+    std::string no_comments;   // Comment filtered line info
     std::shared_ptr<OpCode> opcode;      // OpCode in the line 
     std::vector<std::shared_ptr<Operand>> operands; // List of  pointers to Operands
     bool contains_user_defined;
@@ -41,12 +42,12 @@ public:
      const std::string& line, const std::string& f_name);
 
     // Define move constructor and move assignment operator
-    Line(Line&& other) noexcept = default;
-    Line& operator=(Line&& other) noexcept = default;
+    // Line(Line&& other) noexcept = default;
+    // Line& operator=(Line&& other) noexcept = default;
 
     // Delete copy constructor and copy assignment operator
-    Line(const Line& other) = delete;
-    Line& operator=(const Line& other) = delete;
+    // Line(const Line& other) = delete;
+    // Line& operator=(const Line& other) = delete;
 
     // Accessors
     uint64_t get_line_number(); //const;
@@ -77,7 +78,7 @@ public:
     // HELPER FUNCTION FOR THE CONSTUCTOR
     // void parseLine();
     void parse_opcode(std::vector<std::string> &elements);
-    void parse_operands(const std::vector<std::string> &elements, const std::string operand_info);
+    void parse_operands(std::vector<std::string> &elements, std::string operand_info);
 
     // to_pichex should return the pichex output of the line to be printed to the output file
     std::string to_pichex() const;
