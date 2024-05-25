@@ -39,7 +39,7 @@ void Operand::parseRawToBinary() {
 
     // Copy the string into an uppercase testing variable
     std::string tempRaw = raw;
-// std::cout << "\t\tTesting " << tempRaw << std::endl;
+std::cout << "\t\tTesting parse raw to bin:  " << tempRaw << std::endl;
     std::transform(tempRaw.begin(), tempRaw.end(), tempRaw.begin(), ::toupper);
 
     // Parse binary according to the accepted prefixes and suffixes

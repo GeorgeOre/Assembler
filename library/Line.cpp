@@ -433,6 +433,7 @@ std::string get_addr(uint64_t addr){
 
 std::string get_size(uint64_t size){
 	std::stringstream stream;
+    // Change to hex and to uppercase
 	stream << std::hex << std::uppercase << size; // Changed to uppercase
 	std::string address = stream.str();
 	size_t length = address.size();
@@ -479,6 +480,7 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
     std::string opcode_bin = this->opcode->binary;
 
 std::cout << "We are in to pichex" << std::endl;
+printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
 
     // Next, fetch the necessary operands binaries
     std::vector<std::string> operand_bins;
@@ -486,11 +488,14 @@ std::cout << "We are in to pichex" << std::endl;
         // Make sure to handle variable operands
         if (this->operands[i]->get_is_user_defined()) {
 std::cout << "Found user defined operand" << std::endl;
+
+printf("\toperand %zu original bin data: %s\n", i, this->operands[i]->get_binary().c_str());
             this->operands[i]->set_raw(hashmap[this->operands[i]->get_raw()]);
             this->operands[i]->parseRawToBinary();
         }
+printf("\toperand %zu after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_binary().c_str());
 
-std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
+// std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
         operand_bins.push_back(this->operands[i]->get_binary());
     }
 
@@ -499,22 +504,32 @@ std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << st
     std::string tot_bin = bitwiseAddBinaryStrings(operand_bins);
 
     // Convert binary to hexadecimal
+printf("\ttotal combined bin data: %s\n", tot_bin.c_str());
     data = binaryToHex(tot_bin);
+printf("\thex data: %s\n", data.c_str());
+
 
     // Ensure the length of the data string is even
     if (data.size() % 2 == 1) {
         data.insert(0, 1, '0');
     }
 
+    // For now we will make sure each line is two bytes
+    while (data.size() != 4) {
+        data.insert(0, 1, '0');
+    }
+
+printf("\thex data after even adjustment: %s\n", data.c_str());
+
     // Fill out all other params
-    byte_count = get_size(2); // 2 bytes of data
+    byte_count += get_size(data.size()/2); // depends on how many bytes of data were provided
     address = get_addr(this->memory_address);
     record_type = "00"; // This is a data record
     checksum = get_checksum(2, address, record_type, data);
 
     // Construct the final string (this must have a ':' prefix)
     std::string total = ":" + byte_count + address + record_type + data + checksum;
-    // printf("\t\nbyte count: %s\t\naddress: %s\t\nrecord type: %s\t\ndata: %s\t\nchecksum: %s\t\ntotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
+    printf("\n\tbyte count: %s\n\taddress: %s\n\trecord type: %s\n\tdata: %s\n\tchecksum: %s\n\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
     return total;
 }
 // Accessors and modifiers

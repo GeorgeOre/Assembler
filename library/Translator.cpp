@@ -346,6 +346,7 @@ void second_pass(std::vector<Line> &lines, const std::unordered_map<std::string,
 */
 
 EventEnum Translator::second_pass() {
+printf("\n\n\nSECOND PASS START:\n");
     // Check to make sure that the output file is valid
     std::ofstream outputFile(this->output_file_path);
     if (!outputFile.is_open()) {
