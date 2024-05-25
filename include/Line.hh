@@ -81,7 +81,7 @@ public:
     void parse_operands(std::vector<std::string> &elements, std::string operand_info);
 
     // to_pichex should return the pichex output of the line to be printed to the output file
-    std::string to_pichex() const;
+    std::string to_pichex(std::unordered_map<std::string, std::string>) const;
 };
 
 #endif // LINE_HH

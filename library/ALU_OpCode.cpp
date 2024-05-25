@@ -7,6 +7,8 @@
 std::unordered_map<std::string, std::string> ALU_OpCode::op_format_map = {
     {"MOVWF", "^00...01...$"},  // Move W to f
     {"CLR", "^00...01...$"},    // Clear f (CLRF or CLRW)
+    {"CLRF", "00...01...$"},
+    {"CLRW", "00...01...$"},
     {"SUBWF", "^00...10...$"},  // Subtract W from f
     {"DECF", "^00...11...$"},   // Decrement f
     {"IORWF", "^00..100...$"},  // Inclusive OR f and W
@@ -21,6 +23,17 @@ std::unordered_map<std::string, std::string> ALU_OpCode::op_format_map = {
     {"RLF", "^00..101...$"},    // Rotate left through carry
     {"SWAPF", "^00..110...$"},  // Swap nibbles of f
     {"INFSZ", "^00..111...$"},  // Increment f, skip if zero
+    // Lowercase versions
+    {"movwf", "^00...01...$"},{"clr", "^00...01...$"},
+    {"clrf", "00...01...$"},{"clrw", "00...01...$"},
+    {"subwf", "^00...10...$"},{"decf", "^00...11...$"},
+    {"iorwf", "^00..100...$"},{"andwf", "^00..101...$"},
+    {"xorwf", "^00..110...$"},{"addwf", "^00..111...$"},
+    {"movf", "^00..000...$"},{"comf", "^00..001...$"},
+    {"incf", "^00..010...$"},{"decfsz", "^00..011...$"},
+    {"rrf", "^00..100...$"},{"rlf", "^00..101...$"},
+    {"swapf", "^00..110...$"},{"infsz", "^00..111...$"}
+
 };
 
 /* ONLY NECESARY BITS
@@ -48,6 +61,8 @@ std::unordered_map<std::string, std::string> ALU_OpCode::op_bin_map = {
 std::unordered_map<std::string, std::string> ALU_OpCode::op_bin_map = {
     {"MOVWF", "00000010000000"},  // Move W to f
     {"CLR",   "00000100000000"},    // Clear f (CLRF or CLRW)
+    {"CLRF",   "00000100000000"},    // Clear f (CLRF or CLRW)
+    {"CLRW",   "00000100000000"},    // Clear f (CLRF or CLRW)
     {"SUBWF", "00001000000000"},  // Subtract W from f
     {"DECF",  "00001100000000"},   // Decrement f
     {"IORWF", "00010000000000"},  // Inclusive OR f and W
@@ -62,11 +77,24 @@ std::unordered_map<std::string, std::string> ALU_OpCode::op_bin_map = {
     {"RLF",   "00110100000000"},    // Rotate left through carry
     {"SWAPF", "00111000000000"},  // Swap nibbles of f
     {"INFSZ", "00111100000000"},  // Increment f, skip if zero
+    // Lowercase versions
+    {"movwf", "00000010000000"},{"clr", "00000100000000"},
+    {"clrf", "00000100000000"},{"clrw", "00000100000000"},
+    {"subwf", "00001000000000"},{"decf", "00001100000000"},
+    {"iorwf", "00010000000000"},{"andwf", "00010100000000"},
+    {"xorwf", "00011000000000"},{"addwf", "00011100000000"},
+    {"movf", "00100000000000"},{"comf", "00100100000000"},
+    {"incf", "00101000000000"},{"decfsz", "00101100000000"},
+    {"rrf", "00110000000000"},{"rlf", "00110100000000"},
+    {"swapf", "00111000000000"},{"infsz", "00111100000000"}
+
 };
 
 std::unordered_map<std::string, std::string> ALU_OpCode::op_operand_map = {
     {"MOVWF", "f"},  // Move W to f
     {"CLR", "df"},    // Clear f (CLRF or CLRW)
+    {"CLRF", "f"},
+    {"CLRW", "w"},
     {"SUBWF", "df"},  // Subtract W from f
     {"DECF", "df"},   // Decrement f
     {"IORWF", "df"},  // Inclusive OR f and W
@@ -81,6 +109,13 @@ std::unordered_map<std::string, std::string> ALU_OpCode::op_operand_map = {
     {"RLF", "df"},    // Rotate left through carry
     {"SWAPF", "df"},  // Swap nibbles of f
     {"INFSZ", "df"},  // Increment f, skip if zero
+    // Lowercase versions
+    {"movwf", "f"},{"clr", "df"},{"clrf", "f"},
+    {"clrw", "w"},{"subwf", "df"},{"decf", "df"},
+    {"iorwf", "df"},{"andwf", "df"},{"xorwf", "df"},
+    {"addwf", "df"},{"movf", "df"},{"comf", "df"},
+    {"incf", "df"},{"decfsz", "df"},{"rrf", "df"},
+    {"rlf", "df"},{"swapf", "df"},{"infsz", "df"}
 };
 
 ALU_OpCode::ALU_OpCode(const std::string& opcode) : OpCode(opcode) {

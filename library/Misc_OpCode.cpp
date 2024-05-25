@@ -11,7 +11,11 @@ std::unordered_map<std::string, std::string> Misc_OpCode::op_format_map = {
     {"OPTION", "^0000000"},  // Load OPTION register
     {"SLEEP", "^0000000"},  // Go into standby mode
     {"CLRWDT", "^0000000"},  // Clear Watchdog Timer
-    {"TRIS", "^0000000"}    // Load TRIS register
+    {"TRIS", "^0000000"},   // Load TRIS register
+    // Lowercase versions
+    {"nop", "^0000000"},{"return", "^0000000"},{"retfie", "^0000000"},
+    {"option", "^0000000"},{"sleep", "^0000000"},{"cltwdt", "^0000000"},
+    {"tris", "^0000000"}
 };
 
 std::unordered_map<std::string, std::string> Misc_OpCode::op_bin_map = {
@@ -21,7 +25,11 @@ std::unordered_map<std::string, std::string> Misc_OpCode::op_bin_map = {
     {"OPTION", "00000001100010"},  // Load OPTION register
     {"SLEEP",  "00000001100011"},  // Go into standby mode
     {"CLRWDT", "00000001100100"},  // Clear Watchdog Timer
-    {"TRIS",   "000000011001"}    // Load TRIS register
+    {"TRIS",   "00000001100100"},    // Load TRIS register
+    // Lowercase versions
+    {"nop", "00000000000000"},{"return", "00000000001000"},{"retfie", "00000000001001"},
+    {"option", "00000001100010"},{"sleep", "00000001100011"},{"cltwdt", "00000001100100"},
+    {"tris", "00000001100100"}
 };
 
 std::unordered_map<std::string, std::string> Misc_OpCode::op_operand_map = {
@@ -31,7 +39,11 @@ std::unordered_map<std::string, std::string> Misc_OpCode::op_operand_map = {
     {"OPTION", ""},  // Load OPTION register
     {"SLEEP", ""},  // Go into standby mode
     {"CLRWDT", ""},  // Clear Watchdog Timer
-    {"TRIS", "f"}    // Load TRIS register
+    {"TRIS", "f"},    // Load TRIS register
+    // Lowercase versions
+    {"nop", ""},{"return", ""},{"retfie", ""},
+    {"option", ""},{"sleep", ""},{"cltwdt", ""},
+    {"tris", "f"}
 };
 
 Misc_OpCode::Misc_OpCode(const std::string& opcode) : OpCode(opcode) {

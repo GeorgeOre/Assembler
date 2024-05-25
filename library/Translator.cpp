@@ -163,22 +163,44 @@ std::cout << "Removed line in first pass for being empty\n" << std::endl;
         else if (this->lines_array[i]->get_contains_user_defined())
         {
 std::cout << "Something was user defined\n" << std::endl;
-printf("\traw line: %s\n\tstripped line: %s\n\tline number: %ld\n\topcode: %s\n\toperand 0: %s\n\t", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str(), this->lines_array[i]->operands[0]->get_raw().c_str());
+printf("\traw line: %s\n\tstripped line: %s\n\tline number: %ld\n\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
+for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
+    printf("\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
+}
+
             // Handle constant declarations
-            if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0)
+            if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0
+                || this->lines_array[i]->get_opcode().get_code_str().compare(".equ") == 0)
             {
 std::cout << "\tit was a constant\n" << std::endl;
                 // Fetch key value pair
                 std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
+std::cout << user_key << std::endl;
                 std::string user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
+std::cout << user_value << std::endl;
+                // Make sure that the value is in terms of another predefined value
+                if (const_hashmap.find(user_value) != const_hashmap.end()) {
+                    // If user_value is found in the map, use the mapped value
+                    std::string actual_value = const_hashmap[user_value];
+std::cout << "Predefined value found: " << actual_value << std::endl;
+                    // You can now use actual_value for further processing
+                    // For example, updating the user_value with actual_value
+                    user_value = actual_value;
+                } else {
+std::cout << "No predefined value found for: " << user_value << std::endl;
+                }
 
                 // Store in hashmap
                 const_hashmap.insert(std::make_pair(user_key, user_value));
-
+std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
                 // Remove line from array
+std::cout << "removing lines" << std::endl;
                 this->lines_array.erase(this->lines_array.begin() + i);
                 i--;
-                currentProgramAddress--;
+                continue;
+                
+                // currentProgramAddress -= 2;
+
             } 
             // Handle label definitions
             else if (this->lines_array[i]->get_opcode().get_code_str().back() == ':')
@@ -344,7 +366,7 @@ EventEnum Translator::second_pass() {
 
     for (const auto& line : this->lines_array) {
         // Translate instruction
-        outputFile << line->to_pichex() << std::endl;
+        outputFile << line->to_pichex(const_hashmap) << std::endl;
     }
 
     // Hex files must end with ":00000001FF" by convention
