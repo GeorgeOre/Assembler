@@ -22,13 +22,19 @@ std::unordered_map<std::string, std::string> Label_OpCode::op_operand_map = {
 // Constructor
 Label_OpCode::Label_OpCode(const std::string& opcode) : OpCode(opcode) {
     // Check if this OpCode's format exists
-    auto it = op_format_map.begin();
-    std::string first_key = it->first;
+    // auto it = op_format_map.begin();
+    // std::string first_key = it->first;
+    // std::cout << "\tWe got inside LABEL OPCODE DEF" << std::endl;
+
+    std::string first_key = ".*:";
     std::regex pseudo_op_format(first_key);
     if (std::regex_match(opcode, pseudo_op_format)) {
+    // std::cout << "\t\tREGEX MATCHED" << std::endl;
         // If it was valid we should set format confirming we have a valid pseudo op
-        this->format = op_format_map.at(first_key);        
+        // this->format = op_format_map.at(first_key);
+        this->format = ".*:";
     } else{
+    // std::cout << "\t\tREGEX FAILED" << std::endl;
         // std::cout << "DANG IT " << code << " WAS INVALID " << std::endl;
         throw std::invalid_argument("Label_OpCode does not have a format");
     }
@@ -49,8 +55,8 @@ Label_OpCode::Label_OpCode(const std::string& opcode) : OpCode(opcode) {
     // }
 
     // Check if this OpCode's operand info exists
-    // LABELS DO NOT HAVE ANY OF THIS
-    this->operand_info = "";
+    // LABELS DO NOT HAVE ANY OF THIS?
+    this->operand_info = "p";
     // if (op_operand_map.find(opcode) == op_operand_map.end()) {
     //         // std::cout << "DANG IT " << code << " WAS INVALID " << std::endl;
     //     throw std::invalid_argument("Label_OpCode does not have operand info");
@@ -61,6 +67,7 @@ Label_OpCode::Label_OpCode(const std::string& opcode) : OpCode(opcode) {
 
     // Labels are always user defined
     this->is_user_defined = true;
+        // std::cout << "\t\tDONE DEFING LABEL" << std::endl;
 
 }
 

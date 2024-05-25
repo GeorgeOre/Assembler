@@ -29,6 +29,7 @@
 // IO Utils
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 // Math Utils
 #include <numeric>
@@ -74,7 +75,7 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
     {"TRIS", "MISC"},//, {"CLRW", "ALU"}  // Check if CLRW exists later
 
     // Pseudo Ops
-    {"Label:", "PSEUDO"},    // Label definition
+    // {"Label:", "PSEUDO"},    // Label definition
     {".text", "PSEUDO"},     // Start text space
     {".data", "PSEUDO"},     // Start data space
     {".info", "PSEUDO"},     // Start info space
@@ -112,20 +113,34 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
     // Local vars
     std::string potential_opcode;
     bool op_found = false;
+    size_t valid = elements.size();
 
     // Attempt to create the OpCode object within the valid searching range
-    for (size_t i = 0; i < MAX_OPCODE_POS && i < elements.size(); i++) { 
+    for (size_t i = 0; i < MAX_OPCODE_POS && i < valid; i++) { 
+            // std::cout << "\ttesting parse opcode" << i << std::endl;
+
         potential_opcode = elements[i];
+    // std::cout << "\tpot op: |" << potential_opcode << "|" << std::endl;
+
         try // Try-catch to handle OpCode initalization errors
         {
+
+    // std::cout << "\tinside the try" << std::endl;
             // Test for label first
             if (potential_opcode.back() == ':') {
+    // std::cout << "\tdetected : at end" << std::endl;
                 this->opcode = std::make_shared<Label_OpCode>(potential_opcode);
+                // Add the element to the list to be parsed as a pseudo op
+                // elements.push_back(potential_opcode.substr(0, potential_opcode.size()-1));
+                elements.push_back(potential_opcode);
+                // std::cout << "\tpushed back into elements" << std::endl;
             }   // Test for pseudo op next
             else if (potential_opcode.front() == '.') {
+    // std::cout << "We got to line 3 found ." << std::endl;
                 this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
             }   // Try to find predefined OpCodes
             else if (op_type_map.find(potential_opcode) != op_type_map.end()) {
+    // std::cout << "We got to line 3 predefined opcode" << std::endl;
                 std::string op_type = op_type_map.at(potential_opcode);
 
                 if (op_type == "ALU") {
@@ -147,11 +162,10 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
                     this->contains_error = true;
                     this->error_message = "OpCode child type undefined in op_type_map (see Line.cpp)";
                 }
-                
-                // Set found flag and remove the OpCode from the parsed elements
-                elements.erase(elements.begin() + i);
-                op_found = true;
-            }            
+            }   
+            // Set found flag and remove the OpCode from the parsed elements
+            elements.erase(elements.begin() + i);
+            op_found = true;         
         }
         catch(const std::exception& e)
         {
@@ -243,14 +257,26 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
+    // std::cout << "We got to line 3 init constructor\n" << std::endl;
+
+
     // Search the line for comments and remove
     std::string stripped = remove_comments(line);
+
+    // std::cout << "We got to line 3 strip good\n" << std::endl;
+
 
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
+    // std::cout << "We got to line 3 parse good\n" << std::endl;
+
+
     // Define OpCode
     parse_opcode(elements);
+
+    // std::cout << "We got to line 3 opcode good\n" << std::endl;
+
 
     // Define Operands
     std::string info = this->opcode->get_operand_info();
@@ -262,7 +288,7 @@ Line::Line(uint64_t line_number, const std::string& section,
 // PICHEX CALCULARION FUNCTIONS
 std::string get_addr(uint64_t addr){
 	std::stringstream stream;
-	stream << std::hex << addr;
+	stream << std::hex << std::uppercase << addr; // Changed to uppercase
 	std::string address = stream.str();
 	size_t length = address.size();
 	size_t to_add = 4 - length;
@@ -272,7 +298,7 @@ std::string get_addr(uint64_t addr){
 
 std::string get_size(uint64_t size){
 	std::stringstream stream;
-	stream << std::hex << size;
+	stream << std::hex << std::uppercase << size; // Changed to uppercase
 	std::string address = stream.str();
 	size_t length = address.size();
 	size_t to_add = 2 - length;
@@ -297,7 +323,7 @@ std::string checksum(int size, std::string line2, std::string line3, std::string
 	int modded = sum % 256;
 	int next = 256 - modded;
 	std::stringstream stream;
-	stream << std::hex << next;
+	stream << std::hex << std::uppercase << next; // Changed to uppercase
 	std::string cs = stream.str();
 	return cs;
 }
@@ -307,7 +333,7 @@ std::string Line::to_pichex() const{
 	unsigned long binary = 10;
 	// unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
 	std::stringstream stream;
-	stream << std::hex << binary;
+	stream << std::hex << std::uppercase << binary; // Changed to uppercase
 	std::string data = stream.str();
 	size_t length = data.size();
 	if (length % 2 == 1){	
@@ -316,7 +342,7 @@ std::string Line::to_pichex() const{
 	
     // THIS IS NO LONGER ALL BUT
     std::string total_checksum = get_size(data.size()) +  get_addr(this->memory_address) + "02" + data + checksum(data.size(), get_addr(this->memory_address), "02", data);
-	return total_checksum;
+	return ":" + total_checksum;
 }
 
 // Accessors and modifiers
