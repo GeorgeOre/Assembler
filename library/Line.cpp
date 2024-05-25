@@ -1,3 +1,4 @@
+
 // Line.cpp
 #include "Line.hh"
 
@@ -27,6 +28,10 @@
 #include <algorithm>
 #include <unordered_map>
 #include <string>
+#include <assert.h>
+#include <numeric>
+
+static const size_t MAX_OPCODE_POS = 2;
 
 std::unordered_map<std::string, std::string> Line::op_type_map = {
     // Bit-Oriented Instructions
@@ -79,19 +84,22 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
-    // Search the line for comment
-    std::size_t comment_start = this->raw_line.find(';');
-    
-    // Strip line of comment if it exists
-    if (comment_start != std::string::npos) {
-        this->raw_line.substr(0, comment_start);
-    }
-    
+    // Search the line for comments and remove
+    std::string stripped = remove_comments(line);
+
     // Start parsing line
-    parseLine();
+    std::vector<std::string> elements = parse_line(stripped);
+
+    // Define OpCode
+    parse_opcode(elements);
+
+    // Define Operands
+    std::string info = this->opcode->get_operand_info();
+    parse_operands(elements, info);
 
 }
 
+/* THIS IS THE VERSION THAT COMPILES BUT YOU GOTTA .hh IT
 void Line::parseLine() {
     // Make a stream iterator for the line and a holder for the opcode
     std::istringstream str_stream(this->raw_line);
@@ -184,34 +192,49 @@ void Line::parseLine() {
         count++;
         // printf("We have added %d operands\n", count);
     }
+*/
 
-/* THIS IS THE PROTOTYPE VERSION
-void Line::parseLine() {
+// Helper functions
+std::string remove_comments(const std::string &line) {
+    std::size_t comment_start = line.find(';');
+    // Strip line of comment if it exists
+    if (comment_start != std::string::npos) {
+        return line.substr(0, comment_start);
+    }
+    // If not, return the original line
+    return line;
+}
+
+std::vector<std::string> parse_line(const std::string &line) {
     // Make a stream iterator for the line and start parsing the line
-    // Assume everything is space delimited
-    std::istringstream str_stream(this->raw_line);
+    std::istringstream str_stream(line);
     std::vector<std::string> words;
     std::string word;
 
-    // Read all words from the stream
+    // Read all words from the stream assuming space delimitors
     while (str_stream >> word) {
         words.push_back(word);
     }
 
+    // Return all items found
+    return words;
+}
 
-    // Go through all words until the opcode/pseudo op is found
+void Line::parse_opcode(std::vector<std::string> &elements) {
+    // Local vars
     std::string potential_opcode;
     bool op_found = false;
-    while (!op_found) {
-        // Attempt to create the OpCode object; 
-        // this can throw an exception if the opcode is invalid
-        try
+
+    // Attempt to create the OpCode object within the valid searching range
+    for (size_t i = 0; i < MAX_OPCODE_POS && i < elements.size(); i++) { 
+        potential_opcode = elements[i];
+        try // Try-catch to handle OpCode initalization errors
         {
             if (op_type_map.find(potential_opcode) != op_type_map.end()) {
                 std::string op_type = op_type_map.at(potential_opcode);
                 
                 if (op_type == "ALU") {
-    		        this->opcode = std::make_shared<ALU_OpCode>(potential_opcode);// ALU_OpCode(potential_opcode);
+    		        this->opcode = std::make_shared<ALU_OpCode>(potential_opcode);
                 }
                 else if (op_type == "B") {
                     this->opcode = std::make_shared<B_OpCode>(potential_opcode);
@@ -229,51 +252,89 @@ void Line::parseLine() {
                     this->opcode = std::make_shared<W_OpCode>(potential_opcode);
                 }
                 else {
-                    // Fetch the second word for a final check for equ
-                    str_stream >> potential_opcode;
-                    if (potential_opcode.compare("equ")==0) {
-                        // If it is, then we have a special pseudo op
-                        this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
-                        str_stream << potential_opcode;
-                        this->operands
-                    }
-                    
-                    // If none of these were detected, then set error
+                    // If none of these children were detected, then set error
                     this->contains_error = true;
-                    this->error_message = "OpCode type undefined in optype hashtable";
+                    this->error_message = "OpCode child type undefined in op_type_map (see Line.cpp)";
                 }
-            }
+                
+                // Set found flag and remove the OpCode from the parsed elements
+                elements.erase(elements.begin() + i);
+                op_found = true;
+            }            
         }
         catch(const std::exception& e)
         {
-            // If there was an error in making the specific OpCode, set error
+            // If there was an error in initalizing the OpCode, set error
             this->contains_error = true;
             this->error_message = e.what();
         }
+
+        // Exit the for loop if an OpCode was created
+        if (op_found == true) {
+            break;
+        }
     }
-   
 
+    // Set an error if no OpCode was detected
+    if (op_found == false) {
+        this->contains_error = true;
+        this->error_message = "No OpCode or pseudo op found";
+    }
 
-     
+}
 
-    // Parse the rest of the line as potential operands    
+// From internet
+std::string join_strings(const std::vector<std::string>& vec, const std::string& separator) {
+    if (vec.empty()) return "";
+    return std::accumulate(std::next(vec.begin()), vec.end(), vec[0],
+                           [&separator](const std::string& a, const std::string& b) {
+                               return a + separator + b;
+                           });
+}
+std::vector<std::string> split_string(const std::string& str, char delimiter) {
+    std::vector<std::string> result;
+    size_t start = 0;
+    size_t end = str.find(delimiter);
+    
+    while (end != std::string::npos) {
+        result.push_back(str.substr(start, end - start));
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+    result.push_back(str.substr(start)); // Add the last segment
+    
+    return result;
+}
+
+void Line::parse_operands(const std::vector<std::string> &elements, const std::string operand_info) {
+    // This function assumes that parse_opcode was called before it. The correct operand_info 
+    // parameter should not have been attainable without parse_opcode being called. This is why
+    // it is necesarry for the user to have passed in the info parameter even though it can be
+    // easily accessed with this->get_opcode()->get_operand_info().
+    std::string operands_only = join_strings(elements, " ");
+
+    // Now we need to parse the given elements into a vector of comma delimited operands
+    std::vector<std::string> operands = split_string(operands_only, ',');
+
+    // Make sure that the operand info matches the given operand elements
+    assert(operand_info.size() == operands.size());
+
+    // Go through all elements and define them based on the opcode's operand info
     std::string potential_operand;
-    std::string info = this->opcode->get_operand_info();
-    int count = 0;
-    while (str_stream >> potential_operand) {
-        // Attempt to init each operand based on the opcode operand info
-        try
+    for (size_t i = 1; i < elements.size(); ++i) {
+        potential_operand = elements[i];
+        try // Try-catch to handle OpCode initalization errors
         {
             // Try to init each operand according to the operand info
-            if (info.at(count) == 'b') {
+            if (operand_info.at(i) == 'b') {
                 this->operands.push_back(std::make_shared<Boperand>(potential_operand));
-            } else if (info.at(count) == 'd') {
+            } else if (operand_info.at(i) == 'd') {
                 this->operands.push_back(std::make_shared<Doperand>(potential_operand));
-            } else if (info.at(count) == 'f') {
+            } else if (operand_info.at(i) == 'f') {
                 this->operands.push_back(std::make_shared<Foperand>(potential_operand));
-            } else if (info.at(count) == 'k') {
+            } else if (operand_info.at(i) == 'k') {
                 this->operands.push_back(std::make_shared<Koperand>(potential_operand));
-            } else if (info.at(count) == 'p') {
+            } else if (operand_info.at(i) == 'p') {
                 this->operands.push_back(std::make_shared<Poperand>(potential_operand));
             } else {
                 // If the operand type was not detected, set error
@@ -287,19 +348,138 @@ void Line::parseLine() {
             this->contains_error = true;
             this->error_message = e.what();
         }
+        // Placeholder print
+        std::cout << "Operand: " << elements[i] << std::endl;
 
-        // CURRENTLY ONLY OPERANDS WILL BE USER DEFINED
-        // Check to see if the line contains a user defined operand
-        if (this->operands[count]->get_is_user_defined()) {
-            this->contains_user_defined = true;
+        // Example of identifying and evaluating an expression
+        if (elements[i].find('+') != std::string::npos ||
+            elements[i].find('-') != std::string::npos) {
+            std::cout << "Expression found: " << elements[i] << std::endl;
+            // Evaluate the expression (simple example, you might want a full parser here)
+            // For example, if the operand is "1+2", you should evaluate it and print the result
         }
-        
-        // Update operand count
-        count++;
-        // printf("We have added %d operands\n", count);
+
+        // Example of user-defined handling (you can expand this logic)
+        if (elements[i].find("user_defined") != std::string::npos) {
+            std::cout << "User defined element found: " << elements[i] << std::endl;
+        }
     }
+
+
+    // Parse the rest of the line as potential operands    
+
+    // CURRENTLY ONLY OPERANDS WILL BE USER DEFINED
+    // Check to see if the line contains a user defined operand
+    if (this->operands[count]->get_is_user_defined()) {
+        this->contains_user_defined = true;
+    }
+    
+    // Update operand count
+    count++;
+    // printf("We have added %d operands\n", count);
+
+}
+
+/* EXPRESSION BS
+#include <stack>
+#include <unordered_map>
+
+int evaluate_expression(const std::string &expression, const std::unordered_map<std::string, int> &symbol_table) {
+    std::stack<int> values;
+    std::stack<char> operators;
+
+    auto apply_operator = [](std::stack<int> &values, char op) {
+        int b = values.top(); values.pop();
+        int a = values.top(); values.pop();
+        switch (op) {
+            case '+': values.push(a + b); break;
+            case '-': values.push(a - b); break;
+            case '*': values.push(a * b); break;
+            case '/': values.push(a / b); break;
+        }
+    };
+
+    for (size_t i = 0; i < expression.length(); ++i) {
+        char ch = expression[i];
+        if (isspace(ch)) {
+            continue;
+        } else if (isdigit(ch)) {
+            int value = 0;
+            while (i < expression.length() && isdigit(expression[i])) {
+                value = value * 10 + (expression[i] - '0');
+                ++i;
+            }
+            --i;
+            values.push(value);
+        } else if (isalpha(ch)) {
+            std::string symbol;
+            while (i < expression.length() && (isalnum(expression[i]) || expression[i] == '_')) {
+                symbol += expression[i];
+                ++i;
+            }
+            --i;
+            if (symbol_table.find(symbol) != symbol_table.end()) {
+                values.push(symbol_table.at(symbol));
+            } else {
+                throw std::runtime_error("Undefined symbol: " + symbol);
+            }
+        } else if (ch == '(') {
+            operators.push(ch);
+        } else if (ch == ')') {
+            while (!operators.empty() && operators.top() != '(') {
+                apply_operator(values, operators.top());
+                operators.pop();
+            }
+            if (!operators.empty()) {
+                operators.pop();
+            }
+        } else if (strchr("+-* /", ch)) { // THIS SPACE WAS CAUSING COMMENT PROBLEMS AND SHOULD BE REMOVED
+            while (!operators.empty() && precedence(operators.top()) >= precedence(ch)) {
+                apply_operator(values, operators.top());
+                operators.pop();
+            }
+            operators.push(ch);
+        }
+    }
+    while (!operators.empty()) {
+        apply_operator(values, operators.top());
+        operators.pop();
+    }
+    return values.top();
+}
+
+int precedence(char op) {
+    switch (op) {
+        case '+':
+        case '-': return 1;
+        case '*':
+        case '/': return 2;
+        default: return 0;
+    }
+}
+
+void second_pass(std::vector<Line> &lines, const std::unordered_map<std::string, int> &symbol_table) {
+    for (Line &line : lines) {
+        for (Operand &operand : line.operands) {
+            if (operand.type == EXPRESSION) {
+                try {
+                    int result = evaluate_expression(operand.value, symbol_table);
+                    operand.type = IMMEDIATE;
+                    operand.value = std::to_string(result);
+                } catch (const std::exception &e) {
+                    std::cerr << "Error evaluating expression: " << operand.value << " - " << e.what() << std::endl;
+                }
+            }
+        }
+    }
+}
+
 */
 
+
+// void Line::parseLine() {}
+
+// JEB VERSION
 // void Line::parseLine(const std::string& line, 
 //                      const std::unordered_map<std::string, std::string>& op_type_map) {
 //     std::istringstream iss(line);
@@ -324,7 +504,8 @@ void Line::parseLine() {
 //     }
 // }
 
-}
+
+// PICHEX CALCULARION FUNCTIONS
 
 std::string get_addr(u_int64_t addr){
 	std::stringstream stream;

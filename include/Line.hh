@@ -22,8 +22,7 @@ public:
     std::string section;    // Name of section
     std::string raw_line;   // Raw line info
     std::shared_ptr<OpCode> opcode;      // OpCode in the line 
-    std::vector<std::shared_ptr<Operand>> operands; // List of Operands
-    // std::vector<std::shared_ptr<Operand>> operands; // List of pointers to Operands
+    std::vector<std::shared_ptr<Operand>> operands; // List of  pointers to Operands
     bool contains_user_defined;
 
     // This must be changed to map from a string to a constructor
@@ -55,7 +54,6 @@ public:
     std::string& get_raw_line(); //const;
     OpCode& get_opcode(); //const;
     std::vector<std::shared_ptr<Operand>>& get_operands(); //const;
-    // const std::vector<std::shared_ptr<Operand>>& getOperands() const;
     bool get_contains_user_defined(); //const;
     bool get_contains_error(); //const;
     std::string& get_error_message(); //const;
@@ -74,7 +72,10 @@ public:
     void set_error_message(std::string message);
 
     // Parse line should be used to simplify the parsing process visually
-    void parseLine();
+    // HELPER FUNCTION FOR THE CONSTUCTOR
+    // void parseLine();
+    void parse_opcode(std::vector<std::string> &elements);
+    void parse_operands(const std::vector<std::string> &elements, const std::string operand_info);
 
     // to_pichex should return the pichex output of the line to be printed to the output file
     std::string to_pichex() const;
