@@ -6,6 +6,7 @@
 Koperand::Koperand(const std::string &raw) : Operand(raw) {
     // set_size(8);  // Set the size to 8 bits
     // set_binary(raw);  // Set the binary value to match the raw string
+// printf("\tthis is inside the koperand constuctor where the bool is : %d", this->is_user_defined);
 }
 
 void Koperand::identifyChild() const {

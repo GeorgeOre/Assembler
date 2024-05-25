@@ -52,6 +52,9 @@ void runAssembler(Translator &translator) {
     } else {
         std::cerr << "Translation failed: " << translator.get_error_message() << std::endl;
     }
+
+    // Reset translator
+    translator.reset();
 }
 
 int main() {

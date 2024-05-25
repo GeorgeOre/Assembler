@@ -132,8 +132,11 @@ std::cout << "\tpushed that shit into the array\n" << std::endl;
 }
 
 EventEnum Translator::first_pass() {
-    uint64_t currentProgramAddress = 1;
-    uint64_t currentDataAddress = 1;
+    // Init address counters to 0
+    uint64_t currentProgramAddress = 0;
+    uint64_t currentDataAddress = 0;
+
+std::cout << "Inside first pass\n" << std::endl;
 
     // Make sure that section is defined
     //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
@@ -146,19 +149,25 @@ EventEnum Translator::first_pass() {
 
     // Loop through each line
     for (size_t i = 0; i < this->lines_array.size(); ++i) {
+std::cout << "First pass PC: " << i << std::endl;
+std::cout << "Lines in line array: " << this->lines_array.size() << "\n" << std::endl;
         // Remove empty or commented out lines from the array
         if (this->lines_array[i]->get_raw_line().empty() == true) {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
+std::cout << "Removed line in first pass for being empty\n" << std::endl;
         } 
         
         // Store user defined values into corresponding hashmaps
         else if (this->lines_array[i]->get_contains_user_defined())
         {
+std::cout << "Something was user defined\n" << std::endl;
+printf("\traw line: %s\n\tstripped line: %s\n\tline number: %ld\n\topcode: %s\n\toperand 0: %s\n\t", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str(), this->lines_array[i]->operands[0]->get_raw().c_str());
             // Handle constant declarations
             if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0)
             {
+std::cout << "\tit was a constant\n" << std::endl;
                 // Fetch key value pair
                 std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
                 std::string user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
@@ -174,6 +183,7 @@ EventEnum Translator::first_pass() {
             // Handle label definitions
             else if (this->lines_array[i]->get_opcode().get_code_str().back() == ':')
             {
+std::cout << "\tit was a text label\n" << std::endl;
                 // Handle text section label
                 if (this->lines_array[i]->get_section().compare(".text") == 0) {
                     // Fetch key value pair
@@ -185,11 +195,12 @@ EventEnum Translator::first_pass() {
                 } 
                 // Handle data section label
                 else if (this->get_lines_array()[i]->get_section().compare(".data") == 0) {
+std::cout << "\tit was a data section label\n" << std::endl;
                     // Fetch key value pair
                     std::string user_key = this->get_lines_array()[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-2);
                     std::string user_value = std::to_string(currentDataAddress);
 
-                    // Update data addresses
+                    // Update data addresses by one byte
                     currentDataAddress++;
 
                     // Store in hashmap
@@ -200,9 +211,12 @@ EventEnum Translator::first_pass() {
             }
             
         }
-        // Store program address here??
-        currentProgramAddress++;
-        
+        // Store program address value in line
+        this->lines_array[i]->set_memory_address(currentProgramAddress);
+
+        // After every instruction, increment the address by two bytes
+        currentProgramAddress += 2;
+
         // std::cout << "Address: " << lines[i].getAddress() << " Content: " << lines[i].getContent() << std::endl;
     }    
     // Optionally, you can print the symbol table for debugging
@@ -317,11 +331,25 @@ EventEnum Translator::second_pass() {
         return EventEnum::FILE_NOT_FOUND;
     }
 
+    // The start of hex files should be an extended linear address record
+    // The standard format is :02000004AAAACC
+    // - : required start of all lines
+    // - 02 2 bytes of address data 
+    // - 0000 address section, must be zero
+    // - 04 denotes the extended linear addresss data
+    // - AAAA actual extended linear address
+    // - CC checksum
+    // For PIC we can use :020000040000FA
+    outputFile << ":020000040000FA" << std::endl;    
+
     for (const auto& line : this->lines_array) {
         // Translate instruction
         outputFile << line->to_pichex() << std::endl;
     }
 
+    // Hex files must end with ":00000001FF" by convention
+    // This is called the end of file record
+    outputFile << ":00000001FF" << std::endl;
     outputFile.close();
     return EventEnum::SUCCESS;
 }
@@ -336,6 +364,22 @@ EventEnum Translator::handle_message(EventEnum event) {
     this->message = event;
     return EventEnum::SUCCESS;
 }
+
+void Translator::reset() {
+    this->input_file_path.clear();
+    this->output_file_path.clear();
+    this->error_file_path.clear();
+    this->cur_section = ".text";
+    this->message = EventEnum::SUCCESS;
+    this->error_message.clear();
+    this->contains_error = false;
+    this->lines_array.clear();
+
+    this->text_label_hashmap.clear();
+    this->data_label_hashmap.clear();
+    this->const_hashmap.clear();
+}
+
 
 // void Translator::receive_message(EventEnum event) {
 //     // Implementation

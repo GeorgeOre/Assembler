@@ -85,6 +85,8 @@ public:
     void write_output();
     EventEnum handle_message(EventEnum event);
     
+    // Reset
+    void reset();
     // EventEnum make_error_file();
 
 private:

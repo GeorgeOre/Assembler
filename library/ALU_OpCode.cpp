@@ -23,25 +23,46 @@ std::unordered_map<std::string, std::string> ALU_OpCode::op_format_map = {
     {"INFSZ", "^00..111...$"},  // Increment f, skip if zero
 };
 
+/* ONLY NECESARY BITS
 std::unordered_map<std::string, std::string> ALU_OpCode::op_bin_map = {
     {"MOVWF", "0000001"},  // Move W to f
-    {"CLR", "000001"},    // Clear f (CLRF or CLRW)
+    {"CLR",   "000001"},    // Clear f (CLRF or CLRW)
     {"SUBWF", "000010"},  // Subtract W from f
-    {"DECF", "000011"},   // Decrement f
+    {"DECF",  "000011"},   // Decrement f
     {"IORWF", "000100"},  // Inclusive OR f and W
     {"ANDWF", "000101"},  // AND f and W
     {"XORWF", "000110"},  // Exclusive OR f and W
     {"ADDWF", "000111"},  // Add W to f
-    {"MOVF", "001000"},   // Move f to destination
-    {"COMF", "001001"},   // Complement f
-    {"INCF", "001010"},   // Increment f
-    {"DECFSZ", "001011"}, // Decrement f, skip if zero
-    {"RRF", "001100"},    // Rotate right through carry
-    {"RLF", "001101"},    // Rotate left through carry
+    {"MOVF",  "001000"},   // Move f to destination
+    {"COMF",  "001001"},   // Complement f
+    {"INCF",  "001010"},   // Increment f
+    {"DECFSZ","001011"}, // Decrement f, skip if zero
+    {"RRF",   "001100"},    // Rotate right through carry
+    {"RLF",   "001101"},    // Rotate left through carry
     {"SWAPF", "001110"},  // Swap nibbles of f
     {"INFSZ", "001111"},  // Increment f, skip if zero
 };
+*/
 
+// ALL BITS FOR ANDING
+std::unordered_map<std::string, std::string> ALU_OpCode::op_bin_map = {
+    {"MOVWF", "00000010000000"},  // Move W to f
+    {"CLR",   "00000100000000"},    // Clear f (CLRF or CLRW)
+    {"SUBWF", "00001000000000"},  // Subtract W from f
+    {"DECF",  "00001100000000"},   // Decrement f
+    {"IORWF", "00010000000000"},  // Inclusive OR f and W
+    {"ANDWF", "00010100000000"},  // AND f and W
+    {"XORWF", "00011000000000"},  // Exclusive OR f and W
+    {"ADDWF", "00011100000000"},  // Add W to f
+    {"MOVF",  "00100000000000"},   // Move f to destination
+    {"COMF",  "00100100000000"},   // Complement f
+    {"INCF",  "00101000000000"},   // Increment f
+    {"DECFSZ","00101100000000"}, // Decrement f, skip if zero
+    {"RRF",   "00110000000000"},    // Rotate right through carry
+    {"RLF",   "00110100000000"},    // Rotate left through carry
+    {"SWAPF", "00111000000000"},  // Swap nibbles of f
+    {"INFSZ", "00111100000000"},  // Increment f, skip if zero
+};
 
 std::unordered_map<std::string, std::string> ALU_OpCode::op_operand_map = {
     {"MOVWF", "f"},  // Move W to f

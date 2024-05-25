@@ -15,24 +15,36 @@
 // Global Constants
 const std::unordered_set<std::string> supported_operations = {"+", "-", "*", "/"};
 
+std::string padTo14Bits(const std::string& binaryString) {
+    size_t length = binaryString.length();
+    if (length >= 14) {
+        return binaryString;
+    }
 
-Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0) {
+    std::string paddedString = std::string(14 - length, '0') + binaryString;
+    return paddedString;
+}
+
+Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0), is_user_defined(false) {
+// printf("\tINSIDE OPERAND CONSTUCTOR: here is the bool for user defined %d\n", this->is_user_defined);
     parseRawToBinary();
+// printf("\tINSIDE OPERAND CONSTUCTOR: here is the bool for user defined %d\n", this->is_user_defined);
 }
 
 void Operand::parseRawToBinary() {
     // Return if the string was empty
-    if (raw.empty()) {
+    if (this->raw.empty()) {
         return;
     }
 
     // Copy the string into an uppercase testing variable
     std::string tempRaw = raw;
+// std::cout << "\t\tTesting " << tempRaw << std::endl;
     std::transform(tempRaw.begin(), tempRaw.end(), tempRaw.begin(), ::toupper);
 
     // Parse binary according to the accepted prefixes and suffixes
     if (tempRaw.find("0B") == 0) {
-        // printf("yep we here\n");
+// printf("yep we here\n");
         this->binary = parseBinary(tempRaw.substr(2, tempRaw.size() - 2));
     } else if (tempRaw.back() == 'B') {
         this->binary = parseOctal(tempRaw.substr(0, tempRaw.size() - 1));
@@ -53,17 +65,24 @@ void Operand::parseRawToBinary() {
         this->binary = parseHexadecimal(tempRaw.substr(0, tempRaw.size() - 1));
     
     } else if (std::regex_match(tempRaw, std::regex("^[0-9]+$"))) {
+// printf("\t\t\tlooks like we are parsing a decimal value\n");
         this->binary = parseDecimal(tempRaw);
+// printf("\t\t\twe ended up with %s\n", this->binary.c_str());
     } else {
         // If there was no constant number to turn into binary
         // Then it needs to be a user defined value
+// printf("We are about to set this operand as user defined\n");
         this->is_user_defined = true;
     }
 
     // Will be 0 if it was not defined
-    size = binary.length();
+    this->size = binary.length();
 
-    // std::cout << "SETTING CONSTURCTOR ENDING " << binary << std::endl;
+    // ADJUST BINARY TO BE 14 BITS
+    this->binary = padTo14Bits(this->binary);
+    
+
+// std::cout << "SETTING CONSTURCTOR ENDING " << binary << std::endl;
 
 }
 

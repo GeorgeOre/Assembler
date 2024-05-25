@@ -1,12 +1,11 @@
 ; Fibonacci Test Code
 
 ; Define the configuration bits
-;    list        p=16F877A THIS IS A MICROCHIP FEATURE AND WILL NOT BE INCLUDED
+    list        p=16F877A 
     include     "p16f877a.inc"
 
 ; Configuration bits settings
-;    __config    _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _LVP_OFF
-; MAYBE DO THIS LATER
+    __config    _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _LVP_OFF
 
 ; Define constants
     cBLOCK       equ 20h         ; Start of general-purpose RAM

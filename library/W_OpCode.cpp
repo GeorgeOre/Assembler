@@ -18,6 +18,7 @@ std::unordered_map<std::string, std::string> W_OpCode::op_format_map = {
 
 };
 
+/* ONLY NECESARY BITS
 std::unordered_map<std::string, std::string> W_OpCode::op_bin_map = {
     {"ADDLW", "110000"},  // Add literal and W
     {"ANDLW", "110100"},  // AND literal with W
@@ -29,6 +30,21 @@ std::unordered_map<std::string, std::string> W_OpCode::op_bin_map = {
     // Lowercase versions
     {"addlw", "110000"}, {"andlw", "110100"}, {"iorlw", "111000"},
     {"movlw", "111001"}, {"retlw", "111010"}, {"sublw", "111011"}, {"xorlw", "111110"}
+}; */
+
+
+// ALL BITS FOR ANDING
+std::unordered_map<std::string, std::string> W_OpCode::op_bin_map = {
+    {"MOVLW", "11000000000000"},  // Add literal and W
+    {"RETLW", "11010000000000"},  // AND literal with W
+    {"IORLW", "11100000000000"},  // Inclusive OR literal with W
+    {"ANDLW", "11100100000000"},  // Move literal to W
+    {"XORLW", "11101000000000"},  // Return with literal in W
+    {"SUBLW", "11110000000000"},  // Subtract W from literal
+    {"ADDLW", "11111000000000"},  // Exclusive OR literal with W
+    // Lowercase versions
+    {"movlw", "11000000000000"}, {"retlw", "11010000000000"}, {"iorlw", "11100000000000"},
+    {"andlw", "11100100000000"}, {"xorlw", "11101000000000"}, {"sublw", "11110000000000"}, {"addlw", "11111000000000"}
 };
 
 std::unordered_map<std::string, std::string> W_OpCode::op_operand_map = {

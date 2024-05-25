@@ -34,6 +34,7 @@
 // Math Utils
 #include <numeric>
 #include <algorithm>
+#include <bitset>
 
 // Misc Utils
 #include <cctype>
@@ -255,6 +256,7 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
     // Set line to contain user defined if true for OpCode
     if (this->opcode->get_is_user_defined()) {
+// printf("opcode was UD\n");
         this->contains_user_defined = true;
     }
 
@@ -302,6 +304,7 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
             } else if (operand_info.at(i) == 'f') {
                 this->operands.push_back(std::make_shared<Foperand>(potential_operand));
             } else if (operand_info.at(i) == 'k') {
+// printf("makeing k op\n");
                 this->operands.push_back(std::make_shared<Koperand>(potential_operand));
             } else if (operand_info.at(i) == 'p') {
                 this->operands.push_back(std::make_shared<Poperand>(potential_operand));
@@ -310,9 +313,11 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
                 this->contains_error = true;
                 this->error_message = "Operand type undefined in operand elif";
             }
+// printf("we got thgouth no errors\n");
         }
         catch(const std::exception& e)
         {
+// printf("wair hold up its actually error catching\n");
             // If there was an error in making the specific Operand, set error
             this->contains_error = true;
             this->error_message = e.what();
@@ -321,6 +326,7 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
         // Check to see if the operand contained a user defined operand
         if (this->operands[i]->get_is_user_defined()) {
             // The line should know this to facilitate processing later
+// printf("The %zu operand was OD\n", i);
             this->contains_user_defined = true;
         }
     }
@@ -371,6 +377,38 @@ Line::Line(uint64_t line_number, const std::string& section,
 
 
 // PICHEX CALCULARION FUNCTIONS
+
+// Function to convert binary string to an integer
+unsigned long binaryStringToInt(const std::string& binaryString) {
+    return std::bitset<64>(binaryString).to_ulong(); // Assuming 64-bit binary strings
+}
+// Function to convert an integer to a binary string
+std::string intToBinaryString(unsigned long number, size_t length) {
+    return std::bitset<64>(number).to_string().substr(64 - length); // Adjust to desired length
+}
+// Function to bitwise add binary strings
+std::string bitwiseAddBinaryStrings(const std::vector<std::string>& binaryStrings) {
+    if (binaryStrings.empty()) {
+        return "0";
+    }
+
+    // Initialize result to 0
+    unsigned long result = 0;
+
+    // Convert each binary string to an integer and perform bitwise OR
+    for (const std::string& binaryString : binaryStrings) {
+        result |= binaryStringToInt(binaryString);
+    }
+
+    // Convert the result back to a binary string
+    return intToBinaryString(result, binaryStrings[0].length());
+}
+// Utility function to convert a binary string to a hexadecimal string
+std::string binaryToHex(const std::string &binary) {
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << std::stoi(binary, nullptr, 2);
+    return ss.str();
+}
 std::string get_addr(uint64_t addr){
 	std::stringstream stream;
 	stream << std::hex << std::uppercase << addr; // Changed to uppercase
@@ -391,45 +429,72 @@ std::string get_size(uint64_t size){
 	return address;
 }
 
-std::string checksum(int size, std::string line2, std::string line3, std::string line4){
-	int sum = size;
-	for (int i = 0; i < line2.size(); i += 2){
-		std::string sub = line2.substr(i,i+2);
+std::string get_checksum(uint64_t size, std::string address, std::string rec_type, std::string data){
+    // Add each byte into a sum
+	uint64_t sum = size;
+	for (uint64_t i = 0; i < address.size(); i += 2){
+		std::string sub = address.substr(i,i+2);
 		sum += std::stoi(sub, nullptr, 16);
 	}
-	for (int i = 0; i < line3.size(); i += 2){
-		std::string sub = line3.substr(i,i+2);
+	for (uint64_t i = 0; i < rec_type.size(); i += 2){
+		std::string sub = rec_type.substr(i,i+2);
 		sum += std::stoi(sub, nullptr, 16);
 	}
-	for (int i = 0; i < line4.size(); i += 2){
-		std::string sub = line4.substr(i,i+2);
+	for (uint64_t i = 0; i < data.size(); i += 2){
+		std::string sub = data.substr(i,i+2);
 		sum += std::stoi(sub, nullptr, 16);
 	}
-	int modded = sum % 256;
-	int next = 256 - modded;
+    // Mod to prevent overflow
+	uint64_t modded = sum % 256;
+    // Take the 2's compliment and mask filter out upper 30 bits
+	uint64_t next = (~modded + 1) & 0x00000000000000FF;
+    // Turn into hex string
 	std::stringstream stream;
 	stream << std::hex << std::uppercase << next; // Changed to uppercase
 	std::string cs = stream.str();
 	return cs;
 }
 
-std::string Line::to_pichex() const{
-	// std::string to_return = "";
-	unsigned long binary = 10;
-	// unsigned long binary = bitset<16>(opcode.get_hex()).to_ulong();
-	std::stringstream stream;
-	stream << std::hex << std::uppercase << binary; // Changed to uppercase
-	std::string data = stream.str();
-	size_t length = data.size();
-	if (length % 2 == 1){	
-		data.insert(0, 1, '0');
-	}
-	
-    // THIS IS NO LONGER ALL BUT
-    std::string total_checksum = get_size(data.size()) +  get_addr(this->memory_address) + "02" + data + checksum(data.size(), get_addr(this->memory_address), "02", data);
-	return ":" + total_checksum;
-}
+std::string Line::to_pichex() const {
+    // PICHEX depends on five strings:
+    std::string data;
+    std::string byte_count;
+    std::string address;
+    std::string record_type;
+    std::string checksum;
 
+    // First, fetch opcode binary
+    std::string opcode_bin = this->opcode->binary;
+
+    // Next, fetch the necessary operands binaries
+    std::vector<std::string> operand_bins;
+    for (size_t i = 0; i < this->operands.size(); i++) {
+        operand_bins.push_back(this->operands[i]->get_binary());
+    }
+
+    // Combine them into an overall binary string
+    operand_bins.push_back(opcode_bin);
+    std::string tot_bin = bitwiseAddBinaryStrings(operand_bins);
+
+    // Convert binary to hexadecimal
+    data = binaryToHex(tot_bin);
+
+    // Ensure the length of the data string is even
+    if (data.size() % 2 == 1) {
+        data.insert(0, 1, '0');
+    }
+
+    // Fill out all other params
+    byte_count = get_size(2); // 2 bytes of data
+    address = get_addr(this->memory_address);
+    record_type = "00"; // This is a data record
+    checksum = get_checksum(2, address, record_type, data);
+
+    // Construct the final string (this must have a ':' prefix)
+    std::string total = ":" + byte_count + address + record_type + data + checksum;
+    printf("\t\nbyte count: %s\t\naddress: %s\t\nrecord type: %s\t\ndata: %s\t\nchecksum: %s\t\ntotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
+    return total;
+}
 // Accessors and modifiers
 uint64_t Line::get_line_number() {return this->line_number;}
 uint64_t Line::get_memory_address() {return this->memory_address;}

@@ -41,13 +41,13 @@ public:
     std::string parseHexadecimal(const std::string& raw);
 
     // Equality operators
-    bool operator==(Operand &other) {
-        return raw == other.raw && size == other.size && binary == other.binary;
-    }
+    // bool operator==(Operand &other) {
+    //     return raw == other.raw && size == other.size && binary == other.binary;
+    // }
 
-    bool operator!=(Operand &other) {
-        return !(*this == other);
-    }
+    // bool operator!=(Operand &other) {
+    //     return !(*this == other);
+    // }
 
     // Testing functions
     virtual void identifyChild() const = 0;
