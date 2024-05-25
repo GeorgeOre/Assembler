@@ -2,8 +2,7 @@
 #include <map>
 #include <iostream>
 #include <string>
-#include <set>
-//#include <unordered_set>
+#include <unordered_set>
 #include <unordered_map>
 #include <stdexcept>
 
@@ -111,15 +110,14 @@
 // };
 
 // OpCode::OpCode(const std::string& code) : code(code) {}
-OpCode::OpCode(const std::string& code) 
-    : code_str(code), size(0), operand_info(""), format(""), binary("") {
+OpCode::OpCode(const std::string& code) : 
+    code_str(code), size(0), operand_info(""), 
+    format(""), binary(""), is_user_defined(false) {
     // This constructor should theoretically never be called, but we can make it exist to set the code_str
-
     // std::cout << "WE IN" << code << std::endl;
     // std::cout << "WE IN" << this->code << std::endl;
     // printf("%pAHAHA\n", code);
     // printf("%sAHAHA\n", code);
-
     //THIS CODE SHOULD BE IN CHILD AND A TRY CATCH SHOULD BE IN LINE!!! VVVVVVVVV
 /*
     // Make sure that the opcode is valid
@@ -136,7 +134,6 @@ OpCode::OpCode(const std::string& code)
 */
 
 }
-
 
 
 std::string OpCode::get_code_str(){
@@ -160,10 +157,9 @@ std::string OpCode::get_binary(){
     return this->binary;
 }
 
-// bool OpCode::get_is_pseudo_op(){
-//     return this->is_pseudo_op;
-// }
-
+bool OpCode::get_is_user_defined(){
+    return this->is_user_defined;
+}
 
 // std::list<std::shared_ptr<Operand>> OpCode::get_operands() const {
 //     return this->operands;
@@ -188,7 +184,7 @@ void OpCode::set_binary(std::string binary){
     this->binary = binary;
 }
 
-// void OpCode::set_is_pseudo_op(bool result){
-//     this->is_pseudo_op = result;
-// }
+void OpCode::set_is_user_defined(bool result){
+    this->is_user_defined = result;
+}
 

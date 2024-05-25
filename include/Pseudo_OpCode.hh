@@ -19,7 +19,7 @@ public:
     void set_operand_info(std::string operand_info) override;
     void set_format(std::string format) override;
     void set_binary(std::string binary) override;
-
+    void set_is_user_defined(bool result) override;
 
     // FOR TESTING
     void print_value() const;

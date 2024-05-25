@@ -33,15 +33,13 @@ public:
     std::string operand_info; // String representation of the OpCode operand_info
     std::string format;     // Regex expression of the OpCode
     std::string binary;     // Binary in string form (CAN BE CHANGED TO BITSET OR BITWISE SOMETHIGN LATER)
-    // THIS ONE MAYBE CAN BE REMOVED
-    // bool is_pseudo_op;     // Boolean that indicates whether or not the opcode is a pseudo op
+    bool is_user_defined;     // Boolean that indicates whether or not the opcode user defined (pseudo op this is only possible if it is a pseudo op)
 
     // Constructor
-    // Should I delete this or make it virtual? i feel like it can just be set default
-    // THE GOAL IS THAT THIS ONLY SETS code_str AND THE REST IS HANDLED BY THE CHILD
+    // THIS ONLY SETS code_str AND THE REST IS HANDLED BY THE CHILD
     OpCode(const std::string& code);
 
-
+    // TODO: is this necesary?
     virtual ~OpCode() = default;
 
     // Accessors and modifiers
@@ -50,7 +48,7 @@ public:
     std::string get_operand_info();
     std::string get_format();
     std::string get_binary();
-    // bool get_is_pseudo_op();
+    bool get_is_user_defined();
 
     // THESE THREE SHOULD BE SET BY THE CHLIDREN
     // virtual void set_code(std::string code); THIS SHOULD NEVER CHANGE AFTER CONSTRUCTION
@@ -58,22 +56,7 @@ public:
     virtual void set_operand_info(std::string operand_info);
     virtual void set_format(std::string format);
     virtual void set_binary(std::string binary);
-    // virtual void set_is_pseudo_op(bool result);
-
-// OLD INPLEMENTATOINS BELOW
-
-    // THESE DO NOT NEED TO BE VIRTUAL
-    // virtual std::string get_code_str();
-    // virtual uint64_t get_size();
-    // virtual std::string get_operand_info();
-    // virtual std::string get_format();
-    // virtual bool get_is_pseudo_op();
-
-    // virtual void set_code(std::string code);
-    // virtual void set_size(uint64_t size);
-    // virtual void set_operand_info(std::string operand_info);
-    // virtual void set_format(std::string format);
-    // virtual void set_is_pseudo_op(bool result);
+    virtual void set_is_user_defined(bool result);
 
     // MAYBE EXTERN THESE??
     // std::map<std::string, std::string> op_type_map;

@@ -87,7 +87,9 @@ void Misc_OpCode::set_format(std::string format){
 void Misc_OpCode::set_binary(std::string binary){
     this->binary = binary;
 }
-
+void Misc_OpCode::set_is_user_defined(bool result){
+    this->is_user_defined = result;
+}
 
 
 void Misc_OpCode::print_value() const {

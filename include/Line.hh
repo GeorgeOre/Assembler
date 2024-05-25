@@ -8,8 +8,10 @@
 #include <string>
 #include <vector>
 #include <memory>
+
 #include "OpCode.hh"
 #include "Operand.hh"
+#include "str_utils.hh"
 
 class Line {
 private:

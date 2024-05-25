@@ -1,6 +1,6 @@
 # Compiler
 CXX = g++
-WCXX = x86_64-w64-mingw32-g++
+#WCXX = x86_64-w64-mingw32-g++
 
 # Directories
 SRC_DIR = library
@@ -17,8 +17,8 @@ CXXFLAGS = -Wall -Wextra -pedantic -std=c++17 -g -I$(INC_DIR)
 SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 # Add paths to the SFML headers and libraries for MinGW
-SFML_INCLUDE = /usr/local/sfml-windows/include
-SFML_LIB = /usr/local/sfml-windows/lib
+#SFML_INCLUDE = /usr/local/sfml-windows/include
+#SFML_LIB = /usr/local/sfml-windows/lib
 
 # Source and object files
 LIB_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
@@ -106,11 +106,11 @@ terminal: $(TERMINAL_BIN)
 	./$(TERMINAL_BIN)
 
 # Add a cross-compile target for Windows
-cross-compile: $(DEMO_BIN)
-	$(WCXX) $(CXXFLAGS) -I$(INC_DIR) -I$(SFML_INCLUDE) demo/main.cpp $(LIB_OBJS) -o bin/menu.exe -L$(SFML_LIB) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+#cross-compile: $(DEMO_BIN)
+#	$(WCXX) $(CXXFLAGS) -I$(INC_DIR) -I$(SFML_INCLUDE) demo/main.cpp $(LIB_OBJS) -o bin/menu.exe -L$(SFML_LIB) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 # Clean up
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean test Linetest OpCodetest Operandtest Sectiontest Segmenttest Translatortest UItest demo terminal cross-compile
+.PHONY: all clean test Linetest OpCodetest Operandtest Sectiontest Segmenttest Translatortest UItest demo terminal #cross-compile

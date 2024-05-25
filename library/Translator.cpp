@@ -182,6 +182,102 @@ EventEnum Translator::first_pass() {
     return EventEnum::SUCCESS;
 }
 
+/* EXPRESSION BS
+#include <stack>
+#include <unordered_map>
+
+int evaluate_expression(const std::string &expression, const std::unordered_map<std::string, int> &symbol_table) {
+    std::stack<int> values;
+    std::stack<char> operators;
+
+    auto apply_operator = [](std::stack<int> &values, char op) {
+        int b = values.top(); values.pop();
+        int a = values.top(); values.pop();
+        switch (op) {
+            case '+': values.push(a + b); break;
+            case '-': values.push(a - b); break;
+            case '*': values.push(a * b); break;
+            case '/': values.push(a / b); break;
+        }
+    };
+
+    for (size_t i = 0; i < expression.length(); ++i) {
+        char ch = expression[i];
+        if (isspace(ch)) {
+            continue;
+        } else if (isdigit(ch)) {
+            int value = 0;
+            while (i < expression.length() && isdigit(expression[i])) {
+                value = value * 10 + (expression[i] - '0');
+                ++i;
+            }
+            --i;
+            values.push(value);
+        } else if (isalpha(ch)) {
+            std::string symbol;
+            while (i < expression.length() && (isalnum(expression[i]) || expression[i] == '_')) {
+                symbol += expression[i];
+                ++i;
+            }
+            --i;
+            if (symbol_table.find(symbol) != symbol_table.end()) {
+                values.push(symbol_table.at(symbol));
+            } else {
+                throw std::runtime_error("Undefined symbol: " + symbol);
+            }
+        } else if (ch == '(') {
+            operators.push(ch);
+        } else if (ch == ')') {
+            while (!operators.empty() && operators.top() != '(') {
+                apply_operator(values, operators.top());
+                operators.pop();
+            }
+            if (!operators.empty()) {
+                operators.pop();
+            }
+        } else if (strchr("+-* /", ch)) { // THIS SPACE WAS CAUSING COMMENT PROBLEMS AND SHOULD BE REMOVED
+            while (!operators.empty() && precedence(operators.top()) >= precedence(ch)) {
+                apply_operator(values, operators.top());
+                operators.pop();
+            }
+            operators.push(ch);
+        }
+    }
+    while (!operators.empty()) {
+        apply_operator(values, operators.top());
+        operators.pop();
+    }
+    return values.top();
+}
+
+int precedence(char op) {
+    switch (op) {
+        case '+':
+        case '-': return 1;
+        case '*':
+        case '/': return 2;
+        default: return 0;
+    }
+}
+
+void second_pass(std::vector<Line> &lines, const std::unordered_map<std::string, int> &symbol_table) {
+    for (Line &line : lines) {
+        for (Operand &operand : line.operands) {
+            if (operand.type == EXPRESSION) {
+                try {
+                    int result = evaluate_expression(operand.value, symbol_table);
+                    operand.type = IMMEDIATE;
+                    operand.value = std::to_string(result);
+                } catch (const std::exception &e) {
+                    std::cerr << "Error evaluating expression: " << operand.value << " - " << e.what() << std::endl;
+                }
+            }
+        }
+    }
+}
+
+*/
+
 EventEnum Translator::second_pass() {
     // Check to make sure that the output file is valid
     std::ofstream outputFile(this->output_file_path);

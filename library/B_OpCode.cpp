@@ -77,7 +77,9 @@ void B_OpCode::set_format(std::string format){
 void B_OpCode::set_binary(std::string binary){
     this->binary = binary;
 }
-
+void B_OpCode::set_is_user_defined(bool result){
+    this->is_user_defined = result;
+}
 
 void B_OpCode::print_value() const {
     std::cout << "B OpCode - Code: " << code_str << ", Binary: " << binary << ", Format: " << format << ", Size: " << size << std::endl;

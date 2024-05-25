@@ -12,7 +12,8 @@ protected:
     std::string raw;      // Raw string that was parsed
     std::string binary;   // Binary value in string format
     uint64_t size;        // Size of the operand in bits
-    bool is_user_defined;   // Boolean that represents if the operand is user defined
+    bool is_user_defined; // Boolean that represents if the operand is user defined
+    bool is_expression;   // Boolean that indicates that this is an expression
 
 public:
     Operand(const std::string& raw);
@@ -28,6 +29,7 @@ public:
     void set_raw(const std::string& raw);
     void set_binary(const std::string& binary);
     void set_is_user_defined(bool result);
+    void set_is_expression(bool result);
 
     // Method to parse raw operand to binary
     void parseRawToBinary();

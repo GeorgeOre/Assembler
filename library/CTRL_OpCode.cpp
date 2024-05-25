@@ -73,7 +73,9 @@ void CTRL_OpCode::set_format(std::string format){
 void CTRL_OpCode::set_binary(std::string binary){
     this->binary = binary;
 }
-
+void CTRL_OpCode::set_is_user_defined(bool result){
+    this->is_user_defined = result;
+}
 
 void CTRL_OpCode::print_value() const {
     std::cout << "CTRL OpCode - Code: " << code_str << ", Binary: " << binary << ", Format: " << format << ", Size: " << size << std::endl;

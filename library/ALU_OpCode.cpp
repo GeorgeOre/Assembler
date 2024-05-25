@@ -105,6 +105,10 @@ void ALU_OpCode::set_format(std::string format){
 void ALU_OpCode::set_binary(std::string binary){
     this->binary = binary;
 }
+void ALU_OpCode::set_is_user_defined(bool result){
+    this->is_user_defined = result;
+}
+
 
 void ALU_OpCode::print_value() const {
     std::cout << "ALU OpCode - Code: " << code_str << ", Binary: " << binary << ", Format: " << format << ", Size: " << size << std::endl;
