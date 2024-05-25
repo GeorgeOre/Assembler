@@ -64,24 +64,17 @@ EventEnum Translator::define_lines(const std::string& file_info) {
         std::cerr << "Error opening file: " << filePath << std::endl;
         return EventEnum::FILE_NOT_FOUND;
     }
-    
-    // Make sure that section is defined
-    //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
-    this->cur_section = ".text";
-    if (this->cur_section.compare("")==0) {
-        this->contains_error = true;
-        this->error_message = "Section is not defined!";
-        return EventEnum::FILE_FORMAT_ERROR;
-    }
 
     // Parse file line by line
     std::string lineContent;
-    int lineNumber = 1; 
+    uint64_t lineNumber = 1; 
     while (std::getline(file, lineContent)) {
+// std::cout << "\tinside while\n" << std::endl;
         // Search file for URGENT pseudo ops
         std::istringstream iss(lineContent);
         std::string word;
         iss >> word;
+        // std::cout << "\tdid something with iss steam\n" << std::endl;
         if(word == ".include") {
             std::string includeFile;
             iss >> includeFile;
@@ -93,14 +86,17 @@ EventEnum Translator::define_lines(const std::string& file_info) {
                 define_lines(includeFile); // Recursive call to include the file
             }
         } else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
+            // std::cout << "\tmatched with either text or data\n" << std::endl;
             this->cur_section = word;
         } 
         
         // Check that section is working well
-        // Line line(lineNumber, lineSection, lineContent, this->asmFilePath);
+        // std::cout << "\tabout to make the line\n" << std::endl;
+        // printf("lineN:%ld,sec:%s,line:%s,file:%s\n", lineNumber, this->cur_section.c_str(), lineContent.c_str(), this->input_file_path.c_str());
         std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, this->input_file_path);
+// std::cout << "\tmade the line\n" << std::endl;
         this->lines_array.push_back(std::move(line));
-
+// std::cout << "\tpushed that shit back\n" << std::endl;
         // Check if the line is a pseudo op
 
         lineNumber++;
@@ -110,8 +106,17 @@ EventEnum Translator::define_lines(const std::string& file_info) {
 }
 
 EventEnum Translator::first_pass() {
-    int currentProgramAddress = 1;
-    int currentDataAddress = 1;
+    uint64_t currentProgramAddress = 1;
+    uint64_t currentDataAddress = 1;
+
+    // Make sure that section is defined
+    //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
+    this->cur_section = ".text";
+    if (this->cur_section.compare("")==0) {
+        this->contains_error = true;
+        this->error_message = "Section is not defined!";
+        return EventEnum::FILE_FORMAT_ERROR;
+    }
 
     // Loop through each line
     for (size_t i = 0; i < this->lines_array.size(); ++i) {

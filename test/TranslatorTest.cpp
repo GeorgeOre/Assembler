@@ -36,6 +36,7 @@ void test_define_lines() {
     test_file.close();
 
     EventEnum result = translator.define_lines("test/input.asm");
+std::cout << "Defined lines has run!\n" << std::endl;
     assert(result == EventEnum::SUCCESS);
     assert(translator.get_lines_array().size() == 2);
 

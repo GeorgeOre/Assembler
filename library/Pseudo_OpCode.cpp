@@ -7,7 +7,7 @@
 
 // Initialize the static members
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_format_map = {
-    {"^.", "pseudo"},   // Pseudo code '.' prefix
+    {"^\\..*", "pseudo"},   // Pseudo code '.' prefix
 };
 
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_bin_map = {
@@ -33,32 +33,41 @@ Pseudo_OpCode::Pseudo_OpCode(const std::string& opcode) : OpCode(opcode) {
     // Check if this OpCode's format exists
     auto it = op_format_map.begin();
     std::string first_key = it->first;
+    // std::cout << "\t\tINSIDE PSEUDO\n" << std::endl;
+    // std::string first_key = "^\\..*";
     std::regex pseudo_op_format(first_key);
+    // std::cout << "\t\tregex defed\n" << std::endl;
     if (std::regex_match(opcode, pseudo_op_format)) {
         // If it was valid we should set format confirming we have a valid pseudo op
+        // std::cout << "\t\twe got a match\n" << std::endl;
         this->format = op_format_map.at(first_key);        
     } else{
+        // std::cout << "\t\tno match\n" << std::endl;
         // std::cout << "DANG IT " << code << " WAS INVALID " << std::endl;
         throw std::invalid_argument("Pseudo_OpCode does not match the format");
     }
 
+    // std::cout << "\t\tCHECKING FOR BIN\n" << std::endl;
     // Check if this OpCode's binary exists
     if (op_bin_map.find(opcode) == op_bin_map.end()) {
-            // std::cout << "DANG IT " << code << " WAS INVALID " << std::endl;
+        // std::cout << "\t\t\tno bin\n" << std::endl;
         throw std::invalid_argument("Pseudo_OpCode does not have defined binary");
     } else{
         // If it was valid we should set binary and size
+        // std::cout << "\t\t\tbin found\n" << std::endl;
         this->binary = op_bin_map.at(opcode);
         this->size = static_cast<uint64_t>(op_bin_map.at(opcode).size());
                                             
     }
 
+    // std::cout << "\t\tCHECKING FOR OPERANDS\n" << std::endl;
     // Check if this OpCode's operand info exists
     if (op_operand_map.find(opcode) == op_operand_map.end()) {
-            // std::cout << "DANG IT " << code << " WAS INVALID " << std::endl;
+        // std::cout << "\t\t\tops not found\n" << std::endl;
         throw std::invalid_argument("Pseudo_OpCode does not have operand info");
     } else{
         // If it was valid we should set operand info
+        // std::cout << "\t\t\tops found\n" << std::endl;
         this->operand_info = op_operand_map.at(opcode);
         // If operand info is non-"" then it is user defined
         if (this->operand_info.size() != 0) {

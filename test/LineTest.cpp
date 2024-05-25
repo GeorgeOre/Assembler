@@ -82,7 +82,7 @@ void test_LineParse() {
 void test_LineToPichex() {
     Line line(1, ".text", "MOVLW 0x55", "test.asm");
     std::string hex_output = line.to_pichex();
-std::cout << hex_output << std::endl;
+// std::cout << hex_output << std::endl;
     assert(!hex_output.empty());
     std::cout << "Line to PIC HEX conversion tests passed!\n" << std::endl;
 }

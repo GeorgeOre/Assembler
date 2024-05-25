@@ -199,6 +199,9 @@ void Line::parse_operands(const std::vector<std::string> &elements, const std::s
     // it is necesarry for the user to have passed in the info parameter even though it can be
     // easily accessed with this->get_opcode()->get_operand_info().
 
+// std::cout << elements.size() << std::endl;
+// std::cout << operand_info.size() << std::endl;
+
     // We were pipelined the elements that were modified by parse_opcode, we need the full string
     std::string operands_only = join_strings(elements, " ");
 
@@ -206,6 +209,10 @@ void Line::parse_operands(const std::vector<std::string> &elements, const std::s
     std::vector<std::string> operands = split_string(operands_only, ',');
 
     // Make sure that the operand info matches the given operand elements
+    if (elements.empty()) { // Adjust for no element case
+        operands.erase(operands.begin());
+    }
+    
     assert(operand_info.size() == operands.size());
     
 
@@ -270,7 +277,6 @@ Line::Line(uint64_t line_number, const std::string& section,
     std::vector<std::string> elements = parse_line(stripped);
 
     // std::cout << "We got to line 3 parse good\n" << std::endl;
-
 
     // Define OpCode
     parse_opcode(elements);
