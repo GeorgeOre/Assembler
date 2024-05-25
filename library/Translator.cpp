@@ -136,7 +136,7 @@ EventEnum Translator::first_pass() {
     uint64_t currentProgramAddress = 0;
     uint64_t currentDataAddress = 0;
 
-std::cout << "Inside first pass\n" << std::endl;
+std::cout << "\n\n\nInside first pass\n" << std::endl;
 
     // Make sure that section is defined
     //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
@@ -162,17 +162,19 @@ std::cout << "Removed line in first pass for being empty\n" << std::endl;
         // Store user defined values into corresponding hashmaps
         else if (this->lines_array[i]->get_contains_user_defined())
         {
-std::cout << "Something was user defined\n" << std::endl;
-printf("\traw line: %s\n\tstripped line: %s\n\tline number: %ld\n\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
+std::cout << "\tSomething was user defined\n" << std::endl;
+printf("\t\traw line: %s\n\t\tstripped line: %s\n\t\tline number: %ld\n\t\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
 for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
-    printf("\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
+    printf("\t\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
 }
+// std::cout << "\tOPCODE was user defined:" << this->lines_array[i]->get_opcode().get_is_user_defined() << std::endl;
+
 
             // Handle constant declarations
             if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0
                 || this->lines_array[i]->get_opcode().get_code_str().compare(".equ") == 0)
             {
-std::cout << "\tit was a constant\n" << std::endl;
+std::cout << "\t\tit was a constant\n" << std::endl;
                 // Fetch key value pair
                 std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
 std::cout << user_key << std::endl;
@@ -203,23 +205,26 @@ std::cout << "removing lines" << std::endl;
 
             } 
             // Handle label definitions
-            else if (this->lines_array[i]->get_opcode().get_code_str().back() == ':')
-            {
-std::cout << "\tit was a text label\n" << std::endl;
+            else if (this->lines_array[i]->get_opcode().get_is_user_defined()) //USED TO BE  OPCODE.get_code_str().back() == ':'
+            {   // Only labels have user defined opcodes
+std::cout << "\t\twe are now testing for section labels. We have: " << this->lines_array[i]->get_section()<< std::endl;
                 // Handle text section label
                 if (this->lines_array[i]->get_section().compare(".text") == 0) {
+std::cout << "\t\tit was a text section label\n" << std::endl;
                     // Fetch key value pair
-                    std::string user_key = this->lines_array[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-2);
+                    std::string user_key = this->lines_array[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-1);
                     std::string user_value = std::to_string(currentProgramAddress);
-
+                    
                     // Store in hashmap
                     const_hashmap.insert(std::make_pair(user_key, user_value));
+std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+
                 } 
                 // Handle data section label
                 else if (this->get_lines_array()[i]->get_section().compare(".data") == 0) {
-std::cout << "\tit was a data section label\n" << std::endl;
+std::cout << "\t\tit was a data section label\n" << std::endl;
                     // Fetch key value pair
-                    std::string user_key = this->get_lines_array()[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-2);
+                    std::string user_key = this->get_lines_array()[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-1);
                     std::string user_value = std::to_string(currentDataAddress);
 
                     // Update data addresses by one byte
@@ -227,8 +232,15 @@ std::cout << "\tit was a data section label\n" << std::endl;
 
                     // Store in hashmap
                     const_hashmap.insert(std::make_pair(user_key, user_value));
+std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+
                 }
-                
+
+                // Remove line from array
+std::cout << "removing lines" << std::endl;
+                this->lines_array.erase(this->lines_array.begin() + i);
+                i--;
+                continue;
                 
             }
             

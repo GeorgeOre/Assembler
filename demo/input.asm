@@ -19,14 +19,14 @@
 
 ; Main program
 ;    .org 0x00
-;    goto START
+     goto START
 
 ; Interrupt vector
 ;    .org 0x04
      retfie
 
 ; Program start
-;START:
+START:
     ; Initialize the first two Fibonacci numbers
      clrf cFIB_ARRAY             ; Fibonacci[0] = 0
      movlw 1
@@ -36,7 +36,7 @@
      movlw 8
 ;    movwf cCOUNTER              ; Loop counter = 8 (for Fibonacci[2] to Fibonacci[9])
 
-;COMPUTE_FIB:
+COMPUTE_FIB:
     ; Load Fibonacci[n-1] into cTEMP1
 ;    movf cFIB_ARRAY + 1, W
 ;    movwf cTEMP1
@@ -59,7 +59,7 @@
     ; Decrement the loop counter
 ;    decf cCOUNTER, F
 ;    btfss STATUS, Z             ; If counter is zero, exit loop
-;    goto COMPUTE_FIB
+     goto COMPUTE_FIB
 
     ; End of program
 ;    goto $ DO LATER ALSO
