@@ -4,6 +4,10 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <functional>
+
+#include <unordered_map>
+#include <unordered_set>
 
 //class OpCode;  // Forward declaration of OpCode
 
@@ -35,11 +39,13 @@ public:
     void parseRawToBinary();
 
     // Helper methods to parse different bases
-    std::string parseBinary(const std::string& raw);
-    std::string parseOctal(const std::string& raw);
-    std::string parseDecimal(const std::string& raw);
-    std::string parseHexadecimal(const std::string& raw);
+    static std::string parseBinary(const std::string& raw);
+    static std::string parseOctal(const std::string& raw);
+    static std::string parseDecimal(const std::string& raw);
+    static std::string parseHexadecimal(const std::string& raw);
 
+    static std::unordered_map<std::string, std::function<std::string(const std::string&)>> prefix_map;
+    static std::unordered_map<std::string, std::function<std::string(const std::string&)>> suffix_map;
     // Equality operators
     // bool operator==(Operand &other) {
     //     return raw == other.raw && size == other.size && binary == other.binary;

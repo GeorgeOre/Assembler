@@ -140,15 +140,15 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
     // Attempt to create the OpCode object within the valid searching range
     for (size_t i = 0; ((i < MAX_OPCODE_POS) && (i < elements.size())); i++) { 
-std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
+// std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
 
         potential_opcode = elements[i];
-std::cout << "\t\t\tpot op: |" << potential_opcode.c_str() << "|" << std::endl;
+// std::cout << "\t\t\tpot op: |" << potential_opcode.c_str() << "|" << std::endl;
 
         try // Try-catch to handle OpCode initalization errors
         {
 
-std::cout << "\t\t\tinside the try" << std::endl;
+// std::cout << "\t\t\tinside the try" << std::endl;
             // Test for label first
 // std::cout << "\t\t\t\top:" << potential_opcode << std::endl;
 // std::cout << "\t\t\t\tback:" << potential_opcode.back() << std::endl;
@@ -156,13 +156,13 @@ std::cout << "\t\t\tinside the try" << std::endl;
 // std::cout << "\t\t\t\tfound:" << (op_type_map.find(potential_opcode) != op_type_map.end()) << std::endl;
 
             if (potential_opcode.back() == ':') {
-std::cout << "\t\t\tdetected : at end" << std::endl;
+// std::cout << "\t\t\tdetected : at end" << std::endl;
                 this->opcode = std::make_shared<Label_OpCode>(potential_opcode);
                 // Add the element to the list to be parsed as a pseudo op
 
                 elements.push_back(potential_opcode.substr(0, potential_opcode.size()-1));
                 // elements.push_back(potential_opcode);
-std::cout << "\t\t\tpushed " << potential_opcode.substr(0, potential_opcode.size()-1) << " back into elements" << std::endl;
+// std::cout << "\t\t\tpushed " << potential_opcode.substr(0, potential_opcode.size()-1) << " back into elements" << std::endl;
 
                 opcode_i = i;
                 op_found = true;
@@ -170,25 +170,25 @@ std::cout << "\t\t\tpushed " << potential_opcode.substr(0, potential_opcode.size
 
             }   // Test for pseudo op next
             else if (potential_opcode.front() == '.') {
-std::cout << "\t\t\tfound . at front" << std::endl;
+// std::cout << "\t\t\tfound . at front" << std::endl;
                 this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
-std::cout << "\t\t\tpseudo op created successfully" << std::endl;
-printf("\t\t\t\tbin: %s\n\t\t\t\tstr: %s\n\t\t\t\tformat: %s\n", this->opcode->binary.c_str(), this->opcode->code_str.c_str(), this->opcode->format.c_str());
-printf("\t\t\t\tsize: %ld\n\t\t\t\tis user defed: %d\n\t\t\t\tformat: %s\n", this->opcode->size, this->opcode->is_user_defined, this->opcode->operand_info.c_str());
+// std::cout << "\t\t\tpseudo op created successfully" << std::endl;
+// printf("\t\t\t\tbin: %s\n\t\t\t\tstr: %s\n\t\t\t\tformat: %s\n", this->opcode->binary.c_str(), this->opcode->code_str.c_str(), this->opcode->format.c_str());
+// printf("\t\t\t\tsize: %ld\n\t\t\t\tis user defed: %d\n\t\t\t\tformat: %s\n", this->opcode->size, this->opcode->is_user_defined, this->opcode->operand_info.c_str());
                 opcode_i = i;
                 op_found = true;
                 break;
 
             }   // Try to find predefined OpCodes
             else if (op_type_map.find(potential_opcode) != op_type_map.end()) {
-std::cout << "\t\t\tWe got to line predefined opcode" << std::endl;
+// std::cout << "\t\t\tWe got to line predefined opcode" << std::endl;
                 std::string op_type = op_type_map.at(potential_opcode);
 // std::cout << "\t\t\tWe got to line predefined opcode2" << std::endl;
 
                 std::string copy = potential_opcode;
 
                 if (op_type == "ALU") {
-std::cout << "\t\t\t\twas ALU B4" << std::endl;
+// std::cout << "\t\t\t\twas ALU B4" << std::endl;
     		        this->opcode = std::make_shared<ALU_OpCode>(copy);
 // std::cout << "\t\t\t\twas ALU" << std::endl;
                     // break;
@@ -230,14 +230,14 @@ std::cout << "\t\t\t\twas ALU B4" << std::endl;
                 break;
             }   
 
-// std::cout << "\t\t\tSKIPPED LAST ONE FOR SOME REASON: " << op_found << std::endl;
+// std::cout << "\t\t\tSKIPPED THIS OPCODE OPTION WAS NOT IT: " << op_found << std::endl;
         }
         catch(const std::exception& e)
         {
             // If there was an error in initalizing the OpCode, set error
             this->contains_error = true;
             this->error_message = e.what();
-            std::cout << "HOLY FUCK IT WAS JUST CATCHING" << std::endl;
+            // std::cout << "HOLY FUCK IT WAS JUST CATCHING" << std::endl;
         }
 
             // Set found flag and remove the OpCode from the parsed elements            
@@ -249,21 +249,21 @@ std::cout << "\t\t\t\twas ALU B4" << std::endl;
 //         }
     }
 
-std::cout << "\t\t\tOMG WE OUTIE" << std::endl;
+// std::cout << "\t\t\tOMG WE OUTIE" << std::endl;
 
     // Set an error if no OpCode was detected
     if (op_found == false) {
         this->contains_error = true;
         this->error_message = "No OpCode or pseudo op found";
     } else {
-printf("\t\t\terased element at start + %zu\n", opcode_i);
+// printf("\t\t\terased element at start + %zu\n", opcode_i);
         elements.erase(elements.begin() + opcode_i);
     }
     
 
     // Set line to contain user defined if true for OpCode
     if (this->opcode->get_is_user_defined()) {
-printf("\t\t\topcode was UD with bool: %d\n", this->opcode->get_is_user_defined());
+// printf("\t\t\topcode was UD with bool: %d\n", this->opcode->get_is_user_defined());
         this->contains_user_defined = true;
     }
 
@@ -280,8 +280,8 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
         return;
     }
 
-std::cout << elements.size() << std::endl;
-std::cout << operand_info.size() << std::endl;
+// std::cout << elements.size() << std::endl;
+// std::cout << operand_info.size() << std::endl;
 
 // std::cout << operands.size() << std::endl;
 // std::cout << operand_info.size() << std::endl;
@@ -302,7 +302,7 @@ std::cout << operand_info.size() << std::endl;
         operands = split_string(operands_only, ',');
     }
     
-std::cout << "\t\toperand count after respliting" << operands.size() << std::endl;
+// std::cout << "\t\toperand count after respliting" << operands.size() << std::endl;
 
     // Go through all elements and define them based on the opcode's operand info
     std::string potential_operand;
@@ -320,11 +320,13 @@ std::cout << "\t\toperand count after respliting" << operands.size() << std::end
 // printf("makeing k op\n");
                 this->operands.push_back(std::make_shared<Koperand>(potential_operand));
             } else if (operand_info.at(i) == 'p') {
+// printf("makeing p op\n");
                 this->operands.push_back(std::make_shared<Poperand>(potential_operand));
+// printf("p op has bin defined as: %s with bin: %s\n", this->operands[this->operands.size()-1]->get_raw().c_str(), this->operands[this->operands.size()-1]->get_binary().c_str());
             } else {
                 // If the operand type was not detected, set error
                 this->contains_error = true;
-                this->error_message = "Operand type undefined in operand elif";
+                // this->error_message = "Operand type undefined in operand elif";
             }
 // printf("we got thgouth no errors\n");
         }
@@ -356,7 +358,7 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
-std::cout << "\tWe are inside line init constructor\n" << std::endl;
+// std::cout << "\tWe are inside line init constructor\n" << std::endl;
 
 
     // Search the line for comments and remove
@@ -365,13 +367,13 @@ std::cout << "\tWe are inside line init constructor\n" << std::endl;
     stripped = trim_left(stripped);
     this->no_comments = stripped;
 
-std::cout << "\t\tstripped line: |" << stripped <<  "|\n" << std::endl;
+// std::cout << "\t\tstripped line: |" << stripped <<  "|\n" << std::endl;
 
 
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
-std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements\n" << std::endl;
+// std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements\n" << std::endl;
 
     if (elements.size() != 0) {
             
@@ -379,7 +381,7 @@ std::cout << "\tThe line has parsed good into " << elements.size() <<  " element
     // Define OpCode
     parse_opcode(elements);
 
-std::cout << "\tThe line says init opcode went good\n" << std::endl;
+// std::cout << "\tThe line says init opcode went good\n" << std::endl;
 
 
     // Define Operands
@@ -480,21 +482,21 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
     // First, fetch opcode binary
     std::string opcode_bin = this->opcode->binary;
 
-std::cout << "We are in to pichex" << std::endl;
-printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
+// std::cout << "We are in to pichex" << std::endl;
+// printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
 
     // Next, fetch the necessary operands binaries
     std::vector<std::string> operand_bins;
     for (size_t i = 0; i < this->operands.size(); i++) {
         // Make sure to handle variable operands
         if (this->operands[i]->get_is_user_defined()) {
-std::cout << "\tFound user defined operand" << std::endl;
+// std::cout << "\tFound user defined operand" << std::endl;
 
-printf("\t\toperand %zu original bin data: %s\n", i, this->operands[i]->get_binary().c_str());
+// printf("\t\toperand %zu original bin data: %s\n", i, this->operands[i]->get_binary().c_str());
             this->operands[i]->set_raw(hashmap[this->operands[i]->get_raw()]);
             this->operands[i]->parseRawToBinary();
         }
-printf("\t\toperand %zu after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_binary().c_str());
+// printf("\t\toperand %zu after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_binary().c_str());
 
 // std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
         operand_bins.push_back(this->operands[i]->get_binary());
@@ -505,9 +507,9 @@ printf("\t\toperand %zu after parseRawToBinary bin data: %s\n", i, this->operand
     std::string tot_bin = bitwiseAddBinaryStrings(operand_bins);
 
     // Convert binary to hexadecimal
-printf("\t\ttotal combined bin data: %s\n", tot_bin.c_str());
+// printf("\t\ttotal combined bin data: %s\n", tot_bin.c_str());
     data = binaryToHex(tot_bin);
-printf("\t\thex data: %s\n", data.c_str());
+// printf("\t\thex data: %s\n", data.c_str());
 
 
     // Ensure the length of the data string is even
@@ -520,7 +522,7 @@ printf("\t\thex data: %s\n", data.c_str());
         data.insert(0, 1, '0');
     }
 
-printf("\t\thex data after even adjustment: %s\n", data.c_str());
+// printf("\t\thex data after even adjustment: %s\n", data.c_str());
 
     // Fill out all other params
     byte_count += get_size(data.size()/2); // depends on how many bytes of data were provided
@@ -530,7 +532,7 @@ printf("\t\thex data after even adjustment: %s\n", data.c_str());
 
     // Construct the final string (this must have a ':' prefix)
     std::string total = ":" + byte_count + address + record_type + data + checksum;
-    printf("\n\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
+    // printf("\n\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
     return total;
 }
 // Accessors and modifiers

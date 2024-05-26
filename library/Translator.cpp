@@ -69,7 +69,7 @@ void Translator::set_contains_error(bool new_result){
 // }
 
 // Essential translator functions
-EventEnum Translator::define_lines(const std::string& file_info) {
+EventEnum Translator::define_lines(const std::string& file_info, uint64_t starting_line) {
     // Error handle that the file path is valid and open
     std::string filePath = file_info;
     std::ifstream file(filePath);
@@ -80,9 +80,14 @@ EventEnum Translator::define_lines(const std::string& file_info) {
 
     // Parse file line by line
     std::string lineContent;
-    uint64_t lineNumber = 1; 
+
+
+    uint64_t lineNumber = starting_line; 
+    // uint64_t file_line_number = 1; 
+
+
     while (std::getline(file, lineContent)) {
-std::cout << "inside define_lines while at line " << lineNumber << "\n"<< std::endl;
+std::cout << "inside \"" << file_info << "\"'s define_lines at line "  << lineNumber << ""<< std::endl;// << file_line_number << " and array has: " << lineNumber << "\n"<< std::endl;
 
     // std::string stripped = remove_comments(lineContent);
     // lineContent = remove_comments2(lineContent); YOOOO YOU NEED
@@ -94,15 +99,18 @@ std::cout << "inside define_lines while at line " << lineNumber << "\n"<< std::e
         iss >> word;
 // std::cout << "\topened iss steam about to test for include\n" << std::endl;
         if(word == ".include") {
-// std::cout << "\ttrying to includ for some reason????\n" << std::endl;
+std::cout << "\tfound include" << std::endl;
             std::string includeFile;
+
             iss >> includeFile;
             if(!includeFile.empty()) {
                 // Remove quotes if present
                 if(includeFile.front() == '"' && includeFile.back() == '"') {
                     includeFile = includeFile.substr(1, includeFile.size() - 2);
                 }
-                define_lines(includeFile); // Recursive call to include the file
+printf("\t\tBefore include recursion we have %zu lines\n", this->lines_array.size());
+                define_lines(includeFile, 1); // Recursive call to include the file
+printf("\t\tAfter include recursion we have %zu lines\n", this->lines_array.size());
             }
         } else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
 // std::cout << "\tmatched with either text or data\n" << std::endl;
@@ -115,11 +123,11 @@ std::cout << "inside define_lines while at line " << lineNumber << "\n"<< std::e
             // Only place the line in the array if it is non-empty
 
 // printf("\tLine preview: \n\t\tlineN:%ld,\n\t\tsec:%s,\n\t\tline:%s,\n\t\tfile:%s,\n\t\tWORD:%s\n", lineNumber, this->cur_section.c_str(), lineContent.c_str(), this->input_file_path.c_str(), word.c_str());
-            std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, this->input_file_path);
+            std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, file_info);
 // std::cout << "\tDecided to make the line: |" << line->no_comments << "|\n" << std::endl;
             if (!line->no_comments.empty()) {
             this->lines_array.push_back(std::move(line));
-std::cout << "\tpushed that shit into the array\n" << std::endl;
+// std::cout << "\tpushed that shit into the array" << std::endl;
 
             }
             
@@ -136,7 +144,7 @@ EventEnum Translator::first_pass() {
     uint64_t currentProgramAddress = 0;
     uint64_t currentDataAddress = 0;
 
-std::cout << "\n\n\nInside first pass\n" << std::endl;
+// std::cout << "\n\n\nInside first pass\n" << std::endl;
 
     // Make sure that section is defined
     //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
@@ -149,24 +157,24 @@ std::cout << "\n\n\nInside first pass\n" << std::endl;
 
     // Loop through each line
     for (size_t i = 0; i < this->lines_array.size(); ++i) {
-std::cout << "First pass PC: " << i << std::endl;
-std::cout << "Lines in line array: " << this->lines_array.size() << "\n" << std::endl;
+// std::cout << "First pass PC: " << i << std::endl;
+// std::cout << "Lines in line array: " << this->lines_array.size() << "\n" << std::endl;
         // Remove empty or commented out lines from the array
         if (this->lines_array[i]->get_raw_line().empty() == true) {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
-std::cout << "Removed line in first pass for being empty\n" << std::endl;
+// std::cout << "Removed line in first pass for being empty\n" << std::endl;
         } 
         
         // Store user defined values into corresponding hashmaps
         else if (this->lines_array[i]->get_contains_user_defined())
         {
-std::cout << "\tSomething was user defined\n" << std::endl;
-printf("\t\traw line: %s\n\t\tstripped line: %s\n\t\tline number: %ld\n\t\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
-for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
-    printf("\t\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
-}
+// std::cout << "\tSomething was user defined\n" << std::endl;
+// printf("\t\traw line: %s\n\t\tstripped line: %s\n\t\tline number: %ld\n\t\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
+// for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
+//     printf("\t\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
+// }
 // std::cout << "\tOPCODE was user defined:" << this->lines_array[i]->get_opcode().get_is_user_defined() << std::endl;
 
 
@@ -174,29 +182,29 @@ for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
             if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0
                 || this->lines_array[i]->get_opcode().get_code_str().compare(".equ") == 0)
             {
-std::cout << "\t\tit was a constant\n" << std::endl;
+// std::cout << "\t\tit was a constant\n" << std::endl;
                 // Fetch key value pair
                 std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
-std::cout << user_key << std::endl;
+// std::cout << user_key << std::endl;
                 std::string user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
-std::cout << user_value << std::endl;
+// std::cout << user_value << std::endl;
                 // Make sure that the value is in terms of another predefined value
                 if (const_hashmap.find(user_value) != const_hashmap.end()) {
                     // If user_value is found in the map, use the mapped value
                     std::string actual_value = const_hashmap[user_value];
-std::cout << "Predefined value found: " << actual_value << std::endl;
+// std::cout << "Predefined value found: " << actual_value << std::endl;
                     // You can now use actual_value for further processing
                     // For example, updating the user_value with actual_value
                     user_value = actual_value;
                 } else {
-std::cout << "No predefined value found for: " << user_value << std::endl;
+// std::cout << "No predefined value found for: " << user_value << std::endl;
                 }
 
                 // Store in hashmap
                 const_hashmap.insert(std::make_pair(user_key, user_value));
-std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+// std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
                 // Remove line from array
-std::cout << "removing lines" << std::endl;
+// std::cout << "removing lines" << std::endl;
                 this->lines_array.erase(this->lines_array.begin() + i);
                 i--;
                 continue;
@@ -207,22 +215,22 @@ std::cout << "removing lines" << std::endl;
             // Handle label definitions
             else if (this->lines_array[i]->get_opcode().get_is_user_defined()) //USED TO BE  OPCODE.get_code_str().back() == ':'
             {   // Only labels have user defined opcodes
-std::cout << "\t\twe are now testing for section labels. We have: " << this->lines_array[i]->get_section()<< std::endl;
+// std::cout << "\t\twe are now testing for section labels. We have: " << this->lines_array[i]->get_section()<< std::endl;
                 // Handle text section label
                 if (this->lines_array[i]->get_section().compare(".text") == 0) {
-std::cout << "\t\tit was a text section label\n" << std::endl;
+// std::cout << "\t\tit was a text section label\n" << std::endl;
                     // Fetch key value pair
                     std::string user_key = this->lines_array[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-1);
                     std::string user_value = std::to_string(currentProgramAddress);
                     
                     // Store in hashmap
                     const_hashmap.insert(std::make_pair(user_key, user_value));
-std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+// std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
 
                 } 
                 // Handle data section label
                 else if (this->get_lines_array()[i]->get_section().compare(".data") == 0) {
-std::cout << "\t\tit was a data section label\n" << std::endl;
+// std::cout << "\t\tit was a data section label\n" << std::endl;
                     // Fetch key value pair
                     std::string user_key = this->get_lines_array()[i]->get_opcode().get_code_str().substr(0, this->lines_array[i]->get_opcode().get_code_str().size()-1);
                     std::string user_value = std::to_string(currentDataAddress);
@@ -232,12 +240,12 @@ std::cout << "\t\tit was a data section label\n" << std::endl;
 
                     // Store in hashmap
                     const_hashmap.insert(std::make_pair(user_key, user_value));
-std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+// std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
 
                 }
 
                 // Remove line from array
-std::cout << "removing lines" << std::endl;
+// std::cout << "removing lines" << std::endl;
                 this->lines_array.erase(this->lines_array.begin() + i);
                 i--;
                 continue;
@@ -358,7 +366,7 @@ void second_pass(std::vector<Line> &lines, const std::unordered_map<std::string,
 */
 
 EventEnum Translator::second_pass() {
-printf("\n\n\nSECOND PASS START:\n");
+// printf("\n\n\nSECOND PASS START:\n");
     // Check to make sure that the output file is valid
     std::ofstream outputFile(this->output_file_path);
     if (!outputFile.is_open()) {

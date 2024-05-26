@@ -67,12 +67,15 @@ Pseudo_OpCode::Pseudo_OpCode(const std::string& opcode) : OpCode(opcode) {
         throw std::invalid_argument("Pseudo_OpCode does not have operand info");
     } else{
         // If it was valid we should set operand info
+
         // std::cout << "\t\t\tops found\n" << std::endl;
         this->operand_info = op_operand_map.at(opcode);
+
+        // FALSE PSEUDO OPS ARE NEVER USER DEFINED
         // If operand info is non-"" then it is user defined
-        if (this->operand_info.size() != 0) {
-            this->is_user_defined = true;
-        }
+        // if (this->operand_info.size() != 0) {
+        //     this->is_user_defined = true;
+        // }
              
     }
 

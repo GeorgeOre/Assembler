@@ -77,7 +77,7 @@ public:
 
 
     // Essential translation methods
-    EventEnum define_lines(const std::string& file_info);
+    EventEnum define_lines(const std::string& file_info, uint64_t starting_line);
     EventEnum first_pass();
     EventEnum second_pass();
 

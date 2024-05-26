@@ -4,6 +4,8 @@
 #include "Translator.hh"
 #include "EventEnum.hh"
 
+const uint64_t LINE_START = 1;
+
 void printHelp() {
     printf(R"(
 
@@ -38,7 +40,7 @@ void runAssembler(Translator &translator) {
 
     // Create lines
 
-    translator.define_lines(translator.get_input_file_path());
+    translator.define_lines(translator.get_input_file_path(), LINE_START);
     // Bruhber
     // std::cout << "\n\n\n\nlines were defined YAY\n\n\n" << std::endl;
 
