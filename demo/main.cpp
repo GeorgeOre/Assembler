@@ -254,7 +254,7 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &tra
 
     // Running translator code
     std::string resulting_message;
-    if (translator.define_lines(translator.get_input_file_path(), 1) == EventEnum::SUCCESS) {
+    if (translator.define_lines(translator.get_input_file_path()) == EventEnum::SUCCESS) {
         if (translator.first_pass() == EventEnum::SUCCESS) {
             if (translator.second_pass() ==  EventEnum::SUCCESS) {
                 resulting_message = "Translator code has finished running successfully!";

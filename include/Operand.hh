@@ -1,16 +1,12 @@
 #ifndef OPERAND_HH
 #define OPERAND_HH
 
+// Member type defs
 #include <string>
-#include <iostream>
 #include <memory>
 #include <functional>
-
 #include <unordered_map>
 #include <unordered_set>
-
-//class OpCode;  // Forward declaration of OpCode
-
 class Operand {
 protected:
     std::string raw;      // Raw string that was parsed
@@ -21,6 +17,7 @@ protected:
 
 public:
     Operand(const std::string& raw);
+    // TODO: See what is up with these destructors
     virtual ~Operand() = default;
 
     // Accessors and modifiers
@@ -45,17 +42,11 @@ public:
     static std::string parseDecimal(const std::string& raw);
     static std::string parseHexadecimal(const std::string& raw);
 
+    // Maps for evaluating constants
     static std::unordered_map<std::string, std::function<std::string(const std::string&)>> prefix_map;
     static std::unordered_map<std::string, std::function<std::string(const std::string&)>> suffix_map;
-    // Equality operators
-    // bool operator==(Operand &other) {
-    //     return raw == other.raw && size == other.size && binary == other.binary;
-    // }
 
-    // bool operator!=(Operand &other) {
-    //     return !(*this == other);
-    // }
-
+//TODO: maybe reimplement these in all the other classes
     // Testing functions
     virtual void identifyChild() const = 0;
     // virtual void printValue() const;

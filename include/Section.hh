@@ -1,3 +1,11 @@
+/*
+
+NOTE THAT SECTIONS ARE NOT YET IMPLEMENTED
+
+
+*/
+
+
 #ifndef SECTION_HH
 #define SECTION_HH
 

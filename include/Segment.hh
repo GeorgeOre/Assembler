@@ -1,3 +1,10 @@
+/*
+
+NOTE THAT SEGMENTS ARE NOT YET IMPLEMENTED
+
+
+*/
+
 #ifndef SEGMENT_HH
 #define SEGMENT_HH
 

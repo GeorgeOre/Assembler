@@ -1,3 +1,12 @@
+/*
+
+NOTE THAT SECTIONS ARE NOT YET IMPLEMENTED
+
+
+*/
+
+
+
 #include <iostream>
 #include "Section.hh"
 

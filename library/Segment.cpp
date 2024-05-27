@@ -1,3 +1,10 @@
+/*
+
+NOTE THAT SEGMENTS ARE NOT YET IMPLEMENTED
+
+
+*/
+
 #include "Segment.hh"
 
 // Default constructor

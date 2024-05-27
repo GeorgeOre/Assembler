@@ -20,19 +20,12 @@
 
 class Translator {
 public:
-    // File streams
-    // std::ifstream inputFile;
-    // std::ofstream outputFile;
-
     // Object instance arrays
     std::vector<std::shared_ptr<Line>> lines_array;
-    // std::vector<Section> sections_array;
-    // std::vector<Segment> segments_array;
 
     // File paths
     std::string input_file_path;
     std::string output_file_path;
-    std::string error_file_path;
 
     // Section data members
     std::string cur_section;
@@ -43,18 +36,13 @@ public:
     bool contains_error;
 
     // Hashmaps
-    // static std::unordered_map<std::string, Section> section_enum;
-    // static std::unordered_map<std::string, ConstPrefix> const_prefix_enum;
     static std::unordered_map<std::string, std::string> text_label_hashmap;
     static std::unordered_map<std::string, std::string> data_label_hashmap;
     static std::unordered_map<std::string, std::string> const_hashmap;
+    // TODO: SHOULD PROBABLY COMBINE INTO ONE
 
     // Constructors and destructors
-    Translator();
-    //Translator(const Translator&);    // Delete copy constructor and assignment operator = delete;
-    // Translator& operator=(const Translator&);       // Delete copy constructor and assignment operator = delete;
     Translator(const std::string& inputPath, const std::string& outputPath);
-    // ~Translator();
 
     // Accessor and modifier methods
     std::string get_input_file_path() const;
@@ -77,17 +65,16 @@ public:
 
 
     // Essential translation methods
-    EventEnum define_lines(const std::string& file_info, uint64_t starting_line);
+    EventEnum define_lines(const std::string& file_info);
     EventEnum first_pass();
     EventEnum second_pass();
 
     // IO methods
     void write_output();
-    EventEnum handle_message(EventEnum event);
+    // EventEnum handle_message(EventEnum event);
     
     // Reset
     void reset();
-    // EventEnum make_error_file();
 
 private:
 };

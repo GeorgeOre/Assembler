@@ -46,6 +46,7 @@
 // Local (Static) Constants
 static const size_t MAX_OPCODE_POS = 2;
 
+// Valid op_type map TODO: Get rid of to implement obejct oriented 
 std::unordered_map<std::string, std::string> Line::op_type_map = {
     // Bit-Oriented Instructions
     {"BCF", "B"}, {"BSF", "B"},
@@ -100,8 +101,31 @@ std::unordered_map<std::string, std::string> Line::op_type_map = {
 
 };
 
+// Supported operations for parsing operands TODO: maybe remove this
+const std::unordered_set<std::string> supported_operations = {"+", "-", "*", "/"};
+
+// Expession helper
+int find_expression_index(const std::string& operand) {
+    int expression_index = 0;
+
+    // Split the operand by spaces
+    std::vector<std::string> parts = split_string(operand, ' ');
+    
+    // Check if any part is an operator
+    for (const std::string& part : parts) {
+        if (supported_operations.find(part) != supported_operations.end()) {
+            return expression_index;
+        }
+        expression_index++;
+    }
+    // Return -1 in the case that the expression is not found
+    return -1;
+}
+
+
+
 // Constructor helper functions
-std::string remove_comments(const std::string &line) {
+std::string Line::remove_comments(const std::string &line) {
     std::size_t comment_start = line.find(';');
     // Strip line of comment if it exists
     if (comment_start != std::string::npos) {
@@ -111,7 +135,7 @@ std::string remove_comments(const std::string &line) {
     return line;
 }
 
-std::vector<std::string> parse_line(std::string &line) {
+std::vector<std::string> Line::parse_line(std::string &line) {
     // Make a stream iterator for the line and start parsing the line
     std::istringstream str_stream(line);
     std::vector<std::string> words;
@@ -120,7 +144,6 @@ std::vector<std::string> parse_line(std::string &line) {
     // Read all words from the stream assuming space delimitors
     while (str_stream >> word) {
         words.push_back(word);
-// std::cout << "\t\t" << word << std::endl;        
     }
 
     // Return all items found
@@ -140,153 +163,84 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
     // Attempt to create the OpCode object within the valid searching range
     for (size_t i = 0; ((i < MAX_OPCODE_POS) && (i < elements.size())); i++) { 
-std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
-
         potential_opcode = elements[i];
-// std::cout << "\t\t\tpot op: |" << potential_opcode.c_str() << "|" << std::endl;
-
         try // Try-catch to handle OpCode initalization errors
         {
-
-// std::cout << "\t\t\tinside the try" << std::endl;
-            // Test for label first
-// std::cout << "\t\t\t\top:" << potential_opcode << std::endl;
-// std::cout << "\t\t\t\tback:" << potential_opcode.back() << std::endl;
-// std::cout << "\t\t\t\tfront:" << potential_opcode.front() << std::endl;
-// std::cout << "\t\t\t\tfound:" << (op_type_map.find(potential_opcode) != op_type_map.end()) << std::endl;
-
+            // TODO: FIx the conflicts between the labels and pseudo ops
+            // Seach for labels first
             if (potential_opcode.back() == ':') {
-std::cout << "\t\t\tdetected : at end" << std::endl;
                 this->opcode = std::make_shared<Label_OpCode>(potential_opcode);
-                // Add the element to the list to be parsed as a pseudo op
-
+                // Add the element to the list to be parsed as a pseudo op operand later
                 elements.push_back(potential_opcode.substr(0, potential_opcode.size()-1));
-                // elements.push_back(potential_opcode);
-// std::cout << "\t\t\tpushed " << potential_opcode.substr(0, potential_opcode.size()-1) << " back into elements" << std::endl;
 
+                // Set OpCode found variables and break from the loop
                 opcode_i = i;
                 op_found = true;
                 break;
-
             }   // Test for pseudo op next
+            // Search for pseudo ops next
             else if (potential_opcode.front() == '.') {
-std::cout << "\t\t\tfound . at front" << std::endl;
                 this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
-// std::cout << "\t\t\tpseudo op created successfully" << std::endl;
-// printf("\t\t\t\tbin: %s\n\t\t\t\tstr: %s\n\t\t\t\tformat: %s\n", this->opcode->binary.c_str(), this->opcode->code_str.c_str(), this->opcode->format.c_str());
-// printf("\t\t\t\tsize: %ld\n\t\t\t\tis user defed: %d\n\t\t\t\tformat: %s\n", this->opcode->size, this->opcode->is_user_defined, this->opcode->operand_info.c_str());
+                // Set OpCode found variables and break from the loop
                 opcode_i = i;
                 op_found = true;
                 break;
-
-            }   // Try to find predefined OpCodes
+            }   // Next, check to see if it is a predefined OpCode (map above)
             else if (op_type_map.find(potential_opcode) != op_type_map.end()) {
-// std::cout << "\t\t\tWe got to line predefined opcode" << std::endl;
+                // Define temp vars
                 std::string op_type = op_type_map.at(potential_opcode);
-// std::cout << "\t\t\tWe got to line predefined opcode2" << std::endl;
-
                 std::string copy = potential_opcode;
 
+                // Init the opcode based on it's type in the map
                 if (op_type == "ALU") {
-// std::cout << "\t\t\t\twas ALU B4" << std::endl;
     		        this->opcode = std::make_shared<ALU_OpCode>(copy);
-// std::cout << "\t\t\t\twas ALU" << std::endl;
-                    // break;
                 }
-                else if (op_type == "B") {
-// std::cout << "\t\t\t\twas B B4" << std::endl;
-                    
+                else if (op_type == "B") {                    
                     this->opcode = std::make_shared<B_OpCode>(copy);
-// std::cout << "\t\t\t\twas B" << std::endl;
-                    // break;
                 }
                 else if (op_type == "CTRL") {
-// std::cout << "\t\t\t\twas CTRL B4" << std::endl;
                     this->opcode = std::make_shared<CTRL_OpCode>(copy);
-// std::cout << "\t\t\t\twas CTRL" << std::endl;
-                    // break;
                 }
                 else if (op_type == "MISC") {
-// std::cout << "\t\t\t\twas MISC B4" << std::endl;
                     this->opcode = std::make_shared<Misc_OpCode>(copy);
-// std::cout << "\t\t\t\twas MISC" << std::endl;
-                    // break;
                 }
                 else if (op_type == "W") {
-// std::cout << "\t\t\t\twas W B4" << std::endl;
                     this->opcode = std::make_shared<W_OpCode>(copy);
-// std::cout << "\t\t\t\twas W" << std::endl;
-                    // break;
                 }
-                else {  // If none of these children were detected, then set error
-// std::cout << "\t\t\t\tUH OH ERROR" << std::endl;         
+                else {  // If none of these children OpCode types were detected, then set error
                     this->contains_error = true;
                     this->error_message = "OpCode child type undefined in op_type_map (see Line.cpp)";
                 }
-    //    elements.erase(elements.begin() + i);
+
+//TODO: Handle this repeated chunck of code
+                // Set OpCode found variables and break from the loop
                 opcode_i = i;
                 op_found = true;
-// std::cout << "\t\t\tset op_found to true in order to break: " << op_found << std::endl;
                 break;
             }   
-
-// std::cout << "\t\t\tSKIPPED THIS OPCODE OPTION WAS NOT IT: " << op_found << std::endl;
         }
         catch(const std::exception& e)
         {
             // If there was an error in initalizing the OpCode, set error
             this->contains_error = true;
             this->error_message = e.what();
-            // std::cout << "HOLY FUCK IT WAS JUST CATCHING" << std::endl;
+            // TODO: IMPLEMENT ERROR HANDLING
         }
-
-            // Set found flag and remove the OpCode from the parsed elements            
-
-        // Exit the for loop if an OpCode was created
-//         if (op_found == true) {
-// std::cout << "\tWE BREAKING??\n" << std::endl;
-//             break;
-//         }
     }
-
-// std::cout << "\t\t\tOMG WE OUTIE" << std::endl;
 
     // Set an error if no OpCode was detected
     if (op_found == false) {
         this->contains_error = true;
         this->error_message = "No OpCode or pseudo op found";
     } else {
-// printf("\t\t\terased element at start + %zu\n", opcode_i);
+        // If one was detected, remove it from the elements array to pass onto the next function
         elements.erase(elements.begin() + opcode_i);
     }
     
-
     // Set line to contain user defined if true for OpCode
     if (this->opcode->get_is_user_defined()) {
-// printf("\t\t\topcode was UD with bool: %d\n", this->opcode->get_is_user_defined());
         this->contains_user_defined = true;
     }
-
-}
-
-// std::unordered_map<std::string, std::string> supported_operations =
-const std::unordered_set<std::string> supported_operations = {"+", "-", "*", "/"};
-
-int find_expression_index(const std::string& operand) {
-    int expression_index = 0;
-
-    // Split the operand by spaces
-    std::vector<std::string> parts = split_string(operand, ' ');
-    
-    // Check if any part is an operator
-    for (const std::string& part : parts) {
-        if (supported_operations.find(part) != supported_operations.end()) {
-            return expression_index;
-        }
-        expression_index++;
-    }
-    // Return -1 in the case that the expression is not found
-    return -1;
 }
 
 // This function assumes that parse_opcode was called before it. The correct operand_info 
@@ -294,8 +248,6 @@ int find_expression_index(const std::string& operand) {
 // it is necesarry for the user to have passed in the info parameter even though it can be
 // easily accessed with this->get_opcode()->get_operand_info().
 void Line::parse_operands(std::vector<std::string> &elements, std::string operand_info) {
-// printf("\n\nWE ARE IN PARSE OPERANDS\n");
-// printf("\toperand info size: %zu\n", operand_info.size());
     // Ensure that the elements vector is not empty
     if (elements.empty()) {
         return;
@@ -303,48 +255,22 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
 
     // We were pipelined the elements that were modified by parse_opcode, we need the full string
     std::string operands_only = join_strings(elements, " ");
-// printf("\trecombined operands: %s\n", operands_only.c_str());
 
     // Now we need to parse the given elements into a vector of comma or space (exclusive) delimited operands
     std::vector<std::string> processed_operands = elements;
 
-// printf("\t\t\t\tLets check the ELEMETNTS\n");
-for (size_t i = 0; i < elements.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, elements[i].c_str());
-}
-
-// printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
-
-
-// printf("\tcreated a string vector processed operands and set it to elements value\n");
-
     if (operands_only.find(",") == std::string::npos) {
         // We know there are no commas, however we might still have multiple space delimited
         // operands. How we handle this will depend on whether there there is an expression
-// printf("\t\tCOMMA WAS NOT FOUND\n");
-        // Handle expressions until there are none left
-        // All expressions are handled when the number of operands matches the corresponding 
-        // operand info from the OpCode
+        // We need to IDENTIFY expressions, not handle them. We will store them in processed_operands
+
+        // Split the operands into elements
         processed_operands = split_string(operands_only, ' ');
-        // elements = split_string(operands_only, ' ');
 
-
-
-// printf("\t\tindex of exp op was: %d and other bool was: %d\n", find_expression_index(operands_only), processed_operands.size()!=operand_info.size());
         // We only want to handle expressions if they exist and if they are space delimited.
         if((find_expression_index(operands_only) != -1) && (processed_operands.size()!=operand_info.size())){
-// printf("\t\t\tWE ARE HANDING EXPRESSION\n");
+            // Keep handling the expressions until they are all gone
             while(processed_operands.size() != operand_info.size()) {
-        // if(find_expression_index(operands_only) != -1 && elements.size()!=operand_info.size()){
-        //     while(elements.size() != operand_info.size()) {
-// printf("\t\t\toperands size: %zu\n", processed_operands.size());
-// printf("\t\t\toperands string new RAWWWW: %s\n", operands_only.c_str());
-
-// printf("\t\tele size: %zu\n", elements.size());
-// printf("\t\tele string new: %s\n", operands_only.c_str());
                 // If there are no commas but there was an expression detected,
                 // combine the two adjacent expression operands if they are space
                 // delimited by removing the spaces between them
@@ -353,95 +279,28 @@ for (size_t i = 0; i < processed_operands.size(); i++) {
                 // Combine the adjacent space delimited parts
                 std::string combined = processed_operands[expression_index-1] + " " + processed_operands[expression_index] + " " + processed_operands[expression_index+1];
 
-                // Update operands
-// printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
+                // Update processed operands until all expressions have been identified
                 processed_operands.erase(processed_operands.begin() + expression_index+1);
- 
-//  printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
                 processed_operands.erase(processed_operands.begin() + expression_index);
- 
-//  printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
-
                 processed_operands.erase(processed_operands.begin() + expression_index-1);
- 
-//  printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
- 
                 processed_operands.insert(processed_operands.begin() + expression_index-1, combined);
-
-                // // Combine the adjacent space delimited parts
-                // std::string combined = elements[expression_index-1] + " " + elements[expression_index] + " " + elements[expression_index+1];
-
-                // // Update operands
-                // elements.erase(elements.begin() + expression_index+1);
-                // elements.erase(elements.begin() + expression_index);
-                // elements.erase(elements.begin() + expression_index-1);
-                // elements.insert(elements.begin()-1, combined);
-
-// printf("\t\t\tcombined: |%s| is at %d\n", combined.c_str(), expression_index - 1);
-
-// printf("\t\t\t\tLets check the processed operands\n");
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
-}
-
-                // Keep looping until operands is the appropriate size
-                // operands = split_string(operands_only, ' ');
-// printf("updated operands size: %zu vs %zu\n", processed_operands.size(), operand_info.size());
-// printf("updated operands size: %zu vs %zu\n", elements.size(), operand_info.size());
             }
-
-        }
-
-        // If there was no operand, simply space delimit
-        // else {
-        //     processed_operands = split_string(operands_only, ' ');
-        // }
-        
+        }        
 
     } else {
-// printf("\tCOMMA WAS FOUND\n");
         // If commas were found then it must be comma delimited
         processed_operands = split_string(operands_only, ',');
-        // elements = split_string(operands_only, ',');
     }
     
-// AT THIS POINT THE OPERANDS SHOULD HAVE BEEN PROCESSED INTO AN ARRAY OF STRINGS 
-
-// std::cout << "\t processed operand count after respliting: " << processed_operands.size() << std::endl;
-for (size_t i = 0; i < processed_operands.size(); i++) {
-// printf("\t\t\tprocessed operand %zu: ", i);
-// printf("|%s|\n", processed_operands[i].c_str());
-}
-
-// std::cout << "\t\toperand count after respliting: " << elements.size() << std::endl;
-// for (size_t i = 0; i < elements.size(); i++) {
-// printf("\t\t\telement %zu: |%s|\n", i, elements.at(i).c_str());
-// }
-
-
+    // TODO: maye find a better place for this
     // Make sure that the operand info matches the newly parsed operand elements
-    // assert(operands.size() == elements.size());
+    // assert(processed_operands.size() == operand_info.size());
 
 
     // Go through all elements and define them based on the opcode's operand info
     std::string potential_operand;
     for (size_t i = 0; i < processed_operands.size(); ++i) {
         potential_operand = processed_operands[i];
-    // for (size_t i = 0; i < elements.size(); ++i) {
-    //     potential_operand = elements[i];
-
         try // Try-catch to handle OpCode initalization errors
         {
             if (operand_info.at(i) == 'b') {
@@ -451,45 +310,34 @@ for (size_t i = 0; i < processed_operands.size(); i++) {
             } else if (operand_info.at(i) == 'f') {
                 this->operands.push_back(std::make_shared<Foperand>(potential_operand));
             } else if (operand_info.at(i) == 'k') {
-// printf("makeing k op\n");
                 this->operands.push_back(std::make_shared<Koperand>(potential_operand));
             } else if (operand_info.at(i) == 'p') {
-// printf("makeing p op\n");
                 this->operands.push_back(std::make_shared<Poperand>(potential_operand));
-// printf("p op has bin defined as: %s with bin: %s\n", this->operands[this->operands.size()-1]->get_raw().c_str(), this->operands[this->operands.size()-1]->get_binary().c_str());
             } else {
                 // If the operand type was not detected, set error
                 this->contains_error = true;
                 // this->error_message = "Operand type undefined in operand elif";
             }
-// printf("we got thgouth no errors\n");
         }
         catch(const std::exception& e)
         {
-// printf("wair hold up its actually error catching\n");
             // If there was an error in making the specific Operand, set error
             this->contains_error = true;
             this->error_message = e.what();
         }
+//TODO ACTUALLY THINK ABOUT ERROR HANDLING
 
         // Check to see if the operand contained a user defined operand
         if (this->operands[i]->get_is_user_defined()) {
             // The line should know this to facilitate processing later
-// printf("\t\tThe %zu operand |%s| was OD\n", i, this->operands[i]->get_raw().c_str());
             this->contains_user_defined = true;
         }
     }
-
 }
 
 /*
-
 ACTUAL CONSTRUCTOR
-
 */
-
-
-
 Line::Line(uint64_t line_number, const std::string& section,
     const std::string& line,  const std::string& f_name): 
         line_number(line_number), 
@@ -500,40 +348,30 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
-// std::cout << "\tWe are inside line init constructor" << std::endl;
-
-
     // Search the line for comments and remove
-    // std::string copy = line;
     std::string stripped = remove_comments(line);
     stripped = trim_left(stripped);
+    // TODO SEE IF THIS CAN BE REMOVED
     this->no_comments = stripped;
-
-// std::cout << "\tstripped line: |" << stripped <<  "|" << std::endl;
-
 
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
-std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements" << std::endl;
-
+    // Keep going if content existed
     if (elements.size() != 0) {
-            
+        // Define OpCode
+        parse_opcode(elements);
 
-    // Define OpCode
-    parse_opcode(elements);
-
-std::cout << "\tThe line says init opcode went good" << std::endl;
-
-
-    // Define Operands
-    std::string info = this->opcode->get_operand_info();
-    parse_operands(elements, info);
+        // Define Operands
+        std::string info = this->opcode->get_operand_info();
+        parse_operands(elements, info);
     }
 }
 
 
 // PICHEX CALCULARION FUNCTIONS
+
+// Pichex helper functions
 
 // Function to convert binary string to an integer
 unsigned long binaryStringToInt(const std::string& binaryString) {
@@ -548,15 +386,12 @@ std::string bitwiseAddBinaryStrings(const std::vector<std::string>& binaryString
     if (binaryStrings.empty()) {
         return "0";
     }
-
     // Initialize result to 0
     unsigned long result = 0;
-
     // Convert each binary string to an integer and perform bitwise OR
     for (const std::string& binaryString : binaryStrings) {
         result |= binaryStringToInt(binaryString);
     }
-
     // Convert the result back to a binary string
     return intToBinaryString(result, binaryStrings[0].length());
 }
@@ -566,7 +401,6 @@ std::string binaryToHex(const std::string &binary) {
     ss << std::hex << std::uppercase << std::stoi(binary, nullptr, 2);
     return ss.str();
 }
-
 std::string get_addr(uint64_t addr){
 	std::stringstream stream;
 	stream << std::hex << std::uppercase << addr; // Changed to uppercase
@@ -576,7 +410,6 @@ std::string get_addr(uint64_t addr){
 	address.insert(0, to_add, '0');
 	return address;
 }
-
 std::string get_size(uint64_t size){
 	std::stringstream stream;
     // Change to hex and to uppercase
@@ -587,7 +420,6 @@ std::string get_size(uint64_t size){
 	address.insert(0, to_add, '0');
 	return address;
 }
-
 std::string get_checksum(uint64_t size, std::string address, std::string rec_type, std::string data){
     // Add each byte into a sum
 	uint64_t sum = size;
@@ -613,7 +445,6 @@ std::string get_checksum(uint64_t size, std::string address, std::string rec_typ
 	std::string cs = stream.str();
 	return cs;
 }
-
 std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap) const {
     // PICHEX depends on five strings:
     std::string data;
@@ -625,51 +456,35 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
     // First, fetch opcode binary
     std::string opcode_bin = this->opcode->binary;
 
-// std::cout << "We are in to pichex" << std::endl;
-printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
-
     // Next, fetch the necessary operands binaries
     std::vector<std::string> operand_bins;
     for (size_t i = 0; i < this->operands.size(); i++) {
-printf("\nQUICK CHECKPOINT\n");
-        // Make sure to handle variable operands
+        // Make sure to user defined operands
         if (this->operands[i]->get_is_user_defined()) {
-std::cout << "\tFound user defined operand" << std::endl;
-
-printf("\t\toperand %zu (%s) original bin data: %s\n", i, this->operands[i]->get_raw().c_str(), this->operands[i]->get_binary().c_str());
             this->operands[i]->set_raw(hashmap[this->operands[i]->get_raw()]);
             this->operands[i]->parseRawToBinary();
         }
-
-printf("\t\toperand %zu (%s) after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_raw().c_str(), this->operands[i]->get_binary().c_str());
-
-std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
         operand_bins.push_back(this->operands[i]->get_binary());
     }
 
-printf("\nQUICK CHECKPOINT\n");
-
-    // Combine them into an overall binary string
+    // Combine the binary data into an overall binary string
     operand_bins.push_back(opcode_bin);
     std::string tot_bin = bitwiseAddBinaryStrings(operand_bins);
 
     // Convert binary to hexadecimal
-// printf("\t\ttotal combined bin data: %s\n", tot_bin.c_str());
     data = binaryToHex(tot_bin);
-// printf("\t\thex data: %s\n", data.c_str());
 
-
-    // Ensure the length of the data string is even
+    // Ensure the length of the hex data string is even
     if (data.size() % 2 == 1) {
         data.insert(0, 1, '0');
     }
 
     // For now we will make sure each line is two bytes
+    // This is for easy PICHEX readability
+    // TODO: find other viewable formats and add it as a setting
     while (data.size() != 4) {
         data.insert(0, 1, '0');
     }
-
-// printf("\t\thex data after even adjustment: %s\n", data.c_str());
 
     // Fill out all other params
     byte_count += get_size(data.size()/2); // depends on how many bytes of data were provided
@@ -679,7 +494,7 @@ printf("\nQUICK CHECKPOINT\n");
 
     // Construct the final string (this must have a ':' prefix)
     std::string total = ":" + byte_count + address + record_type + data + checksum;
-    printf("\n\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
+
     return total;
 }
 
@@ -689,7 +504,7 @@ uint64_t Line::get_memory_address() {return this->memory_address;}
 std::string& Line::get_file_name() {return this->file_name;}
 std::string& Line::get_section() {return this->section;}
 std::string& Line::get_raw_line() {return this->raw_line;}
-OpCode& Line::get_opcode() {return *this->opcode;}
+std::shared_ptr<OpCode>& Line::get_opcode() {return this->opcode;}
 std::vector<std::shared_ptr<Operand>>& Line::get_operands() {return this->operands;}
 bool Line::get_contains_error() {return this->contains_error;}
 bool Line::get_contains_user_defined() {return this->contains_user_defined;}

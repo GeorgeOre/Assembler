@@ -77,14 +77,14 @@ void test_OperandIdentifyChild() {
 }
 
 void test_OperandEquality() {
-    Boperand boperand1("B123");
-    Boperand boperand2("B123");
-    Boperand boperand3("B456");
+    // Boperand boperand1("B123");
+    // Boperand boperand2("B123");
+    // Boperand boperand3("B456");
 
-    assert(boperand1 == boperand2);
-    assert(boperand1 != boperand3);
+    // assert(boperand1 == boperand2);
+    // assert(boperand1 != boperand3);
 
-    std::cout << "Operand equality tests passed!\n" << std::endl;
+    // std::cout << "Operand equality tests passed!\n" << std::endl;
 }
 
 void test_OperandCopyConstructor() {

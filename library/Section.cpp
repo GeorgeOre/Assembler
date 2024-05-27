@@ -1,3 +1,10 @@
+/*
+
+NOTE THAT SECTIONS ARE NOT YET IMPLEMENTED
+
+
+*/
+
 #include "Section.hh"
 
 std::unordered_map<std::string, Section> Section::sections;
