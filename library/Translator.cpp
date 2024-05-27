@@ -349,7 +349,7 @@ printf("\n\n\nSECOND PASS START:\n");
     outputFile << ":020000040000FA" << std::endl;    
 
     for (const auto& line : this->lines_array) {
-printf("\tevaling line %ld in file %s\n", line->get_line_number(), line->get_file_name().c_str());
+printf("\tevaling line %ld in file %s: %s\n", line->get_line_number(), line->get_file_name().c_str(), line->get_raw_line().c_str());
         // Before translating, expressions must be resolved
         for (const auto& operand : line->get_operands()) {
 printf("\t\tevaling operand %s with bin %s\n", operand->get_raw().c_str(), operand->get_binary().c_str());
@@ -359,13 +359,17 @@ printf("It was an expression\n");
                     operand->set_raw(evaluate_expression(operand->get_raw(), this->const_hashmap));
 printf("raw changed to %s\n", operand->get_raw().c_str());
                     operand->set_is_expression(false);
+
+                    // DONT FORGET TO UPDATE THE BIN
+                    operand->parseRawToBinary();
+
                 } catch (const std::exception &e) {
+
                     std::cerr << "Error evaluating expression: " << operand->get_raw() << " - " << e.what() << std::endl;
                 }
             }
         }
 
-        
         // Translate instruction
         outputFile << line->to_pichex(const_hashmap) << std::endl;
     }

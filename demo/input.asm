@@ -6,7 +6,6 @@
 
 ; Configuration bits settings
 ;    __config    _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _HS_OSC & _LVP_OFF
-; MAYBE DO THIS LATER
 
 ; Define constants
     cBLOCK       .equ 20h         ; Start of general-purpose RAM
@@ -19,50 +18,60 @@
 
 ; Main program
 ;    .org 0x00
-     goto START
+     goto START         ;ACTUAL RUNNING CODE*********************************
 
 ; Interrupt vector
 ;    .org 0x04
-     retfie
+     retfie         ;ACTUAL RUNNING CODE*********************************
 
 ; Program start
 START:
     ; Initialize the first two Fibonacci numbers
-     clrf cFIB_ARRAY             ; Fibonacci[0] = 0
-     movlw 1
-;    movwf cFIB_ARRAY + 1        ; Fibonacci[1] = 1
+     clrf cFIB_ARRAY             ; Fibonacci[0] = 0         ;ACTUAL RUNNING CODE*********************************
+     movlw 1         ;ACTUAL RUNNING CODE*********************************
+     movwf cFIB_ARRAY + 1        ; Fibonacci[1] = 1         ;ACTUAL RUNNING CODE*********************************
 
     ; Initialize loop counter
-     movlw 8
-;    movwf cCOUNTER              ; Loop counter = 8 (for Fibonacci[2] to Fibonacci[9])
+     movlw 8         ;ACTUAL RUNNING CODE*********************************
+     movwf cCOUNTER              ; Loop counter = 8 (for Fibonacci[2] to Fibonacci[9])         ;ACTUAL RUNNING CODE*********************************
 
 COMPUTE_FIB:
     ; Load Fibonacci[n-1] into cTEMP1
-;    movf cFIB_ARRAY + 1, W
-;    movwf cTEMP1
+
+;GEORGE ADDED A DEF FOR W FOR TESTING PURPOSES
+;     W     .EQU     0
+
+     movf cFIB_ARRAY + 1, W         ;ACTUAL RUNNING CODE*********************************
+     movwf cTEMP1         ;ACTUAL RUNNING CODE*********************************
 
     ; Load Fibonacci[n-2] into cTEMP2
-     movf cFIB_ARRAY, W
-;    movwf cTEMP2
+     movf cFIB_ARRAY, W         ;ACTUAL RUNNING CODE*********************************
+     movwf cTEMP2         ;ACTUAL RUNNING CODE*********************************
 
     ; Calculate Fibonacci[n] = Fibonacci[n-1] + Fibonacci[n-2]
-;    addwf cTEMP2, F
-;    movf cTEMP2, W
-;    movwf cFIB_ARRAY + 2
+     addwf cTEMP2, F         ;ACTUAL RUNNING CODE*********************************
+     movf cTEMP2, W         ;ACTUAL RUNNING CODE*********************************
+     movwf cFIB_ARRAY + 2         ;ACTUAL RUNNING CODE*********************************
 
     ; Shift the array for the next iteration
-;    movf cFIB_ARRAY + 1, W
-     movwf cFIB_ARRAY
-;    movf cFIB_ARRAY + 2, W
-;    movwf cFIB_ARRAY + 1
+     movf cFIB_ARRAY + 1, W         ;ACTUAL RUNNING CODE*********************************
+     movwf cFIB_ARRAY         ;ACTUAL RUNNING CODE*********************************
+     movf cFIB_ARRAY + 2, W         ;ACTUAL RUNNING CODE*********************************
+     movwf cFIB_ARRAY + 1         ;ACTUAL RUNNING CODE*********************************
 
     ; Decrement the loop counter
-;    decf cCOUNTER, F
-;    btfss STATUS, Z             ; If counter is zero, exit loop
-     goto COMPUTE_FIB
+     decf cCOUNTER, F         ;ACTUAL RUNNING CODE*********************************
+     btfss STATUS, Z             ; If counter is zero, exit loop         ;ACTUAL RUNNING CODE*********************************
+     goto COMPUTE_FIB         ;ACTUAL RUNNING CODE*********************************
 
     ; End of program
-;    goto $ DO LATER ALSO
+;     goto $ DO LATER ALSO
 
-;    end DO LATER
+;     end DO LATER
+
+; FEATURES TO BE IMPLEMENTED
+;   - memory access
+;   - .org
+;   - configs
+;   - end and goto $
 

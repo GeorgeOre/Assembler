@@ -11,21 +11,27 @@ std::unordered_map<std::string, std::string> Pseudo_OpCode::op_format_map = {
 };
 
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_bin_map = {
-    {".text", ""},     // Start text space
-    {".data", ""},     // Start data space
-    {".info", ""},     // Start info space
-    {".equ", ""},      // Constant definition
-    {".include", ""},  // Include file
-    {".org", ""}        // Set program counter reference value
+    {".TEXT", ""},     // Start text space
+    {".DATA", ""},     // Start data space
+    {".INFO", ""},     // Start info space
+    {".EQU", ""},      // Constant definition
+//    {".INCLUDE", ""},  // Include file
+    {".ORG", ""},       // Set program counter reference value
+    // Lowercase Versions
+    {".text", ""}, {".data", ""}, {".info", ""},
+    {".equ", ""}, /*{".include", ""}, */{".org", ""}
 };
 
 std::unordered_map<std::string, std::string> Pseudo_OpCode::op_operand_map = {
-    {".text", ""},      // Start text space
-    {".data", ""},      // Start data space
-    {".info", ""},      // Start info space
-    {".equ", "pp"},     // Constant definition, pp
-    {".include", "p"},  // Include file, p
-    {".org", "p"}        // Set program counter reference value, p
+    {".TEXT", ""},      // Start text space
+    {".DATA", ""},      // Start data space
+    {".INFO", ""},      // Start info space
+    {".EQU", "pp"},     // Constant definition, pp
+    // {".INCLUDE", "p"},  // Include file, p
+    {".ORG", "p"},      // Set program counter reference value, p
+    // Lowercase Versions
+    {".text", ""}, {".data", ""}, {".info", ""},
+    {".equ", "pp"}, /*{".include", "p"}, */{".org", "p"}
 };
 
 // Constructor

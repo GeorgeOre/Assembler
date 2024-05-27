@@ -8,21 +8,31 @@ std::unordered_map<std::string, std::string> B_OpCode::op_format_map = {
     {"BCF", "^01..000...$"},   // Bit Clear f
     {"BSF", "^01..001...$"},   // Bit Set f
     {"BTFSC", "^01..010...$"}, // Bit Test f, Skip if Clear
-    {"BTFSS", "^01..011...$"}  // Bit Test f, Skip if Set
+    {"BTFSS", "^01..011...$"}, // Bit Test f, Skip if Set
+    // Lowercase versions
+    {"bcf", "^01..000...$"},{"bsf", "^01..001...$"},
+    {"btfsc", "^01..010...$"},{"btfss", "^01..011...$"}
 };
 
 std::unordered_map<std::string, std::string> B_OpCode::op_bin_map = {
-    {"BCF", "0100"},   // Bit Clear f
-    {"BSF", "0101"},   // Bit Set f
-    {"BTFSC", "0110"}, // Bit Test f, Skip if Clear
-    {"BTFSS", "0111"}  // Bit Test f, Skip if Set
+    {"BCF",   "01000000000000"},   // Bit Clear f
+    {"BSF",   "01010000000000"},   // Bit Set f
+    {"BTFSC", "01100000000000"}, // Bit Test f, Skip if Clear
+    {"BTFSS", "01110000000000"}, // Bit Test f, Skip if Set
+    // Lowercase versions
+    {"bcf", "01000000000000"},{"bsf", "01010000000000"},
+    {"btfsc", "01100000000000"},{"btfss", "01110000000000"}
 };
+
 
 std::unordered_map<std::string, std::string> B_OpCode::op_operand_map = {
     {"BCF", "fb"},   // Bit Clear f
     {"BSF", "fb"},   // Bit Set f
     {"BTFSC", "fb"}, // Bit Test f, Skip if Clear
-    {"BTFSS", "fb"}  // Bit Test f, Skip if Set
+    {"BTFSS", "fb"}, // Bit Test f, Skip if Set
+    // Lowercase versions
+    {"bcf", "fb"},{"bsf", "fb"},{"btfsc", "fb"},{"btfss", "fb"}
+
 };
 
 B_OpCode::B_OpCode(const std::string& opcode) : OpCode(opcode) {

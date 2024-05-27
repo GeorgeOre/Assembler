@@ -140,7 +140,7 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
     // Attempt to create the OpCode object within the valid searching range
     for (size_t i = 0; ((i < MAX_OPCODE_POS) && (i < elements.size())); i++) { 
-// std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
+std::cout << "\t\ttesting parse opcode " << i << " found already:" << op_found << std::endl;
 
         potential_opcode = elements[i];
 // std::cout << "\t\t\tpot op: |" << potential_opcode.c_str() << "|" << std::endl;
@@ -156,7 +156,7 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 // std::cout << "\t\t\t\tfound:" << (op_type_map.find(potential_opcode) != op_type_map.end()) << std::endl;
 
             if (potential_opcode.back() == ':') {
-// std::cout << "\t\t\tdetected : at end" << std::endl;
+std::cout << "\t\t\tdetected : at end" << std::endl;
                 this->opcode = std::make_shared<Label_OpCode>(potential_opcode);
                 // Add the element to the list to be parsed as a pseudo op
 
@@ -170,7 +170,7 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
             }   // Test for pseudo op next
             else if (potential_opcode.front() == '.') {
-// std::cout << "\t\t\tfound . at front" << std::endl;
+std::cout << "\t\t\tfound . at front" << std::endl;
                 this->opcode = std::make_shared<Pseudo_OpCode>(potential_opcode);
 // std::cout << "\t\t\tpseudo op created successfully" << std::endl;
 // printf("\t\t\t\tbin: %s\n\t\t\t\tstr: %s\n\t\t\t\tformat: %s\n", this->opcode->binary.c_str(), this->opcode->code_str.c_str(), this->opcode->format.c_str());
@@ -515,7 +515,7 @@ Line::Line(uint64_t line_number, const std::string& section,
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
-// std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements" << std::endl;
+std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements" << std::endl;
 
     if (elements.size() != 0) {
             
@@ -523,7 +523,7 @@ Line::Line(uint64_t line_number, const std::string& section,
     // Define OpCode
     parse_opcode(elements);
 
-// std::cout << "\tThe line says init opcode went good" << std::endl;
+std::cout << "\tThe line says init opcode went good" << std::endl;
 
 
     // Define Operands
@@ -626,24 +626,28 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
     std::string opcode_bin = this->opcode->binary;
 
 // std::cout << "We are in to pichex" << std::endl;
-// printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
+printf("\topcode: %s original bin data: %s\n",this->opcode->get_code_str().c_str(),this->opcode->get_binary().c_str());
 
     // Next, fetch the necessary operands binaries
     std::vector<std::string> operand_bins;
     for (size_t i = 0; i < this->operands.size(); i++) {
+printf("\nQUICK CHECKPOINT\n");
         // Make sure to handle variable operands
         if (this->operands[i]->get_is_user_defined()) {
-// std::cout << "\tFound user defined operand" << std::endl;
+std::cout << "\tFound user defined operand" << std::endl;
 
-// printf("\t\toperand %zu original bin data: %s\n", i, this->operands[i]->get_binary().c_str());
+printf("\t\toperand %zu (%s) original bin data: %s\n", i, this->operands[i]->get_raw().c_str(), this->operands[i]->get_binary().c_str());
             this->operands[i]->set_raw(hashmap[this->operands[i]->get_raw()]);
             this->operands[i]->parseRawToBinary();
         }
-// printf("\t\toperand %zu after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_binary().c_str());
 
-// std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
+printf("\t\toperand %zu (%s) after parseRawToBinary bin data: %s\n", i, this->operands[i]->get_raw().c_str(), this->operands[i]->get_binary().c_str());
+
+std::cout << "Adding binary value of :" << this->operands[i]->get_binary() << std::endl;        
         operand_bins.push_back(this->operands[i]->get_binary());
     }
+
+printf("\nQUICK CHECKPOINT\n");
 
     // Combine them into an overall binary string
     operand_bins.push_back(opcode_bin);
