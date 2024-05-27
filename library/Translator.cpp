@@ -1,14 +1,33 @@
+// Translator.cpp
 #include "Translator.hh"
+
+// Messaging events
 #include "EventEnum.hh"
 
+// Structures
 #include <memory>
+#include <stack>
+#include <unordered_map>
+#include <vector>
+
+// C utils
+#include <stdexcept>
+#include <cctype>
+
+
+// Math utils
+#include <cmath>
+#include <algorithm>
+
+// String utils
 #include <string>
+#include <string.h>
+
+// Streams
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <unordered_map>
-#include <vector>
-#include <algorithm>
+
 
 // Initialize maps
 std::unordered_map<std::string, std::string> Translator::text_label_hashmap = {};
@@ -17,6 +36,8 @@ std::unordered_map<std::string, std::string> Translator::const_hashmap = {};
 // std::unordered_map<std::string, Section> Translator::section_enum;
 // std::unordered_map<std::string, ConstPrefix> Translator::const_prefix_enum;
 
+// Foreward declarations
+std::string evaluate_expression(const std::string &expression, const std::unordered_map<std::string, std::string> &symbol_table);
 
 // Constructors and destructors
 Translator::Translator(){}  // WE DONT NEED THIS FOO???
@@ -58,16 +79,6 @@ void Translator::set_contains_error(bool new_result){
     this->contains_error = new_result;
 }
 
-// std::string remove_comments2(const std::string &line) {
-//     std::size_t comment_start = line.find(';');
-//     // Strip line of comment if it exists
-//     if (comment_start != std::string::npos) {
-//         return line.substr(0, comment_start);
-//     }
-//     // If not, return the original line
-//     return line;
-// }
-
 // Essential translator functions
 EventEnum Translator::define_lines(const std::string& file_info, uint64_t starting_line) {
     // Error handle that the file path is valid and open
@@ -80,8 +91,7 @@ EventEnum Translator::define_lines(const std::string& file_info, uint64_t starti
 
     // Parse file line by line
     std::string lineContent;
-
-
+    // MAYBE GET RID OF STARTING LINE BECAUSE IT SHOULD ALWAYS BE SET TO 0
     uint64_t lineNumber = starting_line; 
     // uint64_t file_line_number = 1; 
 
@@ -89,17 +99,13 @@ EventEnum Translator::define_lines(const std::string& file_info, uint64_t starti
     while (std::getline(file, lineContent)) {
 std::cout << "inside \"" << file_info << "\"'s define_lines at line "  << lineNumber << ""<< std::endl;// << file_line_number << " and array has: " << lineNumber << "\n"<< std::endl;
 
-    // std::string stripped = remove_comments(lineContent);
-    // lineContent = remove_comments2(lineContent); YOOOO YOU NEED
-    // YOU NEED TO DECIDE ABOUT THIS ^^^^
-
-        // Search file for URGENT pseudo ops
+        // ".include" is an important pseudo op and must be handled first
         std::istringstream iss(lineContent);
         std::string word;
         iss >> word;
 // std::cout << "\topened iss steam about to test for include\n" << std::endl;
         if(word == ".include") {
-std::cout << "\tfound include" << std::endl;
+// std::cout << "\tfound include" << std::endl;
             std::string includeFile;
 
             iss >> includeFile;
@@ -112,25 +118,25 @@ printf("\t\tBefore include recursion we have %zu lines\n", this->lines_array.siz
                 define_lines(includeFile, 1); // Recursive call to include the file
 printf("\t\tAfter include recursion we have %zu lines\n", this->lines_array.size());
             }
-        } else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
-// std::cout << "\tmatched with either text or data\n" << std::endl;
+        } 
+        // Other urgent speudo ops are the section modifiers but those can be implemented later
+        else if((word.compare(".text")==0) || (word.compare(".data")==0) || (word.compare(".info")==0)) {
+std::cout << "\tmatched with either text or data\n" << std::endl;
             this->cur_section = word;
         } 
         
 // std::cout << "\tnot pseudo about to make the line\n" << std::endl;
-        if (!lineContent.empty() && !word.empty() && word.at(0) != ';') {
-        // if (!lineContent.empty()) {
-            // Only place the line in the array if it is non-empty
+        // Now we must decide if we should attempy to init the line
+        else if (!lineContent.empty() && !word.empty() && word.at(0) != ';') {
 
 // printf("\tLine preview: \n\t\tlineN:%ld,\n\t\tsec:%s,\n\t\tline:%s,\n\t\tfile:%s,\n\t\tWORD:%s\n", lineNumber, this->cur_section.c_str(), lineContent.c_str(), this->input_file_path.c_str(), word.c_str());
             std::shared_ptr<Line> line = std::make_shared<Line>(lineNumber, this->cur_section, lineContent, file_info);
-// std::cout << "\tDecided to make the line: |" << line->no_comments << "|\n" << std::endl;
+std::cout << "\tDecided to make the line: |" << line->no_comments << "|\n" << std::endl;
+            // We must also decide if we should put the line in our array IDEALLY COMBINE THESE
             if (!line->no_comments.empty()) {
             this->lines_array.push_back(std::move(line));
 // std::cout << "\tpushed that shit into the array" << std::endl;
-
             }
-            
         }
         // Increment file line number
         lineNumber++;
@@ -144,7 +150,7 @@ EventEnum Translator::first_pass() {
     uint64_t currentProgramAddress = 0;
     uint64_t currentDataAddress = 0;
 
-// std::cout << "\n\n\nInside first pass\n" << std::endl;
+std::cout << "\n\n\nInside first pass\n" << std::endl;
 
     // Make sure that section is defined
     //UNTIL WE INPLEMENT PSEUDO OPS LETS DEFAULT SECTION TO .data
@@ -158,23 +164,24 @@ EventEnum Translator::first_pass() {
     // Loop through each line
     for (size_t i = 0; i < this->lines_array.size(); ++i) {
 // std::cout << "First pass PC: " << i << std::endl;
-// std::cout << "Lines in line array: " << this->lines_array.size() << "\n" << std::endl;
+std::cout << "Lines in line array: " << this->lines_array.size() << "" << std::endl;
         // Remove empty or commented out lines from the array
         if (this->lines_array[i]->get_raw_line().empty() == true) {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
-// std::cout << "Removed line in first pass for being empty\n" << std::endl;
+std::cout << "Removed line in first pass for being empty\n" << std::endl;
         } 
         
         // Store user defined values into corresponding hashmaps
         else if (this->lines_array[i]->get_contains_user_defined())
         {
-// std::cout << "\tSomething was user defined\n" << std::endl;
+std::cout << "\tSomething was user defined" << std::endl;
 // printf("\t\traw line: %s\n\t\tstripped line: %s\n\t\tline number: %ld\n\t\topcode: %s\n", this->lines_array[i]->raw_line.c_str(), this->lines_array[i]->no_comments.c_str(), this->lines_array[i]->line_number, this->lines_array[i]->opcode->code_str.c_str());
 // for (size_t j = 0; j < this->lines_array[i]->operands.size(); j++) {
 //     printf("\t\toperand %zu: %s\n", j, this->lines_array[i]->operands[j]->get_raw().c_str());
 // }
+
 // std::cout << "\tOPCODE was user defined:" << this->lines_array[i]->get_opcode().get_is_user_defined() << std::endl;
 
 
@@ -182,29 +189,75 @@ EventEnum Translator::first_pass() {
             if (this->lines_array[i]->get_opcode().get_code_str().compare(".EQU") == 0
                 || this->lines_array[i]->get_opcode().get_code_str().compare(".equ") == 0)
             {
-// std::cout << "\t\tit was a constant\n" << std::endl;
+std::cout << "\t\tit was a constant" << std::endl;
                 // Fetch key value pair
                 std::string user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
-// std::cout << user_key << std::endl;
+// std::cout << "proposed key: " << user_key << std::endl;
                 std::string user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
-// std::cout << user_value << std::endl;
+// std::cout << "proposed val: " << user_value << std::endl;
                 // Make sure that the value is in terms of another predefined value
                 if (const_hashmap.find(user_value) != const_hashmap.end()) {
                     // If user_value is found in the map, use the mapped value
                     std::string actual_value = const_hashmap[user_value];
-// std::cout << "Predefined value found: " << actual_value << std::endl;
+std::cout << "Predefined value found: " << actual_value << std::endl;
+
                     // You can now use actual_value for further processing
                     // For example, updating the user_value with actual_value
                     user_value = actual_value;
                 } else {
-// std::cout << "No predefined value found for: " << user_value << std::endl;
+                    // Handle expressions
+
+                    // First handle the first operand
+                    if (this->get_lines_array()[i]->get_operands()[0]->get_is_expression()) {
+// std::cout << "EXPRESSION befor: " << this->get_lines_array()[i]->get_operands()[0]->get_raw() << std::endl;
+                        // Split the expression
+                        std::vector<std::string> words = split_string(this->get_lines_array()[i]->get_operands()[0]->get_raw(), ' ');
+                        // Substitute expression elements with defined symbol table values
+                        for (auto& word : words) {
+                            if (const_hashmap.find(word) != const_hashmap.end()) {
+                                word = const_hashmap.at(word);
+                            }
+                        }
+
+                        // Update the operand
+                        this->get_lines_array()[i]->get_operands()[0]->set_raw(join_strings(words, " "));
+                        // this->get_lines_array()[i]->get_operands()[0]->parseRawToBinary();
+// std::cout << "EXPRESSION after: " << this->get_lines_array()[i]->get_operands()[0]->get_raw() << std::endl;
+
+                        // Update the key-value pair
+                        user_key = this->get_lines_array()[i]->get_operands()[0]->get_raw();
+                        // VALUE DOES NOT NEED UPDATING IN THIS CASE user_value = NEW;
+                    }
+                    
+                    // First handle the first operand
+                    if (this->get_lines_array()[i]->get_operands()[1]->get_is_expression()) {
+// std::cout << "EXPRESSION befor: " << this->get_lines_array()[i]->get_operands()[1]->get_raw() << std::endl;
+                        // Split the expression
+                        std::vector<std::string> words = split_string(this->get_lines_array()[i]->get_operands()[1]->get_raw(), ' ');
+                        // Substitute expression elements with defined symbol table values
+                        for (auto& word : words) {
+                            if (const_hashmap.find(word) != const_hashmap.end()) {
+                                word = const_hashmap.at(word);
+                            }
+                        }
+                        // Update the operand
+                        this->get_lines_array()[i]->get_operands()[1]->set_raw(join_strings(words, " "));
+                        // this->get_lines_array()[i]->get_operands()[1]->parseRawToBinary();
+// std::cout << "EXPRESSION after: " << this->get_lines_array()[i]->get_operands()[1]->get_raw() << std::endl;
+
+                        // Update the key-value pair
+                        // KEY DOES NOT NEED UPDATING IN THIS CASE
+                        user_value = this->get_lines_array()[i]->get_operands()[1]->get_raw();
+                    }
+
+std::cout << "\tNo predefined value found OR EXPRESSION HANDLED for: " << user_value << std::endl;
                 }
 
                 // Store in hashmap
                 const_hashmap.insert(std::make_pair(user_key, user_value));
-// std::cout << "Hashmap value stored: " << user_key << " maps to " << user_value << std::endl;
+std::cout << "\tHashmap value stored: " << user_key << " maps to " << user_value << std::endl;
                 // Remove line from array
-// std::cout << "removing lines" << std::endl;
+std::cout << "\tremoving line: " << i << std::endl;
                 this->lines_array.erase(this->lines_array.begin() + i);
                 i--;
                 continue;
@@ -253,6 +306,11 @@ EventEnum Translator::first_pass() {
             }
             
         }
+        else
+        {
+            // This runs if not emppy and not user defed
+        }
+        
         // Store program address value in line
         this->lines_array[i]->set_memory_address(currentProgramAddress);
 
@@ -269,11 +327,67 @@ EventEnum Translator::first_pass() {
     return EventEnum::SUCCESS;
 }
 
-/* EXPRESSION BS
-#include <stack>
-#include <unordered_map>
+EventEnum Translator::second_pass() {
+printf("\n\n\nSECOND PASS START:\n");
 
-int evaluate_expression(const std::string &expression, const std::unordered_map<std::string, int> &symbol_table) {
+    // Check to make sure that the output file is valid
+    std::ofstream outputFile(this->output_file_path);
+    if (!outputFile.is_open()) {
+        std::cerr << "Error opening output file: " << this->output_file_path << std::endl;
+        return EventEnum::FILE_NOT_FOUND;
+    }
+
+    // The start of hex files should be an extended linear address record
+    // The standard format is :02000004AAAACC
+    // - : required start of all lines
+    // - 02 2 bytes of address data 
+    // - 0000 address section, must be zero
+    // - 04 denotes the extended linear addresss data
+    // - AAAA actual extended linear address
+    // - CC checksum
+    // For PIC we can use :020000040000FA
+    outputFile << ":020000040000FA" << std::endl;    
+
+    for (const auto& line : this->lines_array) {
+printf("\tevaling line %ld in file %s\n", line->get_line_number(), line->get_file_name().c_str());
+        // Before translating, expressions must be resolved
+        for (const auto& operand : line->get_operands()) {
+printf("\t\tevaling operand %s with bin %s\n", operand->get_raw().c_str(), operand->get_binary().c_str());
+            if (operand->get_is_expression()) {
+printf("It was an expression\n");
+                try {
+                    operand->set_raw(evaluate_expression(operand->get_raw(), this->const_hashmap));
+printf("raw changed to %s\n", operand->get_raw().c_str());
+                    operand->set_is_expression(false);
+                } catch (const std::exception &e) {
+                    std::cerr << "Error evaluating expression: " << operand->get_raw() << " - " << e.what() << std::endl;
+                }
+            }
+        }
+
+        
+        // Translate instruction
+        outputFile << line->to_pichex(const_hashmap) << std::endl;
+    }
+
+    // Hex files must end with ":00000001FF" by convention
+    // This is called the end of file record
+    outputFile << ":00000001FF" << std::endl;
+    outputFile.close();
+    return EventEnum::SUCCESS;
+}
+
+int precedence(char op) {
+    switch (op) {
+        case '+':
+        case '-': return 1;
+        case '*':
+        case '/': return 2;
+        default: return 0;
+    }
+}
+
+std::string evaluate_expression(const std::string &expression, const std::unordered_map<std::string, std::string> &symbol_table) {
     std::stack<int> values;
     std::stack<char> operators;
 
@@ -308,7 +422,8 @@ int evaluate_expression(const std::string &expression, const std::unordered_map<
             }
             --i;
             if (symbol_table.find(symbol) != symbol_table.end()) {
-                values.push(symbol_table.at(symbol));
+                int value = std::stoi(symbol_table.at(symbol));
+                values.push(value);
             } else {
                 throw std::runtime_error("Undefined symbol: " + symbol);
             }
@@ -319,10 +434,11 @@ int evaluate_expression(const std::string &expression, const std::unordered_map<
                 apply_operator(values, operators.top());
                 operators.pop();
             }
+            
             if (!operators.empty()) {
                 operators.pop();
             }
-        } else if (strchr("+-* /", ch)) { // THIS SPACE WAS CAUSING COMMENT PROBLEMS AND SHOULD BE REMOVED
+        } else if (strchr("+-*/", ch)) {
             while (!operators.empty() && precedence(operators.top()) >= precedence(ch)) {
                 apply_operator(values, operators.top());
                 operators.pop();
@@ -334,70 +450,8 @@ int evaluate_expression(const std::string &expression, const std::unordered_map<
         apply_operator(values, operators.top());
         operators.pop();
     }
-    return values.top();
+    return std::to_string(values.top());
 }
-
-int precedence(char op) {
-    switch (op) {
-        case '+':
-        case '-': return 1;
-        case '*':
-        case '/': return 2;
-        default: return 0;
-    }
-}
-
-void second_pass(std::vector<Line> &lines, const std::unordered_map<std::string, int> &symbol_table) {
-    for (Line &line : lines) {
-        for (Operand &operand : line.operands) {
-            if (operand.type == EXPRESSION) {
-                try {
-                    int result = evaluate_expression(operand.value, symbol_table);
-                    operand.type = IMMEDIATE;
-                    operand.value = std::to_string(result);
-                } catch (const std::exception &e) {
-                    std::cerr << "Error evaluating expression: " << operand.value << " - " << e.what() << std::endl;
-                }
-            }
-        }
-    }
-}
-
-*/
-
-EventEnum Translator::second_pass() {
-// printf("\n\n\nSECOND PASS START:\n");
-    // Check to make sure that the output file is valid
-    std::ofstream outputFile(this->output_file_path);
-    if (!outputFile.is_open()) {
-        std::cerr << "Error opening output file: " << this->output_file_path << std::endl;
-        return EventEnum::FILE_NOT_FOUND;
-    }
-
-    // The start of hex files should be an extended linear address record
-    // The standard format is :02000004AAAACC
-    // - : required start of all lines
-    // - 02 2 bytes of address data 
-    // - 0000 address section, must be zero
-    // - 04 denotes the extended linear addresss data
-    // - AAAA actual extended linear address
-    // - CC checksum
-    // For PIC we can use :020000040000FA
-    outputFile << ":020000040000FA" << std::endl;    
-
-    for (const auto& line : this->lines_array) {
-        // Translate instruction
-        outputFile << line->to_pichex(const_hashmap) << std::endl;
-    }
-
-    // Hex files must end with ":00000001FF" by convention
-    // This is called the end of file record
-    outputFile << ":00000001FF" << std::endl;
-    outputFile.close();
-    return EventEnum::SUCCESS;
-}
-
-
 void Translator::write_output() {
     // Implementation
 }

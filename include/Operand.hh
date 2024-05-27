@@ -28,6 +28,7 @@ public:
     std::string& get_raw();
     std::string& get_binary();
     bool get_is_user_defined();
+    bool get_is_expression();
     
     void set_size(uint64_t size);
     void set_raw(const std::string& raw);

@@ -269,45 +269,179 @@ void Line::parse_opcode(std::vector<std::string> &elements) {
 
 }
 
-void Line::parse_operands(std::vector<std::string> &elements, std::string operand_info) {
-    // This function assumes that parse_opcode was called before it. The correct operand_info 
-    // parameter should not have been attainable without parse_opcode being called. This is why
-    // it is necesarry for the user to have passed in the info parameter even though it can be
-    // easily accessed with this->get_opcode()->get_operand_info().
+// std::unordered_map<std::string, std::string> supported_operations =
+const std::unordered_set<std::string> supported_operations = {"+", "-", "*", "/"};
 
+int find_expression_index(const std::string& operand) {
+    int expression_index = 0;
+
+    // Split the operand by spaces
+    std::vector<std::string> parts = split_string(operand, ' ');
+    
+    // Check if any part is an operator
+    for (const std::string& part : parts) {
+        if (supported_operations.find(part) != supported_operations.end()) {
+            return expression_index;
+        }
+        expression_index++;
+    }
+    // Return -1 in the case that the expression is not found
+    return -1;
+}
+
+// This function assumes that parse_opcode was called before it. The correct operand_info 
+// parameter should not have been attainable without parse_opcode being called. This is why
+// it is necesarry for the user to have passed in the info parameter even though it can be
+// easily accessed with this->get_opcode()->get_operand_info().
+void Line::parse_operands(std::vector<std::string> &elements, std::string operand_info) {
+// printf("\n\nWE ARE IN PARSE OPERANDS\n");
+// printf("\toperand info size: %zu\n", operand_info.size());
     // Ensure that the elements vector is not empty
     if (elements.empty()) {
         return;
     }
 
-// std::cout << elements.size() << std::endl;
-// std::cout << operand_info.size() << std::endl;
-
-// std::cout << operands.size() << std::endl;
-// std::cout << operand_info.size() << std::endl;
-// printf("\t\top info target: %zu vs split\n", operands_only.c_str());
-    // Make sure that the operand info matches the given operand elements
-    assert(operand_info.size() == elements.size());
-
-
-
     // We were pipelined the elements that were modified by parse_opcode, we need the full string
     std::string operands_only = join_strings(elements, " ");
-// printf("\t\trecombined operands: %s\n", operands_only.c_str());
+// printf("\trecombined operands: %s\n", operands_only.c_str());
+
     // Now we need to parse the given elements into a vector of comma or space (exclusive) delimited operands
-    std::vector<std::string> operands;
+    std::vector<std::string> processed_operands = elements;
+
+// printf("\t\t\t\tLets check the ELEMETNTS\n");
+for (size_t i = 0; i < elements.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, elements[i].c_str());
+}
+
+// printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+
+
+// printf("\tcreated a string vector processed operands and set it to elements value\n");
+
     if (operands_only.find(",") == std::string::npos) {
-        operands = split_string(operands_only, ' ');
+        // We know there are no commas, however we might still have multiple space delimited
+        // operands. How we handle this will depend on whether there there is an expression
+// printf("\t\tCOMMA WAS NOT FOUND\n");
+        // Handle expressions until there are none left
+        // All expressions are handled when the number of operands matches the corresponding 
+        // operand info from the OpCode
+        processed_operands = split_string(operands_only, ' ');
+        // elements = split_string(operands_only, ' ');
+
+
+
+// printf("\t\tindex of exp op was: %d and other bool was: %d\n", find_expression_index(operands_only), processed_operands.size()!=operand_info.size());
+        // We only want to handle expressions if they exist and if they are space delimited.
+        if((find_expression_index(operands_only) != -1) && (processed_operands.size()!=operand_info.size())){
+// printf("\t\t\tWE ARE HANDING EXPRESSION\n");
+            while(processed_operands.size() != operand_info.size()) {
+        // if(find_expression_index(operands_only) != -1 && elements.size()!=operand_info.size()){
+        //     while(elements.size() != operand_info.size()) {
+// printf("\t\t\toperands size: %zu\n", processed_operands.size());
+// printf("\t\t\toperands string new RAWWWW: %s\n", operands_only.c_str());
+
+// printf("\t\tele size: %zu\n", elements.size());
+// printf("\t\tele string new: %s\n", operands_only.c_str());
+                // If there are no commas but there was an expression detected,
+                // combine the two adjacent expression operands if they are space
+                // delimited by removing the spaces between them
+                int expression_index = find_expression_index(operands_only);
+
+                // Combine the adjacent space delimited parts
+                std::string combined = processed_operands[expression_index-1] + " " + processed_operands[expression_index] + " " + processed_operands[expression_index+1];
+
+                // Update operands
+// printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+                processed_operands.erase(processed_operands.begin() + expression_index+1);
+ 
+//  printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+                processed_operands.erase(processed_operands.begin() + expression_index);
+ 
+//  printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+
+                processed_operands.erase(processed_operands.begin() + expression_index-1);
+ 
+//  printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+ 
+                processed_operands.insert(processed_operands.begin() + expression_index-1, combined);
+
+                // // Combine the adjacent space delimited parts
+                // std::string combined = elements[expression_index-1] + " " + elements[expression_index] + " " + elements[expression_index+1];
+
+                // // Update operands
+                // elements.erase(elements.begin() + expression_index+1);
+                // elements.erase(elements.begin() + expression_index);
+                // elements.erase(elements.begin() + expression_index-1);
+                // elements.insert(elements.begin()-1, combined);
+
+// printf("\t\t\tcombined: |%s| is at %d\n", combined.c_str(), expression_index - 1);
+
+// printf("\t\t\t\tLets check the processed operands\n");
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\t\t\tprocessed operand %zu: |%s|\n", i, processed_operands[i].c_str());
+}
+
+                // Keep looping until operands is the appropriate size
+                // operands = split_string(operands_only, ' ');
+// printf("updated operands size: %zu vs %zu\n", processed_operands.size(), operand_info.size());
+// printf("updated operands size: %zu vs %zu\n", elements.size(), operand_info.size());
+            }
+
+        }
+
+        // If there was no operand, simply space delimit
+        // else {
+        //     processed_operands = split_string(operands_only, ' ');
+        // }
+        
+
     } else {
-        operands = split_string(operands_only, ',');
+// printf("\tCOMMA WAS FOUND\n");
+        // If commas were found then it must be comma delimited
+        processed_operands = split_string(operands_only, ',');
+        // elements = split_string(operands_only, ',');
     }
     
-// std::cout << "\t\toperand count after respliting" << operands.size() << std::endl;
+// AT THIS POINT THE OPERANDS SHOULD HAVE BEEN PROCESSED INTO AN ARRAY OF STRINGS 
+
+// std::cout << "\t processed operand count after respliting: " << processed_operands.size() << std::endl;
+for (size_t i = 0; i < processed_operands.size(); i++) {
+// printf("\t\t\tprocessed operand %zu: ", i);
+// printf("|%s|\n", processed_operands[i].c_str());
+}
+
+// std::cout << "\t\toperand count after respliting: " << elements.size() << std::endl;
+// for (size_t i = 0; i < elements.size(); i++) {
+// printf("\t\t\telement %zu: |%s|\n", i, elements.at(i).c_str());
+// }
+
+
+    // Make sure that the operand info matches the newly parsed operand elements
+    // assert(operands.size() == elements.size());
+
 
     // Go through all elements and define them based on the opcode's operand info
     std::string potential_operand;
-    for (size_t i = 0; i < elements.size(); ++i) {
-        potential_operand = elements[i];        
+    for (size_t i = 0; i < processed_operands.size(); ++i) {
+        potential_operand = processed_operands[i];
+    // for (size_t i = 0; i < elements.size(); ++i) {
+    //     potential_operand = elements[i];
+
         try // Try-catch to handle OpCode initalization errors
         {
             if (operand_info.at(i) == 'b') {
@@ -341,12 +475,20 @@ void Line::parse_operands(std::vector<std::string> &elements, std::string operan
         // Check to see if the operand contained a user defined operand
         if (this->operands[i]->get_is_user_defined()) {
             // The line should know this to facilitate processing later
-// printf("The %zu operand was OD\n", i);
+// printf("\t\tThe %zu operand |%s| was OD\n", i, this->operands[i]->get_raw().c_str());
             this->contains_user_defined = true;
         }
     }
 
 }
+
+/*
+
+ACTUAL CONSTRUCTOR
+
+*/
+
+
 
 Line::Line(uint64_t line_number, const std::string& section,
     const std::string& line,  const std::string& f_name): 
@@ -358,7 +500,7 @@ Line::Line(uint64_t line_number, const std::string& section,
         file_name(f_name), 
         contains_user_defined(false) {
 
-// std::cout << "\tWe are inside line init constructor\n" << std::endl;
+// std::cout << "\tWe are inside line init constructor" << std::endl;
 
 
     // Search the line for comments and remove
@@ -367,13 +509,13 @@ Line::Line(uint64_t line_number, const std::string& section,
     stripped = trim_left(stripped);
     this->no_comments = stripped;
 
-// std::cout << "\t\tstripped line: |" << stripped <<  "|\n" << std::endl;
+// std::cout << "\tstripped line: |" << stripped <<  "|" << std::endl;
 
 
     // Start parsing line
     std::vector<std::string> elements = parse_line(stripped);
 
-// std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements\n" << std::endl;
+// std::cout << "\tThe line has parsed good into " << elements.size() <<  " elements" << std::endl;
 
     if (elements.size() != 0) {
             
@@ -381,7 +523,7 @@ Line::Line(uint64_t line_number, const std::string& section,
     // Define OpCode
     parse_opcode(elements);
 
-// std::cout << "\tThe line says init opcode went good\n" << std::endl;
+// std::cout << "\tThe line says init opcode went good" << std::endl;
 
 
     // Define Operands
@@ -424,6 +566,7 @@ std::string binaryToHex(const std::string &binary) {
     ss << std::hex << std::uppercase << std::stoi(binary, nullptr, 2);
     return ss.str();
 }
+
 std::string get_addr(uint64_t addr){
 	std::stringstream stream;
 	stream << std::hex << std::uppercase << addr; // Changed to uppercase
@@ -532,9 +675,10 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
 
     // Construct the final string (this must have a ':' prefix)
     std::string total = ":" + byte_count + address + record_type + data + checksum;
-    // printf("\n\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
+    printf("\n\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
     return total;
 }
+
 // Accessors and modifiers
 uint64_t Line::get_line_number() {return this->line_number;}
 uint64_t Line::get_memory_address() {return this->memory_address;}

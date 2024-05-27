@@ -13,9 +13,9 @@
 
 ; Define variables
     cFIB_ARRAY   .equ cBLOCK      ; Fibonacci array starting address
-;    cCOUNTER     .equ cBLOCK + 10 ; Loop counter
-;    cTEMP1       .equ cBLOCK + 11 ; Temporary storage
-;    cTEMP2       .equ cBLOCK + 12 ; Temporary storage
+    cCOUNTER     .equ cBLOCK + 10 ; Loop counter
+    cTEMP1       .equ cBLOCK + 11 ; Temporary storage
+    cTEMP2       .equ cBLOCK + 12 ; Temporary storage
 
 ; Main program
 ;    .org 0x00

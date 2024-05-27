@@ -17,35 +17,27 @@
 // Global Constants
 const std::unordered_set<std::string> supported_operations = {"+", "-", "*", "/"};
 
+// Forward declarations
+bool contains_expression(const std::string& operand);
+
 // Constant handling
-
-// Function prototypes
-// std::string parseBinary(const std::string& str);
-// std::string parseOctal(const std::string& str);
-// std::string parseDecimal(const std::string& str);
-
-// Function mapping type
-// using ParseFunction = std::function<std::string(const std::string&)>;
-
-// Initialize the unordered map with valid prefixes and corresponding functions
 std::unordered_map<std::string, std::function<std::string(const std::string&)>> Operand::prefix_map = {
-// std::unordered_map<std::string, ParseFunction> Operand::prefix_map = {
     {"0B", Operand::parseBinary}, {"0b", Operand::parseBinary},
     {"0F", Operand::parseOctal}, {"0f", Operand::parseOctal},
-    {"0D", Operand::parseDecimal}, {"0d", Operand::parseDecimal},
+    // {"0D", Operand::parseDecimal}, {"0d", Operand::parseDecimal},
     // {"", Operand::parseDecimal}, ALT VERSION OF DECIMAL
     {"0X", Operand::parseHexadecimal}, {"0x", Operand::parseHexadecimal}
 };
 
 std::unordered_map<std::string, std::function<std::string(const std::string&)>> Operand::suffix_map = {
-// std::unordered_map<std::string, ParseFunction> Operand::suffix_map = {
     {"B", Operand::parseBinary}, {"b", Operand::parseBinary},
     {"F", Operand::parseOctal}, {"f", Operand::parseOctal},
-    {"D", Operand::parseDecimal}, {"d", Operand::parseDecimal},
+    // {"D", Operand::parseDecimal}, {"d", Operand::parseDecimal},
     // {"", Operand::parseDecimal}, ALT VERSION OF DECIMAL
     {"H", Operand::parseHexadecimal}, {"h", Operand::parseHexadecimal}
 };
 
+// Util functions
 std::string padTo14Bits(const std::string& binaryString) {
     size_t length = binaryString.length();
     if (length >= 14) {
@@ -56,11 +48,39 @@ std::string padTo14Bits(const std::string& binaryString) {
     return paddedString;
 }
 
-Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0), is_user_defined(false) {
+// Constructor
+Operand::Operand(const std::string& raw) : raw(raw), binary(""), size(0), is_user_defined(false), is_expression(false) {
+// printf("INSIDE OPERAND CONSTRUCTOR\n");
+    // Before handing individual operands, check for expressions
+    if (contains_expression(raw)) {
+// printf("\tOperand %s contained expression so binary will not be parsed\n", raw.c_str());
+        this->is_expression = contains_expression(raw);
+    } else {
+// printf("\tOperand %s NOT contained expression\n", raw.c_str());
+
 // printf("\tINSIDE OPERAND CONSTUCTOR: here is the bool for user defined %d\n", this->is_user_defined);
-    parseRawToBinary();
+        parseRawToBinary();
 // printf("\tINSIDE OPERAND CONSTUCTOR: here is the bool for user defined %d\n", this->is_user_defined);
+    }
 }
+
+// Constructor Helpers
+
+bool contains_expression(const std::string& operand) {
+    // Split the operand by spaces
+    std::vector<std::string> parts = split_string(operand, ' ');
+    
+    // Check if any part is an operator
+    for (const std::string& part : parts) {
+        if (supported_operations.find(part) != supported_operations.end()) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+
 
 void Operand::parseRawToBinary() {
     // Return if the string was empty
@@ -72,37 +92,59 @@ void Operand::parseRawToBinary() {
     std::string tempRaw = raw;
 // std::cout << "\t\tTesting parse raw to bin:  |" << tempRaw << "|" << std::endl;
     std::transform(tempRaw.begin(), tempRaw.end(), tempRaw.begin(), ::toupper);
-// std::cout << "\t\tTesting parse transfoemed upper to bin:  |" << tempRaw << "|" << std::endl;
+std::cout << "\t\tTesting parse transfoemed upper to bin:  |" << tempRaw << "|" << std::endl;
+
+
+// THIS IS FOR SUFFIX HANDLING
+// Fetch the last character
+    char last_char = tempRaw.back();
+    std::string last_char_str(1, last_char); // Convert char to string
+
 
     // Process immediate constant values
     if (std::regex_match(tempRaw, std::regex("^[0-9]+$"))) {
-    // printf("\t\t\tlooks like we are parsing a decimal value\n");
+printf("\t\t\tlooks like we are parsing a decimal value\n");
         // If the value is only digits, default to parse decimal
         this->binary = parseDecimal(tempRaw);
     // printf("\t\t\twe ended up with %s\n", this->binary.c_str());
     }    
     // Now check for constants with supported prefixes
     else if (std::regex_match(tempRaw, std::regex("^0.[0-9,A-F,a-f]+$"))) {
+printf("\t\t\tlooks like we are parsing a PREFIX value\n");
         for (const auto& [prefix, func] : prefix_map) {
             if (tempRaw.find(prefix) == 0) {
-                this->binary = func(tempRaw.substr(prefix.size()));
+                this->binary = func(tempRaw);
+                // this->binary = func(tempRaw.substr(prefix.size()));
                 // return;
             }
         }
     }
     // Suffixes next
-    else if (std::regex_match(tempRaw, std::regex("^[0-9]+.$"))) {
+    else if (suffix_map.find(last_char_str) != suffix_map.end()
+        && std::regex_match(tempRaw, std::regex("^[0-9,A-F,a-f]+.$")) ) {
+printf("\t\t\tlooks like we are parsing a SUFFIX value\n");
         for (const auto& [suffix, func] : suffix_map) {
-            if (tempRaw.find(suffix) == 0) {
-                this->binary = func(tempRaw.substr(suffix.size()));
+            if (tempRaw.find(suffix) == tempRaw.size()-1) {
+printf("\t\t\t\tWe found suffix %s and we parsing %s\n", suffix.c_str(), tempRaw.c_str());
+                this->binary = func(tempRaw);
+                // this->binary = func(tempRaw.substr(0, suffix.size()-1));
                 // return;
             }
         }
+// OLD VERSION
+//     else if (std::regex_match(tempRaw, std::regex("^[0-9,A-F,a-f]+.$"))) {
+// printf("\t\t\tlooks like we are parsing a SUFFIX value\n");
+//         for (const auto& [suffix, func] : suffix_map) {
+//             if (tempRaw.find(suffix) == 0) {
+//                 this->binary = func(tempRaw.substr(suffix.size()));
+//                 // return;
+//             }
+//         }
     } else {
         // If there was no constant number to turn into binary,
         // then it needs to be a user defined value
         this->is_user_defined = true;
-// printf("We have set this operand as user defined\n");
+printf("We have set this operand as user defined\n");
     }
 
     // Will be 0 if it was not defined
@@ -111,18 +153,39 @@ void Operand::parseRawToBinary() {
     // ADJUST BINARY TO BE 14 BITS
     this->binary = padTo14Bits(this->binary);
     
+printf("\t\t\tEND we ended up with %s\n", this->binary.c_str());
 // std::cout << "SETTING CONSTURCTOR ENDING " << binary << std::endl;
 
 }
 
 std::string Operand::parseBinary(const std::string& binaryStr) {
-    return binaryStr;
+    // Check if the string starts with "0x" and remove it if present
+    std::string cleanBinaryStr = binaryStr;
+    if (binaryStr.rfind("0b", 0) == 0 || binaryStr.rfind("0B", 0) == 0) {
+        cleanBinaryStr = binaryStr.substr(2);
+    }
+    // Same thing for the suffix
+    if (binaryStr.rfind("B", binaryStr.size()-1) == 0 || binaryStr.rfind("b", binaryStr.size()-1) == 0) {
+        cleanBinaryStr = binaryStr.substr(0, binaryStr.size()-1);
+    }
+
+    return cleanBinaryStr;
 }
 
 std::string Operand::parseOctal(const std::string& octalStr) {
+    // Check if the string starts with "0x" and remove it if present
+    std::string cleanOctalStr = octalStr;
+    if (octalStr.rfind("0x", 0) == 0 || octalStr.rfind("0X", 0) == 0) {
+        cleanOctalStr = octalStr.substr(2);
+    }
+    // Same thing for the suffix
+    if (octalStr.rfind("H", octalStr.size()-1) == 0 || octalStr.rfind("h", octalStr.size()-1) == 0) {
+        cleanOctalStr = octalStr.substr(0, octalStr.size()-1);
+    }
+    
     // Convert octal string to unsigned long
     std::stringstream ss;
-    ss << std::oct << octalStr;
+    ss << std::oct << cleanOctalStr;
     unsigned long n;
     ss >> n;
 
@@ -139,7 +202,6 @@ std::string Operand::parseOctal(const std::string& octalStr) {
     return binaryString;
 }
 
-
 std::string Operand::parseDecimal(const std::string& decimalStr) {
     // Convert decimal string to unsigned long
     unsigned long n = std::stoul(decimalStr);
@@ -153,10 +215,9 @@ std::string Operand::parseDecimal(const std::string& decimalStr) {
 
     // Convert to binary string of appropriate length
     std::string binaryString = std::bitset<64>(n).to_string().substr(64 - numBits);
-printf("\tIn parseDecimal: %s\n", binaryString.c_str());
+// printf("\tIn parseDecimal: %s\n", binaryString.c_str());
     return binaryString;
 }
-
 
 std::string Operand::parseHexadecimal(const std::string& hexStr) {
 
@@ -165,6 +226,10 @@ std::string Operand::parseHexadecimal(const std::string& hexStr) {
     std::string cleanHexStr = hexStr;
     if (hexStr.rfind("0x", 0) == 0 || hexStr.rfind("0X", 0) == 0) {
         cleanHexStr = hexStr.substr(2);
+    }
+    // Same thing for the suffix
+    if (hexStr.rfind("H", hexStr.size()-1) == 0 || hexStr.rfind("h", hexStr.size()-1) == 0) {
+        cleanHexStr = hexStr.substr(0, hexStr.size()-1);
     }
 // printf("\tIn parseHex: %s\n", cleanHexStr.c_str());
     // Convert hexadecimal string to unsigned long
@@ -182,43 +247,11 @@ std::string Operand::parseHexadecimal(const std::string& hexStr) {
 
     // Convert to binary string of appropriate length
     std::string binaryString = std::bitset<64>(n).to_string().substr(64 - numBits);
-printf("\tIn parseHex: %s\n", binaryString.c_str());
+// printf("\tIn parseHex: %s\n", binaryString.c_str());
     return binaryString;
 }
 
 
-bool is_expression(const std::string& operand) {
-    // Define a set of operators
-    std::unordered_set<std::string> operators = {"+", "-", "*", "/"};
-
-    // Split the operand by spaces
-    std::vector<std::string> parts = split_string(operand, ' ');
-    
-    // Check if any part is an operator
-    for (const std::string& part : parts) {
-        if (operators.find(part) != operators.end()) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-/*
-        // Before handing individual operands, check for expressions
-
-        if (elements[i].find('+') != std::string::npos ||
-            elements[i].find('-') != std::string::npos) {
-            std::cout << "Expression found: " << elements[i] << std::endl;
-            // Evaluate the expression (simple example, you might want a full parser here)
-            // For example, if the operand is "1+2", you should evaluate it and print the result
-        }
-
-        // Example of user-defined handling (you can expand this logic)
-        if (elements[i].find("user_defined") != std::string::npos) {
-            std::cout << "User defined element found: " << elements[i] << std::endl;
-        }
-*/
 
 uint64_t Operand::get_size(){
     return this->size;
@@ -234,6 +267,10 @@ std::string& Operand::get_binary(){
 
 bool Operand::get_is_user_defined(){
     return this->is_user_defined;
+}
+
+bool Operand::get_is_expression(){
+    return this->is_expression;
 }
 
 void Operand::set_size(uint64_t size) {

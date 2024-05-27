@@ -37,3 +37,4 @@ std::string trim_left(const std::string& str) {
     }));
     return result;
 }
+
