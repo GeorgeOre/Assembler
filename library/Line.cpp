@@ -455,6 +455,7 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
 
     // First, fetch opcode binary
     std::string opcode_bin = this->opcode->binary;
+printf("\tOpcode bin: %s\n", opcode_bin.c_str());
 
     // Next, fetch the necessary operands binaries
     std::vector<std::string> operand_bins;
@@ -464,6 +465,7 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
             this->operands[i]->set_raw(hashmap[this->operands[i]->get_raw()]);
             this->operands[i]->parseRawToBinary();
         }
+printf("\tOperand %zu bin: %s\n", i, this->operands[i]->get_binary().c_str());
         operand_bins.push_back(this->operands[i]->get_binary());
     }
 
@@ -494,6 +496,8 @@ std::string Line::to_pichex(std::unordered_map<std::string, std::string> hashmap
 
     // Construct the final string (this must have a ':' prefix)
     std::string total = ":" + byte_count + address + record_type + data + checksum;
+
+printf("\t\t\tbyte count: %s\n\t\t\taddress: %s\n\t\t\trecord type: %s\n\t\t\tdata: %s\n\t\t\tchecksum: %s\n\t\t\ttotal: %s\n\n", byte_count.c_str(), address.c_str(), record_type.c_str(), data.c_str(), checksum.c_str(), total.c_str());
 
     return total;
 }

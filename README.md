@@ -2,8 +2,7 @@
 This is a project for the Caltech 150 class. This assembler is designed for the PIC16 family of chips.
 
 ## FEATURES TO BE IMPLEMENTED (TODO)
-- expressions
-- memory access
+- memory access (pic is weird so it will have to be for another iteration)
 - .org
 - configs
 - end and goto $

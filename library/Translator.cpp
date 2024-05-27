@@ -34,6 +34,9 @@ std::unordered_map<std::string, std::string> Translator::text_label_hashmap = {}
 std::unordered_map<std::string, std::string> Translator::data_label_hashmap = {};
 std::unordered_map<std::string, std::string> Translator::const_hashmap = {};
 
+// Map to keep track of expressions
+std::unordered_map<std::string, bool> exp_hashmap = {};
+
 // Foreward declarations
 std::string evaluate_expression(const std::string &expression, const std::unordered_map<std::string, std::string> &symbol_table);
 
@@ -155,6 +158,7 @@ EventEnum Translator::first_pass() {
         std::shared_ptr<OpCode> cur_OpCode = cur_Line->get_opcode();
         std::string opcode_str = cur_OpCode->get_code_str();
         std::vector<std::shared_ptr<Operand>> cur_Operands = cur_Line->get_operands();
+// printf("\tFirst pass line %ld line w no comments: (%s) has %zu operands\n", this->lines_array[i]->get_line_number(), this->lines_array[i]->no_comments.c_str(), cur_Operands.size());
 
     //TODO: SEE IF YOU CAN REMOVE THIS?
         // Remove empty or commented out lines from the array
@@ -162,6 +166,7 @@ EventEnum Translator::first_pass() {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
+// printf("not supposed to be here\n");
         } 
         
         // Store user defined values into corresponding hashmaps
@@ -177,59 +182,69 @@ EventEnum Translator::first_pass() {
             // Check for constant declarations
             if (opcode_str.compare(".EQU") == 0
                 || opcode_str.compare(".equ") == 0) {
-                // Handle constant declarations
 
-                // Fetch key value pair
-                std::string user_key = cur_Operands[0]->get_raw();
-                std::string user_value = cur_Operands[1]->get_raw();
+        // Handle constant declarations
 
-//TODO: MAKE SURE YOU ARENT TRYING TO DEFINE SOMETHING TWICE??
+                // Define key value pair
+                std::string user_key;
+                std::string user_value;
 
+            // Handle expressions
+                
+                // First handle the first operand (key)
+                if (cur_Operands[0]->get_is_expression()) {
+                    // // Save old operand string
+                    // std::string old_name = cur_Operands[0]->get_raw();
+
+                    // Split the expression
+                    std::vector<std::string> words = split_string(cur_Operands[0]->get_raw(), ' ');
+
+                    // Substitute expression elements with defined symbol table values
+                    for (auto& word : words) {
+                        if (const_hashmap.find(word) != const_hashmap.end()) {
+                            word = const_hashmap.at(word);
+                        }
+                    }
+                    // Update the operand
+                    cur_Operands[0]->set_raw(join_strings(words, " "));
+
+                    // THIS SHOULD NOT BE IN THIS ONE BECAYSE YOU CAN NOT EQU AN EXPRESSION TO SOMETHING
+                    // // Keep track of this operand
+                    // exp_hashmap.insert({cur_Operands[0]->get_raw(),cur_Operands[0]->get_raw()});
+                } 
+
+                // Update the key
+                user_key = cur_Operands[0]->get_raw();
+                
+                // Next handle the second operand (value)
+                if (cur_Operands[1]->get_is_expression()) {
+                    // Keep track of this operand for later
+                    exp_hashmap.insert({cur_Operands[0]->get_raw(),true});
+
+                    // Split the expression
+                    std::vector<std::string> words = split_string(cur_Operands[1]->get_raw(), ' ');
+
+                    // Substitute expression elements with defined symbol table values
+                    for (auto& word : words) {
+                        if (const_hashmap.find(word) != const_hashmap.end()) {
+                            word = const_hashmap.at(word);
+                        }
+                    }
+                    // Update the operand
+                    cur_Operands[1]->set_raw(join_strings(words, " "));
+                }
+// printf("\t\tFirst B4 UPDATE final key-value (%s,%s)\n", user_key.c_str(), user_value.c_str());
+
+                // Update the value
+                user_value = cur_Operands[1]->get_raw();
                 // Check to see if the key's value has already been defined
                 if (const_hashmap.find(user_value) != const_hashmap.end()) {
+// printf("\t\tFound a match, already defined\n");
                     // If the value is found to be a key in the map, use that key's mapped value
                     user_value = const_hashmap[user_value];
-                } else {
-//TODO: MAYBE GET RID OF THIS ELSE? CAN IS IT EXCLUSIVE ???
-// MAYBE I CAN MOVE THIS TO THE SECOND PASS????
-                    // Handle expressions
-
-                    // First handle the first operand (key)
-                    if (cur_Operands[0]->get_is_expression()) {
-                        // Split the expression
-                        std::vector<std::string> words = split_string(cur_Operands[0]->get_raw(), ' ');
-
-                        // Substitute expression elements with defined symbol table values
-                        for (auto& word : words) {
-                            if (const_hashmap.find(word) != const_hashmap.end()) {
-                                word = const_hashmap.at(word);
-                            }
-                        }
-                        // Update the operand
-                        cur_Operands[0]->set_raw(join_strings(words, " "));
-
-                        // Update the key
-                        user_key = cur_Operands[0]->get_raw();
-                    }
-                    
-                    // Next handle the second operand (value)
-                    if (cur_Operands[1]->get_is_expression()) {
-                        // Split the expression
-                        std::vector<std::string> words = split_string(cur_Operands[1]->get_raw(), ' ');
-
-                        // Substitute expression elements with defined symbol table values
-                        for (auto& word : words) {
-                            if (const_hashmap.find(word) != const_hashmap.end()) {
-                                word = const_hashmap.at(word);
-                            }
-                        }
-                        // Update the operand
-                        cur_Operands[1]->set_raw(join_strings(words, " "));
-
-                        // Update the value
-                        user_value = cur_Operands[1]->get_raw();
-                    }
                 }
+
+// printf("\t\tFirst pass final key-value (%s,%s)\n", user_key.c_str(), user_value.c_str());
 
                 // Store in hashmap
                 const_hashmap.insert(std::make_pair(user_key, user_value));
@@ -274,10 +289,42 @@ EventEnum Translator::first_pass() {
                 // Handle next line
                 continue;
             }
+            else {
+                // If any operand is a symbol to an expression, make sure that it knows that it is an expression to be parsed later
+                for (size_t i = 0; i < cur_Operands.size(); i++) {
+                    // Check every operand for expression to see if it is a symbol to an expression
+                    if (exp_hashmap.find(cur_Operands[i]->get_raw()) != exp_hashmap.end()) {
+                        // Update the operand's expression boolean if a match was found
+// printf("WOW THIS WAS ACUTALLY A GOOD FIX\n");
+                        cur_Operands[i]->set_is_expression(true);
+                    } 
+                }
+            }
+        }
+        else {
+
+            // Substitute already defined values into expressoins
+            // TODO, move this to seconds pass eventually
+            // Handle expressions
+            // for (size_t i = 0; i < cur_Operands.size(); i++) {
+            //     // Check every operand for expression and handle if exists
+            //     if (cur_Operands[i]->get_is_expression()) {
+            //         // Split the expression
+            //         std::vector<std::string> words = split_string(cur_Operands[i]->get_raw(), ' ');
+
+            //         // Substitute expression elements with defined symbol table values
+            //         for (auto& word : words) {
+            //             if (const_hashmap.find(word) != const_hashmap.end()) {
+            //                 word = const_hashmap.at(word);
+            //             }
+            //         }
+            //         // Update the operand
+            //         cur_Operands[0]->set_raw(join_strings(words, " "));
+            //     } 
+            // }
+
             
         }
-        else
-        {/*Do nothing, first pass handles user definitions only*/}
 
         // Store program address value in line
         cur_Line->set_memory_address(currentProgramAddress);
@@ -312,9 +359,15 @@ EventEnum Translator::second_pass() {
     for (const auto& line : this->lines_array) {
         // Before translating, operands that are expressions must be resolved
         for (const auto& operand : line->get_operands()) {
+            printf("\"%s\" operand in second pass: |%s| bin: %s\n", line->no_comments.c_str(), operand->get_raw().c_str(), operand->get_binary().c_str());
             if (operand->get_is_expression()) {
                 // If an operand was found to be an expression, attempt to evaluate it
                 try {
+                    // Handle the case where the expression is held by a user defined symbol
+                    if (const_hashmap.find(operand->get_raw()) != const_hashmap.end()) {
+                        operand->set_raw(const_hashmap.at(operand->get_raw()));
+                    }
+                    
                     // Set the raw value to what the expression evaluates to in decimal
                     operand->set_raw(evaluate_expression(operand->get_raw(), this->const_hashmap));
 
@@ -367,18 +420,43 @@ std::string evaluate_expression(const std::string &expression, const std::unorde
         }
     };
 
+    // Helper function to convert a number string to an integer considering its base
+    auto convert_to_decimal = [](const std::string &num_str) -> int {
+        if (num_str.size() >= 2 && (num_str[0] == '0')) {
+            char prefix = tolower(num_str[1]);
+            if (prefix == 'x') {
+                return std::stoi(num_str.substr(2), nullptr, 16);
+            } else if (prefix == 'b') {
+                return std::stoi(num_str.substr(2), nullptr, 2);
+            } else if (prefix == 'f') {
+                return std::stoi(num_str.substr(2), nullptr, 8);
+            }
+        } else if (num_str.size() >= 1) {
+            char suffix = tolower(num_str.back());
+            if (suffix == 'h') {
+                return std::stoi(num_str.substr(0, num_str.size() - 1), nullptr, 16);
+            } else if (suffix == 'b') {
+                return std::stoi(num_str.substr(0, num_str.size() - 1), nullptr, 2);
+            } else if (suffix == 'f') {
+                return std::stoi(num_str.substr(0, num_str.size() - 1), nullptr, 8);
+            }
+        }
+        return std::stoi(num_str); // Decimal by default
+    };
+
     // Parse the expression tree
     for (size_t i = 0; i < expression.length(); ++i) {
         char ch = expression[i];
         if (isspace(ch)) {
             continue;
-        } else if (isdigit(ch)) {
-            int value = 0;
-            while (i < expression.length() && isdigit(expression[i])) {
-                value = value * 10 + (expression[i] - '0');
+        } else if (isdigit(ch) || ch == '0') {
+            std::string num_str;
+            while (i < expression.length() && (isdigit(expression[i]) || isalpha(expression[i]))) {
+                num_str += expression[i];
                 ++i;
             }
             --i;
+            int value = convert_to_decimal(num_str);
             values.push(value);
         } else if (isalpha(ch)) {
             std::string symbol;
@@ -388,7 +466,7 @@ std::string evaluate_expression(const std::string &expression, const std::unorde
             }
             --i;
             if (symbol_table.find(symbol) != symbol_table.end()) {
-                int value = std::stoi(symbol_table.at(symbol));
+                int value = convert_to_decimal(symbol_table.at(symbol));
                 values.push(value);
             } else {
                 throw std::runtime_error("Undefined symbol: " + symbol);
@@ -400,7 +478,6 @@ std::string evaluate_expression(const std::string &expression, const std::unorde
                 apply_operator(values, operators.top());
                 operators.pop();
             }
-            
             if (!operators.empty()) {
                 operators.pop();
             }

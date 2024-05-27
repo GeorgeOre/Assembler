@@ -12,8 +12,8 @@ std::unordered_map<std::string, std::string> CTRL_OpCode::op_format_map = {
 };
 
 std::unordered_map<std::string, std::string> CTRL_OpCode::op_bin_map = {
-    {"CALL", "100"},   // Call subroutine
-    {"GOTO", "101"},   // Go to address
+    {"CALL", "10000000000000"},   // Call subroutine
+    {"GOTO", "10100000000000"},   // Go to address
     // Lowercase versions
     {"call", "10000000000000"},{"goto", "10100000000000"}
 };

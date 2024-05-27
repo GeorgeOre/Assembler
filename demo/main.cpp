@@ -278,6 +278,9 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &tra
     resulting_message.append("\nPress any key or click the mouse to return to the main menu.");
     showMessage(window, font, resulting_message, "assets/smileyface.png");
     //OLD DEFAULT: "Translator code has finished running.\nPress any key or click the mouse to return to the main menu."
+    
+    // Reset translator
+    translator.reset();
 }
 
 // Show options menu
