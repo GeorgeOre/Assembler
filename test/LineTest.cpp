@@ -1,52 +1,123 @@
-#include <iostream>
 #include "Line.hh"
-#include "OpCode.hh"
-#include "Segment.hh"
-#include "Operand.hh"
+#include "B_OpCode.hh"
 #include "Boperand.hh"
+#include "Doperand.hh"
+#include "Foperand.hh"
+#include "Koperand.hh"
 
-class Segment;
+#include "str_utils.hh"
 
+#include <cassert>
+#include <iostream>
+#include <sstream>
+#include <functional>
+#include <memory>
 
-int main() {
-    // Create a Line object for testing
-    Line line =  Line(0, 1, "test line content", Segment());
-    
-    // Test getSize and other methods here
-    std::cout << "Line created with content: " << line.line << std::endl;
-    
-    // Add more tests as needed
-    return 0;
+#include <vector>
+#include <string>
+
+// Mock utility functions
+// std::string join_strings(const std::vector<std::string>& elements, const std::string& delimiter) {
+//     std::ostringstream os;
+//     for (size_t i = 0; i < elements.size(); ++i) {
+//         if (i != 0)
+//             os << delimiter;
+//         os << elements[i];
+//     }
+//     return os.str();
+// }
+
+// std::vector<std::string> split_string(const std::string& str, char delimiter) {
+//     std::vector<std::string> tokens;
+//     std::string token;
+//     std::istringstream tokenStream(str);
+//     while (std::getline(tokenStream, token, delimiter)) {
+//         tokens.push_back(token);
+//     }
+//     return tokens;
+// }
+
+void test_LineInitialization() {
+    Line line(1, ".text", "MOVLW 0x55", "test.asm");
+    assert(line.get_line_number() == 1);
+    assert(line.get_section() == ".text");
+    assert(line.get_raw_line() == "MOVLW 0x55");
+    assert(line.get_file_name() == "test.asm");
+    assert(!line.get_contains_error());
+    assert(!line.get_contains_user_defined());
+
+    std::cout << "Line initialization tests passed!\n" << std::endl;
 }
 
+void test_LineParse() {
+    // Test for opcodes
+    Line line1(1, ".text", "MOVLW 0x55", "test.asm");
+    // std::cout << line1.get_opcode().get_code_str() << std::endl;    
+    assert(line1.get_opcode().get_code_str() == "MOVLW");
+    // std::cout << line1.get_operands().size() << std::endl;
+    assert(line1.get_operands().size() == 1);
+    // std::cout << line1.get_operands()[0]->get_raw() << std::endl;
+    assert(line1.get_operands()[0]->get_raw() == "0x55");
 
-/*
+
+    Line line2(2, ".text", "MOVWF 0x20", "test.asm");
+    // std::cout << "|" << line2.get_opcode().get_code_str() << "|" << std::endl;    
+    assert(line2.get_opcode().get_code_str() == "MOVWF");
+    // std::cout << line2.get_operands().size() << std::endl;
+    assert(line2.get_operands().size() == 1);
+    // std::cout << line2.get_operands()[0]->get_raw() << std::endl;
+    assert(line2.get_operands()[0]->get_raw() == "0x20");
+    
+
+    // Test for label
+    // std::cout << "\n\n\nWe got to line 3\n\n" << std::endl;
+    Line line3(2, ".text", "START:", "test.asm");
+    // std::cout << "We SUCCESS INIT line 3!!!!!!!!!" << std::endl;
+    // std::cout << line3.get_opcode().get_code_str() << std::endl;
+    assert(line3.get_opcode().get_code_str() == "START:");
+
+    std::cout << "Line parsing tests passed!\n" << std::endl;
+}
+
+void test_LineToPichex() {
+    Line line(1, ".text", "MOVLW 0x55", "test.asm");
+    std::string hex_output = line.to_pichex();
+// std::cout << hex_output << std::endl;
+    assert(!hex_output.empty());
+    std::cout << "Line to PIC HEX conversion tests passed!\n" << std::endl;
+}
+
+void test_LineAccessorsAndSetters() {
+    Line line(1, ".text", "MOVLW 0x55", "test.asm");
+    line.set_line_number(2);
+    line.set_memory_address(0x200);
+    line.set_file_name("new_test.asm");
+    line.set_section(".data");
+    line.set_raw_line("ADDLW 0x10");
+    line.set_contains_error(true);
+    line.set_contains_user_defined(true);
+    line.set_error_message("Test error");
+
+    assert(line.get_line_number() == 2);
+    assert(line.get_memory_address() == 0x200);
+    assert(line.get_file_name() == "new_test.asm");
+    assert(line.get_section() == ".data");
+    assert(line.get_raw_line() == "ADDLW 0x10");
+    assert(line.get_contains_error());
+    assert(line.get_contains_user_defined());
+    assert(line.get_error_message() == "Test error");
+
+    std::cout << "Line accessors and setters tests passed!\n" << std::endl;
+}
+
 int main() {
-    OpCode opcode("LOAD"); // Assuming OpCode has a constructor that takes a string
-    Segment segment("segment_data"); // Assuming Segment has a constructor that takes a string
-    Line line(1, "LOAD R1, #100", opcode, segment);
+    std::cout << "Line tests start!\n" << std::endl;
 
-    // Print line details
-    std::cout << "Line Number: " << line.get_line_number() << std::endl;
-    std::cout << "Line Content: " << line.get_line_content() << std::endl;
+    test_LineInitialization();
+    test_LineParse();
+    test_LineToPichex();
+    test_LineAccessorsAndSetters();
 
-    // Create operand array
-    std::vector<Operand*> operands;
-    //operands.push_back(new Boperand("100")); // Assuming Boperand has a constructor that takes a string
-
-    // Convert to PICHEX
-    std::string pichex = line.ToPicHEX(opcode, operands);
-    std::cout << "PICHEX: " << pichex << std::endl;
-
-    // Check format
-    bool is_format_correct = line.CheckFormat();
-    std::cout << "Format Correct: " << (is_format_correct ? "Yes" : "No") << std::endl;
-
-    // Clean up
-    for (Operand* operand : operands) {
-        delete operand;
-    }
-
+    std::cout << "All Line tests passed!\n" << std::endl;
     return 0;
 }
-*/

@@ -1,56 +1,88 @@
 #include "UI.hh"
 #include <iostream>
-#include <sstream>
-#include <stdlib.h>
-#include <string>
+#include <cstdio>
 
-using namespace std;
+// UI::UI() {}
 
-// Default Constructor
-UI::UI(string input, string output) {
-	inputPath = input;
-	outputPath = output;
+UI::UI(const std::string& input, const std::string& output)
+    : inputPath(input), outputPath(output) {}
+
+void UI::run() {
+    Translator translator(inputPath, outputPath);
+    // Implementation of the run method
 }
 
-void UI::run(){
-    Translator translator = Translator(inputPath, outputPath);
-	EventEnum overall = EventEnum::SUCCESS;
-	overall = translator.define_lines();
-	if (overall != EventEnum::SUCCESS) {
-		check_error(overall);
-		return;
-	}
-	overall = translator.first_pass();
-	if (overall != EventEnum::SUCCESS) {
-		check_error(overall);
-		return;
-	}
-	overall = translator.second_pass();
-	if (overall != EventEnum::SUCCESS) {
-		check_error(overall);
-		return;
-	}
-	printf("-------------------------------------------------- \n");
-	printf("Success! File %s has been assembled to output file %s \n", inputPath, outputPath);
-	return;
+EventEnum UI::parse_request() {
+    std::string command;
+    std::cin >> command;
+    if (command == "invalid_command") {
+        return EventEnum::INVALID_COMMAND;
+    } else if (command == "load") {
+        std::cin >> inputPath;
+        return EventEnum::SUCCESS;
+    } else if (command == "set_output") {
+        std::cin >> outputPath;
+        return EventEnum::SUCCESS;
+    } else if (command == "translate") {
+        return EventEnum::SUCCESS;
+    } else if (command == "quit") {
+        return EventEnum::SUCCESS;
+    } else {
+        return EventEnum::INVALID_COMMAND;
+    }
 }
 
-void UI::check_error(EventEnum event){
-	printf("-------------------------------------------------- \n");
-	string error = "";
-	switch(event){
-		case EventEnum::INVALID_FILE_PATH:
-			error = "Invalid File Path";
-		case EventEnum::SYNTAX_ERROR:
-			error = "Syntax Error";
-		case EventEnum::UNDEFINED_SYMBOL:
-			error = "Undefined Symbol";
-		case EventEnum::FILE_FORMAT_ERROR:
-			error = "File Format Error";
-		default:
-			error = "Unknown Error";
-	}
-	string message = "Error: " + error + "!";
-	printf("%s \n", message);
-	printf("Please see output file %s for more details. \n", outputPath);
+void UI::set_response(EventEnum response) {
+    switch (response) {
+    case EventEnum::SUCCESS:
+        std::cout << "Operation completed successfully.\n";
+        break;
+    case EventEnum::INVALID_COMMAND:
+        std::cout << "Invalid command. Please try again.\n";
+        break;
+    case EventEnum::INVALID_FILE_PATH:
+        std::cout << "Invalid file path. Please check and try again.\n";
+        break;
+    case EventEnum::SYNTAX_ERROR:
+        std::cout << "Syntax error in the input file.\n";
+        break;
+    case EventEnum::UNDEFINED_SYMBOL:
+        std::cout << "Undefined symbol encountered.\n";
+        break;
+    case EventEnum::FILE_FORMAT_ERROR:
+        std::cout << "File format error detected.\n";
+        break;
+    case EventEnum::ERROR_DETECTED:
+        std::cout << "Error detected during processing.\n";
+        break;
+    case EventEnum::FILE_ERROR:
+        std::cout << "File error encountered.\n";
+        break;
+    case EventEnum::FILE_NOT_FOUND:
+        std::cout << "File not found.\n";
+        break;
+    case EventEnum::OTHER_ERROR:
+        std::cout << "An unspecified error occurred.\n";
+        break;
+    }
+}
+
+void UI::displayHelp() {
+    std::cout << "Help information: Use 'translate <file path>' to translate an assembly file.\nUse 'help' to display this information.\n";
+}
+
+void UI::displayError() {
+    std::cout << "An error occurred. Please try again.\n";
+}
+
+void UI::displaySuccess() {
+    std::cout << "Operation successful.\n";
+}
+
+void UI::check_error(EventEnum /*event*/) {
+    std::printf("Please see output file %s for more details. \n", outputPath.c_str());
+}
+
+void UI::launchCLI() {
+    std::cout << "Assembler CLI launched. Please enter a command:\n";
 }

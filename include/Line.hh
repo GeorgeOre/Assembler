@@ -1,54 +1,87 @@
-#ifndef __LINE_H__
-#define __LINE_H__
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdint.h>
+// Line.hh
+#ifndef LINE_HH
+#define LINE_HH
+
+#include <inttypes.h>
+#include <cinttypes>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <memory>
+
 #include "OpCode.hh"
-#include "Segment.hh"
-#include <map>
+#include "Operand.hh"
+#include "str_utils.hh"
 
-class Segment;
-
-//Data Members:
-class Line
-{
+class Line {
 private:
-  map<string, string> op_type_map = {
-    {"BCF", "B"}, {"BSF", "B"},
-	{"BTFSC", "B"}, {"BTFSS", "B"},
-    {"MOVWF", "ALU"}, {"CLR", "ALU"},
-	{"SUBWF", "ALU"}, {"DECF", "ALU"},
-	{"IORWF", "ALU"}, {"ANDWF", "ALU"},
-	{"XORWF", "ALU"}, {"ADDWF", "ALU"},
-	{"MOVF", "ALU"}, {"COMF", "ALU"},
-	{"INCF", "ALU"}, {"DECFSZ", "ALU"},
-	{"RRF", "ALU"}, {"RLF", "ALU"},
-	{"SWAPF", "ALU"}, {"INFSZ", "ALU"},
-    {"CALL", "CTRL"}, {"GOTO", "CTRL"},
-    {"NOP", "MISC"}, {"RETURN", "MISC"},
-	{"RETFIE", "MISC"}, {"OPTION", "MISC"},
-	{"SLEEP", "MISC"}, {"CLRWDT", "MISC"},
-	{"TRIS", "MISC"}, {"ADDLW", "W"},
-    {"MOVLW", "W"}, {"RETLW", "W"},
-	{"IORLW", "W"}, {"ANDLW", "W"},
-	{"XORLW", "W"}, {"SUBLW", "W"}
-  };
-  
+
 public:
-  Line(u_int64_t line_num, u_int64_t address, string line, Segment segment);
+    // Data members
+    uint64_t line_number;     // Line number in source file
+    uint64_t memory_address;  // Memory address (either data or program memory)
+    std::string file_name;  // Name of source file
+    std::string section;    // Name of section
+    std::string raw_line;   // Raw line info
+    std::string no_comments;   // Comment filtered line info
+    std::shared_ptr<OpCode> opcode;      // OpCode in the line 
+    std::vector<std::shared_ptr<Operand>> operands; // List of  pointers to Operands
+    bool contains_user_defined;
 
-  string to_pichex();
+    // This must be changed to map from a string to a constructor
+    // STATIC IS NEEDED SO THAT THE SAME ONE CAN BE USED IN ALL INSTANCES OF LINE
+    static std::unordered_map<std::string, std::string> op_type_map;   // This is for knowing which child class constructor to call
 
-  u_int64_t get_line_num();
-  OpCode opcode;
-  string line;
-  u_int64_t line_number;
-  u_int64_t address;
-  Segment segment;
-  string error_message;
+    bool contains_error;    // Boolean that represents if the line contains an error
+    std::string error_message;  // Error message in case the line's error needs to be identified
 
-  bool contains_error;
+    // Constructors
+    // Lines should be initalized by the Translator class. 
+    // The Translator instance should be able to provide all these parameters.
+    Line(uint64_t line_number, const std::string& section,
+     const std::string& line, const std::string& f_name);
+
+    // Define move constructor and move assignment operator
+    // Line(Line&& other) noexcept = default;
+    // Line& operator=(Line&& other) noexcept = default;
+
+    // Delete copy constructor and copy assignment operator
+    // Line(const Line& other) = delete;
+    // Line& operator=(const Line& other) = delete;
+
+    // Accessors
+    uint64_t get_line_number(); //const;
+    uint64_t get_memory_address(); //const;
+    std::string& get_file_name(); //const;
+    std::string& get_section(); //const;
+    std::string& get_raw_line(); //const;
+    OpCode& get_opcode(); //const;
+    std::vector<std::shared_ptr<Operand>>& get_operands(); //const;
+    bool get_contains_user_defined(); //const;
+    bool get_contains_error(); //const;
+    std::string& get_error_message(); //const;
+
+    // Setters
+    void set_line_number(uint64_t line);
+    void set_memory_address(uint64_t address);
+    void set_file_name(std::string name);
+    void set_section(std::string section);
+    void set_raw_line(std::string line);
+    // void set_opcode(std::string name);
+    // void set_operands(std::string name);
+    // const std::vector<std::shared_ptr<Operand>>& getOperands() const;
+    void set_contains_error(bool result);
+    void set_contains_user_defined(bool result);
+    void set_error_message(std::string message);
+
+    // Parse line should be used to simplify the parsing process visually
+    // HELPER FUNCTION FOR THE CONSTUCTOR
+    // void parseLine();
+    void parse_opcode(std::vector<std::string> &elements);
+    void parse_operands(std::vector<std::string> &elements, std::string operand_info);
+
+    // to_pichex should return the pichex output of the line to be printed to the output file
+    std::string to_pichex(std::unordered_map<std::string, std::string>) const;
 };
 
-#endif // #ifndef __LINE_H__
+#endif // LINE_HH

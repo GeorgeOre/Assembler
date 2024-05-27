@@ -6,9 +6,6 @@
 #include <stdexcept>
 
 class Section {
-private:
-    std::string name;
-    static std::unordered_map<std::string, Section> sections;
 
 public:
     // Constructors
@@ -21,6 +18,11 @@ public:
 
     // Accessor for name
     std::string get_name() const;
+
+private:
+    std::string name;
+    static std::unordered_map<std::string, Section> sections;
+
 };
 
 #endif // SECTION_HH

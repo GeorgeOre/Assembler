@@ -10,6 +10,7 @@ enum class EventEnum {
     FILE_FORMAT_ERROR,
     ERROR_DETECTED,
     FILE_ERROR,
+    FILE_NOT_FOUND,
     OTHER_ERROR
 };
 
