@@ -10,6 +10,9 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <unistd.h>
+#include <limits.h>
+
 
 #include "UI.hh"
 #include "Translator.hh"
@@ -23,6 +26,19 @@ enum ProgramState {
     ERROR,
     SUCCESS
 };
+
+// Distribution helpers
+std::string getExecutablePath() {
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    return std::string( result, (count > 0) ? count : 0 );
+}
+
+std::string getAssetsPath() {
+    std::string exePath = getExecutablePath();
+    std::string exeDir = exePath.substr(0, exePath.find_last_of("/"));
+    return exeDir + "/../share/USAssembler/assets/";
+}
 
 // Main menu class
 class Menu {
@@ -51,7 +67,7 @@ private:
 
 // Init main menu
 Menu::Menu(float width, float height) {
-    if (!font.loadFromFile("assets/arial/arial.ttf")) {
+    if (!font.loadFromFile(getAssetsPath() + "arial/arial.ttf")) {
         // Handle error if font load fails
     }
 
@@ -128,7 +144,7 @@ void Menu::moveDown() {
 void showHelp(sf::RenderWindow &window, sf::Font &font) {
     // Load help background texture
     sf::Texture helpBackgroundTexture;
-    if (!helpBackgroundTexture.loadFromFile("assets/American_Patriotism_Help_Menu_Centered_Fit.png")) {
+    if (!helpBackgroundTexture.loadFromFile(getAssetsPath() + "American_Patriotism_Help_Menu_Centered_Fit.png")) {
         std::cerr << "Error loading help_background.jpg" << std::endl;
         return;
     }
@@ -248,7 +264,7 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
 void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &translator) {
     // Load loading background texture
     sf::Texture loadingBackgroundTexture;
-    if (!loadingBackgroundTexture.loadFromFile("assets/A_highly_realistic_and_dynamic_scene_focusing_on_.jpg")) {
+    if (!loadingBackgroundTexture.loadFromFile(getAssetsPath() + "A_highly_realistic_and_dynamic_scene_focusing_on_.jpg")) {
         std::cerr << "Error loading loading_background.jpg" << std::endl;
         return;
     }
@@ -276,21 +292,21 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &tra
         if (translator.first_pass() == EventEnum::SUCCESS) {
             if (translator.second_pass() ==  EventEnum::SUCCESS) {
                 resulting_message = "Translator code has finished running successfully!";
-                resulting_image = "assets/American_Success.jpg";
+                resulting_image = getAssetsPath() + "American_Success.jpg";
             }
             else {
                 resulting_message = translator.get_error_message();
-                resulting_image = "assets/Error_Screen.png";
+                resulting_image = getAssetsPath() + "Error_Screen.png";
             }
             
         } else {
             resulting_message = translator.get_error_message();
-            resulting_image = "assets/Error_Screen.png";
+            resulting_image = getAssetsPath() + "Error_Screen.png";
         }
     }
     else {
         resulting_message = translator.get_error_message();
-        resulting_image = "assets/Error_Screen.png";        
+        resulting_image = getAssetsPath() + "Error_Screen.png";        
     }
 
     // THE LINE BELOW IS A DELAY
@@ -313,7 +329,7 @@ void showOptions(sf::RenderWindow &window, sf::Font &font, Translator &translato
 
     // Load options background texture
     sf::Texture optionsBackgroundTexture;
-    if (!optionsBackgroundTexture.loadFromFile("assets/Darker_industrial_vintage_scene_for_white_text_overlay.jpg")) {
+    if (!optionsBackgroundTexture.loadFromFile(getAssetsPath() + "Darker_industrial_vintage_scene_for_white_text_overlay.jpg")) {
         std::cerr << "Error loading options_background.jpg" << std::endl;
         return;
     }
@@ -477,7 +493,7 @@ int main() {
 
     // Load background texture
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("assets/USAssembler.png")) {
+    if (!backgroundTexture.loadFromFile(getAssetsPath() + "USAssembler.png")) {
         std::cerr << "Error loading background.jpg" << std::endl;
         return -1;
     }
@@ -495,7 +511,7 @@ int main() {
 
     // Load font
     sf::Font font;
-    if (!font.loadFromFile("assets/arial/arial.ttf")) {
+    if (!font.loadFromFile(getAssetsPath() + "arial/arial.ttf")) {
         std::cerr << "Error loading arial.ttf" << std::endl;
         return -1;
     }
@@ -509,7 +525,7 @@ int main() {
 
     // Load music
     sf::Music backgroundMusic;
-    if (!backgroundMusic.openFromFile("assets/Star_Spangled_Banner_choral.ogg")) {
+    if (!backgroundMusic.openFromFile(getAssetsPath() + "Star_Spangled_Banner_choral.ogg")) {
         std::cerr << "Error loading background music" << std::endl;
         return -1;
     }
