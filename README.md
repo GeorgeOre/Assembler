@@ -1,5 +1,20 @@
 # USAssembler 1.0 Debian Installation Guide
-This is a project for the Caltech 150 class. This assembler is designed for the PIC16 family of chips.
+This is a project for the Caltech 150 class. This two-pass assembler is designed for the PIC16 family of chips.
+The assembler currently supports the following features:
+- Handles the [entire base instruction set of the PIC16 microcontroller family](https://ww1.microchip.com/downloads/en/DeviceDoc/31029a.pdf)
+- Supports many featurs of the [MCASM](https://ww1.microchip.com/downloads/en/DeviceDoc/MPLAB%20XC8%20PIC%20Assembler%20User's%20Guide%2050002974A.pdf) format
+    - Labels terminating in : (Labels must occupy the entire line excluding spaces and comments)
+    - Symbolic constants
+    - Supports binary, octal, and hexadecimal numbering systems
+    - Variables and forward references with .equ
+    - Code location pseudo-ops (The PIC16 family only supports .org because of the banked memory)
+    - File inclusion with .include
+    - Single operator operand expressions (+, -, *, /)
+- Has a GUI interface
+- Has a terminal interface
+
+*See the functional specifications for more*
+ 
 This guide explains how to install the `USAssembler_1.0.deb` package on your computer.
 
 ## Step 1: Transfer the Package to Your Computer
@@ -60,6 +75,11 @@ If the executables do not run, you can use the full path:
 /usr/local/bin/menu
 /usr/local/bin/terminal
 ```
+
+The `scripts` folder provides some test code that you can use to test the assembler.
+- input.asm : input file
+- p16f877a.inc : include file
+- output.hex : expected correct hex output
 
 ## Troubleshooting
 
