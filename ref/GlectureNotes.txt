@@ -1,0 +1,93 @@
+NEED TO DO DETAILED DESIGN
+	- Needs to be detailed enough to make implementation easy
+	- You don’t want to be thinking about the design during implementation
+	
+	
+When you add enumerated types, you MUST specify the values!!
+
+C++ Object Lifecycle
+	- Create
+		○ Constructor
+			§ Automatic
+			§ Default constructor
+				□ No arguments
+				□ Always exists unless YOU make another constructor
+				□ System default constructor
+					® Sets things to null
+					® If static sets to random memory value
+				□ Ex:
+					® myObject o;
+			§ Copy Constructor
+				□ By default is a shallow copy
+				□ Takes each data member and copies it
+				□ Ex:
+					® myObject o;
+					® myObject 02 = 2 o;
+				□ Does not work with dynamic memory allocation
+					® Using the new keyword
+	- Manipulate
+		○ Methods, accessors, mutators
+	- Destruct
+		○ Automatic
+		○ Default destructor
+			§ Removes the data members from memory
+			§ Does not work for dynamic memory allocation
+		○ *** YOU NEED A VIRTUAL DESTRUCTOR TO MAINTAIN POLYMORPHISM
+			§ Ex:
+				□ Base *b;
+				□ Child *c;
+				□ b=c;
+				□ b->method();
+					® If not virtual
+						◊ b::method
+					® If virtual
+						◊ c::method
+
+EXAMPLE:
+	- Line object
+		○ Operand list member
+			§ Index OP
+			§ Value OP
+			§ String OP
+		○ HOW WILL YOU HANDLE ALL OF THE DIFFERENT TYPES
+		○ LINE # (IN THE FILE)
+		○ FILE STRING
+			§ Which file you are in and what line number of the string you 
+
+SWITCH STATEMENTS ARE NOT OBJECT ORIENTED!!
+	- You should want to 
+	
+	
+OP Codes
+	- Instruction op code
+		○ Index opcodes
+		○ Value opcodes
+		○ No operand opcode
+	- Specific psudo op 1 code
+	- Specific psudo op 2 code
+	- Specific psudo op 3 code
+	- So on
+	- Memory space pseudo op
+		○ Data
+		○ Text
+		○ Info
+		○ It is structured very similarly but a with maybe a different function pointer
+		
+		
+		
+WHAT DOES INCLUDE DO??
+	- MAKE LINE NUMBER IN YOUR FILE DIFFERENT FROM THE PROGRAM COUNTER'S NUMBER
+		○ Line number in file
+			§ References are used only for error file generation
+		○ Line number the program memory/counter space
+			§ 
+
+
+NOLIST/LIST
+	- DO you wanna list this in the pc space
+
+
+
+
+
+

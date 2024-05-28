@@ -1,0 +1,177 @@
+Things that I need to learn in C++
+
+Dynamic memory allocation
+    new
+        allocates something on heap
+        type *ptrname = new type;
+        new arraytype[n] allocates for n of the arraytype
+    delete
+        frees memory
+    These autocall contructor and destructors for classes respectively
+    They can also be overwritten in the case of classes
+
+Smart pointers
+    Manages lifetime of dynamically or stack allocated objects
+    REQUIRES: #include <memory header>
+    [type]_ptr are the actual pointer types
+    
+    Stack allocated smart pointer: 
+std::[type]_ptr<type> name = std::make_[type]<type>(value);
+        
+    Dynamically allocated smart pointer: 
+std::[type]_ptr<type> name = std::[type]_ptr<type>(new type(value);
+
+
+    Unique pointers
+        A type of smart pointer
+        OWNERSHIP: prevents different things from pointing at the
+            same memory location
+        Syntax: std::unique_ptr<type> name = std::make_unique<type>(declare that foo here);
+    Shared pointers
+        Counts how many part of the program have ownership of object
+        Object is deleted when count becomes 0
+        Syntax: std::shared_ptr<type> name = std::make_shared<type>(declare that foo here);
+    Weak pointers
+        Use this when you need to reference something
+            owned by a shared pointer but dont want to
+            increase its reference count
+        Syntax: std::weak_ptr<type> name = (insert shared pointer here);
+    Pointer deleters
+        Syntax takes many forms: 
+            Struct -- std::[type]_ptr<struct, DELETER> name(new struct());
+            FILE -- std::[type]_ptr<FILE> name(std::fopen("txt", "r/w"), FDeleter());
+            Arrays -- std::[type]_ptr<type> name(new type[size], ADeleter());
+
+Template
+    Glen says don't use this its dumb
+    Maybe the better C version is union
+    Two types: function and class
+    Function Template:
+        template <typename SYMBOL>
+        return_type func_name(type value){...}
+    Class Template:
+        template <typename SYMBOL>
+        class Name {...}
+    Template specialization can be used to handle certain cases
+        function:  
+            template<needed symbols>
+            return_type func_name<case_type>(case_type value){...}
+        class:
+            template<needed symbols>
+            class Name<case_type> {...}
+
+Inheritance
+    Scope access levels: Public, protected, private
+    Syntax:
+        class Base {...}
+        class Child : access_level Base {...}
+    friend keyword 
+        friend class gives full access to another class
+        class ClassA{
+            friend class ClassB;
+        
+References
+    These are just aliases
+    Reference modification modifies the set value
+    type& name = val 
+        makes name a reference to val
+    return_type func_name(type& var)
+        makes var a reference to whatever is passed in
+    return_type& func_name()
+        allows function to return a reference if it has one
+        this is efficient because it means less overhead copying
+        allows chaining operations together
+        can prevent undefined behavior due to forgetting correct scope managment
+
+Scope resolution operator ::
+    Can use to access global vars
+        int x = 10;
+        (inside function)
+            int x = 5;
+            ::x is global where x is local
+    Can use to define class functions outside of the class
+        class MyClass{...}
+        void MyClass::func(){..}
+    Can use to access namespaces
+    Can use to access specific block scopes
+        class inside a class inside a function
+            what level?
+    Can be used to access base class members
+    Used to access strongly typed enums
+        enum class name {...};    
+
+Scope
+    Global
+        Applies to everything
+            Vars, funcs, classes, typedefs, aliases, enums, consts, namespaces, inline funcs
+        Declared outside of functions and classes
+        Accessible anywhere
+    Local
+        Applies to vars, types like struct, aliases, and classes, funcs, static vars, labels
+        Stuck to the scope of a functions stack frame
+    Block
+        Declared inside a {...} block
+    Class
+        Public private protected
+    Namespace
+        Applies to all identifiers
+        Defined: namespace namespace_name {...}
+        can set with using keyword
+            using namespace namespace_name;
+    Function
+        Things inside the function
+    File
+        Static makes sure that it can only be in this file
+        Can only be accessed within the file
+        Internal linkage
+
+Namespaces
+    These are declared with {}
+    They are used to clarify things with the same name
+    EX: Two things called foo in different files
+    Organization thing... I don't need
+
+Return
+    Can return:
+        a value
+        a reference
+        a pointer
+        void
+        auto
+    Returning from main
+        0 if good
+        other if not
+Stack
+    Stack frames created when function is called
+        Pushes the frame when called
+        Function params
+        Local vars
+        Return address
+        Saved registers
+        Pops all that off when returned
+    Stack is limited and can overflow
+    To directly access stack must use STL stack container
+        #include <stack> to use .top, .empty, .push, and .pop
+    Can also make a stack with the <vector> linked list
+
+Optimizations
+    There are o0, o1, o2, o3 levels
+    Depends on compiler
+    For GCC and Clang:
+        -O0: No optimization, best for debugging.
+        -O1: Basic optimizations, good for general development.
+        -O2: Balanced optimizations, commonly used for production.
+        -O3: Aggressive optimizations for maximum performance.
+        -Os: Optimizes for smaller code size.
+        -Ofast: Maximum performance with potential non-standard behavior.
+        -Og: Optimizations that are friendly to debugging.
+
+Different Compilers??
+
+
+Intermediate Languages
+
+Embedded Linux
+
+
+
