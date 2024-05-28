@@ -55,15 +55,30 @@ Menu::Menu(float width, float height) {
         // Handle error if font load fails
     }
 
-    // Initialize title
-    title.setFont(font);
-    title.setFillColor(sf::Color::Yellow);
-    title.setString("Use My Assembler (USA)");
-    // title.setCharacterSize(50);
-    title.setCharacterSize(100);
-    title.setPosition(sf::Vector2f(width / 2 - title.getGlobalBounds().width / 2, height / 8));
+    // // Initialize title
+    // title.setFont(font);
+    // title.setFillColor(sf::Color::Yellow);
+    // title.setString("Use My Assembler (USA)");
+    // // title.setCharacterSize(50);
+    // title.setCharacterSize(100);
+    // title.setPosition(sf::Vector2f(width / 2 - title.getGlobalBounds().width / 2, height / 8));
 
+// Add items to the main menu
+    std::string items[] = {"Run", "Options", "Help", "Exit"};
+    for (size_t i = 0; i < sizeof(items)/sizeof(items[0]); ++i) {
+        sf::Text text;
+        text.setFont(font);
+        // Make first option selected by default and make it blue
+        text.setFillColor(i == 0 ? sf::Color::Cyan : sf::Color::Black);
+        text.setString(items[i]);
+        // Set character size for menu items larger relative to the screen height
+        text.setCharacterSize(height * 0.1); 
+        // Set position relative to the screen height for more separation
+        text.setPosition(sf::Vector2f(width / 2 - text.getGlobalBounds().width / 2, height / 4 + (i + 0) * (height * 0.11)));
+        menuItems.push_back(text);
+    }
 
+/*
     // Add items to the main menu
     std::string items[] = {"Run", "Options", "Help", "Exit"};
     for (size_t i = 0; i < sizeof(items)/sizeof(items[0]); ++i) {
@@ -78,6 +93,7 @@ Menu::Menu(float width, float height) {
         text.setPosition(sf::Vector2f(width / 2 - text.getGlobalBounds().width / 2, height / 4 + (i + 1) * 100));
         menuItems.push_back(text);
     }
+*/
 
     selectedIndex = 0;
 }
@@ -93,18 +109,18 @@ void Menu::draw(sf::RenderWindow &window) {
 // Move selected option up (does not wrap)
 void Menu::moveUp() {
     if (selectedIndex - 1 >= 0) {
-        menuItems[selectedIndex].setFillColor(sf::Color::White);
+        menuItems[selectedIndex].setFillColor(sf::Color::Black);
         selectedIndex--;
-        menuItems[selectedIndex].setFillColor(sf::Color::Blue);
+        menuItems[selectedIndex].setFillColor(sf::Color::Cyan);
     }
 }
 
 // Move selected option down (does not wrap)
 void Menu::moveDown() {
     if (selectedIndex + 1 < menuItems.size()) {
-        menuItems[selectedIndex].setFillColor(sf::Color::White);
+        menuItems[selectedIndex].setFillColor(sf::Color::Black);
         selectedIndex++;
-        menuItems[selectedIndex].setFillColor(sf::Color::Blue);
+        menuItems[selectedIndex].setFillColor(sf::Color::Cyan);
     }
 }
 
@@ -112,7 +128,7 @@ void Menu::moveDown() {
 void showHelp(sf::RenderWindow &window, sf::Font &font) {
     // Load help background texture
     sf::Texture helpBackgroundTexture;
-    if (!helpBackgroundTexture.loadFromFile("assets/Among_Us_American_theme.jpeg")) {
+    if (!helpBackgroundTexture.loadFromFile("assets/American_Patriotism_Help_Menu_Centered_Fit.png")) {
         std::cerr << "Error loading help_background.jpg" << std::endl;
         return;
     }
@@ -136,19 +152,20 @@ void showHelp(sf::RenderWindow &window, sf::Font &font) {
 
     // Descriptive help text
     std::string helpMessage =
-        "-------------------------------------------------------------\n"
-        "----------------------------- HELP ---------------------------\n"
-        "-------------------------------------------------------------\n"
-        "Welcome to Use My Assembler (USA)! This program assembles source code\n"
-        "from an assembly language file into a machine code output file.\n\n"
-        "To use this assembler, input the following into the command line:\n"
-        "    ./assemble <INPUT_FILE> <OUTPUT_FILE>\n\n"
-        "MAIN MENU OPTIONS:\n"
-        "Run: Processes the input assembly file and generates the output file.\n"
-        "Options: Allows you to set the input and output file paths.\n"
-        "Help: Displays this help screen.\n"
-        "Exit: Closes the application.\n\n"
-        "Press any key or click the mouse to return to the main menu.";
+        // "-------------------------------------------------------------\n"
+        // "----------------------------- HELP ---------------------------\n"
+        // "-------------------------------------------------------------\n"
+        // "                           Help Menu\n"
+        // "Welcome to Use My Assembler (USA)! This program assembles source code\n"
+        // "from an assembly language file into a machine code output file.\n\n"
+        // "\n"
+        // "                       MAIN MENU OPTIONS:\n"
+        // "Run: Processes the input assembly file and generates the output file.\n"
+        // "Options: Allows you to set the input and output file paths.\n"
+        // "Help: Displays this help screen.\n"
+        // "Exit: Closes the application.\n\n"
+        // "Press any key or click the mouse to return to the main menu.";
+        "";
     helpText.setString(helpMessage);
 
     // Set character size based on window size
@@ -205,7 +222,7 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
     messageText.setFillColor(sf::Color::White);
     messageText.setString(message);
     messageText.setCharacterSize(24);
-    messageText.setPosition(50, 50);
+    messageText.setPosition(windowSize.x/4, windowSize.y/2);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -231,7 +248,7 @@ void showMessage(sf::RenderWindow &window, sf::Font &font, const std::string &me
 void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &translator) {
     // Load loading background texture
     sf::Texture loadingBackgroundTexture;
-    if (!loadingBackgroundTexture.loadFromFile("assets/MUSH3.jpg")) {
+    if (!loadingBackgroundTexture.loadFromFile("assets/A_highly_realistic_and_dynamic_scene_focusing_on_.jpg")) {
         std::cerr << "Error loading loading_background.jpg" << std::endl;
         return;
     }
@@ -254,21 +271,26 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &tra
 
     // Running translator code
     std::string resulting_message;
+    std::string resulting_image;
     if (translator.define_lines(translator.get_input_file_path()) == EventEnum::SUCCESS) {
         if (translator.first_pass() == EventEnum::SUCCESS) {
             if (translator.second_pass() ==  EventEnum::SUCCESS) {
                 resulting_message = "Translator code has finished running successfully!";
+                resulting_image = "assets/American_Success.jpg";
             }
             else {
                 resulting_message = translator.get_error_message();
+                resulting_image = "assets/Error_Screen.png";
             }
             
         } else {
             resulting_message = translator.get_error_message();
+            resulting_image = "assets/Error_Screen.png";
         }
     }
     else {
         resulting_message = translator.get_error_message();
+        resulting_image = "assets/Error_Screen.png";        
     }
 
     // THE LINE BELOW IS A DELAY
@@ -276,7 +298,7 @@ void showLoadingScreen(sf::RenderWindow &window, sf::Font &font, Translator &tra
 
     // Show message screen after loading
     resulting_message.append("\nPress any key or click the mouse to return to the main menu.");
-    showMessage(window, font, resulting_message, "assets/smileyface.png");
+    showMessage(window, font, resulting_message, resulting_image);
     //OLD DEFAULT: "Translator code has finished running.\nPress any key or click the mouse to return to the main menu."
     
     // Reset translator
@@ -455,7 +477,7 @@ int main() {
 
     // Load background texture
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("assets/Flag.jpg")) {
+    if (!backgroundTexture.loadFromFile("assets/USAssembler.png")) {
         std::cerr << "Error loading background.jpg" << std::endl;
         return -1;
     }

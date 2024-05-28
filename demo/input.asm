@@ -17,11 +17,11 @@
     cTEMP2       .equ cBLOCK + 12 ; Temporary storage
 
 ; Main program
-;    .org 0x00
+     .org 0x00
      goto START         ;ACTUAL RUNNING CODE*********************************
 
 ; Interrupt vector
-;    .org 0x04
+     .org 0x04
      retfie         ;ACTUAL RUNNING CODE*********************************
 
 ; Program start

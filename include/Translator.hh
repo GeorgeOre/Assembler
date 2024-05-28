@@ -63,6 +63,8 @@ public:
     void set_error_message(const std::string& new_error_message);
     void set_contains_error(bool new_result);
 
+    // Helpers
+    uint64_t convert_string_to_uint64(const std::string& str);
 
     // Essential translation methods
     EventEnum define_lines(const std::string& file_info);

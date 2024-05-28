@@ -87,6 +87,7 @@ EventEnum Translator::define_lines(const std::string& file_info) {
     std::ifstream file(file_info);
     if (!file.is_open()) {
         // std::cerr << "Error opening file: " << file_info << std::endl;
+        this->error_message = "Error opening file: " + file_info + "\n";
         return EventEnum::FILE_NOT_FOUND;
     }
 
@@ -127,7 +128,7 @@ EventEnum Translator::define_lines(const std::string& file_info) {
             // We must also decide if we should put the line in our array IDEALLY COMBINE THESE
             if (!line->no_comments.empty()) {
             this->lines_array.push_back(std::move(line));
-// std::cout << "\tpushed that shit into the array" << std::endl;
+// std::cout << "\tpushed that guy into the array" << std::endl;
             }
         }
 
@@ -137,6 +138,54 @@ EventEnum Translator::define_lines(const std::string& file_info) {
 
     return EventEnum::SUCCESS;
 }
+
+uint64_t Translator::convert_string_to_uint64(const std::string& str) {
+    int base = 10;
+    size_t prefix_length = 0;
+
+    // Check for prefixes and set the base accordingly
+    if (str.size() > 2 && str[0] == '0') {
+        if (str[1] == 'x' || str[1] == 'X') {
+            base = 16;
+            prefix_length = 2;
+        } else if (str[1] == 'b' || str[1] == 'B') {
+            base = 2;
+            prefix_length = 2;
+        } else if (str[1] == 'f' || str[1] == 'F') {
+            base = 8;
+            prefix_length = 2;
+        }
+    } else if (str.size() > 1) {
+        char suffix = tolower(str.back());
+        if (suffix == 'h') {
+            base = 16;
+            prefix_length = 1;
+        } else if (suffix == 'b') {
+            base = 2;
+            prefix_length = 1;
+        } else if (suffix == 'f') {
+            base = 8;
+            prefix_length = 1;
+        }
+    }
+
+    // Remove the prefix if any
+    std::string number_str = str.substr(prefix_length, str.size() - prefix_length);
+
+    // TODO: maybe make this an line error
+    // JUST DONT MAKE IT CRASH THE PROGRAM FOR NOW
+    try {
+        return std::stoull(number_str, nullptr, base);
+    } catch (const std::invalid_argument& e) {
+        // this->error_message = "Invalid argument: " + str;
+        // throw std::invalid_argument("Invalid argument: " + str);
+    } catch (const std::out_of_range& e) {
+        // this->error_message = "Out of range: " + str;        
+        // throw std::out_of_range("Out of range: " + str);
+    }
+}
+
+
 
 EventEnum Translator::first_pass() {
     // Init address counters to 0
@@ -160,15 +209,16 @@ EventEnum Translator::first_pass() {
         std::vector<std::shared_ptr<Operand>> cur_Operands = cur_Line->get_operands();
 // printf("\tFirst pass line %ld line w no comments: (%s) has %zu operands\n", this->lines_array[i]->get_line_number(), this->lines_array[i]->no_comments.c_str(), cur_Operands.size());
 
+// printf("BEGINING line: %lu; current prog address: %lu\n", cur_Line->get_line_number(), currentProgramAddress);
+
     //TODO: SEE IF YOU CAN REMOVE THIS?
         // Remove empty or commented out lines from the array
         if (line_str.empty() == true) {
             this->lines_array.erase(this->lines_array.begin() + i);
             i--;
             currentProgramAddress--;
-// printf("not supposed to be here\n");
-        } 
-        
+// printf("\t\t\t\tnot supposed to be here\n");
+        }
         // Store user defined values into corresponding hashmaps
         // TODO, SEE IF THIS FLAG CAN BE RENAMED TO MAKE MORE SENSE
         else if (cur_Line->get_contains_user_defined())
@@ -178,7 +228,7 @@ EventEnum Translator::first_pass() {
             // - labels
             //   - program memory labels
             //   - data memory labels
-
+// printf("\t\t\t\tuser defined ass foo\n");
             // Check for constant declarations
             if (opcode_str.compare(".EQU") == 0
                 || opcode_str.compare(".equ") == 0) {
@@ -301,7 +351,17 @@ EventEnum Translator::first_pass() {
                 }
             }
         }
-        else {
+        else if(opcode_str == ".org") {
+            // The only code location pseudo op that the PIC16 MCASM supports is .org
+            currentProgramAddress = convert_string_to_uint64(cur_Operands[0]->get_raw());
+// printf("\tUpdated current prog address to: %lu due to .org\n", currentProgramAddress);
+            // Remove line from array
+            this->lines_array.erase(this->lines_array.begin() + i);
+            i--;
+
+            // Start handling next line
+            continue;
+            // currentProgramAddress -= 2;
 
             // Substitute already defined values into expressoins
             // TODO, move this to seconds pass eventually
@@ -311,7 +371,6 @@ EventEnum Translator::first_pass() {
             //     if (cur_Operands[i]->get_is_expression()) {
             //         // Split the expression
             //         std::vector<std::string> words = split_string(cur_Operands[i]->get_raw(), ' ');
-
             //         // Substitute expression elements with defined symbol table values
             //         for (auto& word : words) {
             //             if (const_hashmap.find(word) != const_hashmap.end()) {
@@ -322,25 +381,27 @@ EventEnum Translator::first_pass() {
             //         cur_Operands[0]->set_raw(join_strings(words, " "));
             //     } 
             // }
-
-            
         }
 
         // Store program address value in line
+// printf("\tMID line: %lu; current prog address: %lu\n", cur_Line->get_line_number(), currentProgramAddress);
         cur_Line->set_memory_address(currentProgramAddress);
 
         // After every instruction, increment the address by two bytes
         currentProgramAddress += 2;
+// printf(" END line: %lu; current prog address: %lu\n\n", cur_Line->get_line_number(), currentProgramAddress);
     }    
     
     return EventEnum::SUCCESS;
 }
 
+
 EventEnum Translator::second_pass() {
     // Check to make sure that the output file is valid
     std::ofstream outputFile(this->output_file_path);
     if (!outputFile.is_open()) {
-        std::cerr << "Error opening output file: " << this->output_file_path << std::endl;
+        // std::cerr << "Error opening output file: " << this->output_file_path << std::endl;
+        this->error_message = "Error opening output file: " + this->output_file_path + "\n";
         return EventEnum::FILE_NOT_FOUND;
     }
 
@@ -359,7 +420,7 @@ EventEnum Translator::second_pass() {
     for (const auto& line : this->lines_array) {
         // Before translating, operands that are expressions must be resolved
         for (const auto& operand : line->get_operands()) {
-            printf("\"%s\" operand in second pass: |%s| bin: %s\n", line->no_comments.c_str(), operand->get_raw().c_str(), operand->get_binary().c_str());
+            // printf("\"%s\" operand in second pass: |%s| bin: %s\n", line->no_comments.c_str(), operand->get_raw().c_str(), operand->get_binary().c_str());
             if (operand->get_is_expression()) {
                 // If an operand was found to be an expression, attempt to evaluate it
                 try {
@@ -375,8 +436,8 @@ EventEnum Translator::second_pass() {
                     operand->parseRawToBinary();
                 } catch (const std::exception &e) {
                     // If there was an error in evaluating the expression, TODO: Figure out what to do
-                    // Print for now
-                    std::cerr << "Error evaluating expression: " << operand->get_raw() << " - " << e.what() << std::endl;
+                    // Print for now (just debugging)
+                    // std::cerr << "Error evaluating expression: " << operand->get_raw() << " - " << e.what() << std::endl;
                 }
             }
         }

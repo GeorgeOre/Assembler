@@ -1,0 +1,139 @@
+/home/gore/projects/Assembler
+├── FunctionalSpec.txt
+├── GlectureNotes.txt
+├── Makefile
+├── OOA.txt
+├── README.md
+├── assets
+│   ├── A_highly_realistic_and_dynamic_scene_focusing_on_.jpg
+│   ├── A_highly_realistic_and_dynamic_scene_focusing_on_.jpg:Zone.Identifier
+│   ├── American_Patriotism_Help_Menu_Centered_Fit.png
+│   ├── American_Patriotism_Help_Menu_Centered_Fit.png:Zone.Identifier
+│   ├── American_Success.jpg
+│   ├── American_Success.jpg:Zone.Identifier
+│   ├── Among_Us_American_theme.jpeg
+│   ├── Among_Us_American_theme.jpeg:Zone.Identifier
+│   ├── An_inspiring_industrial_vintage_scene_with_a_patriotic_American_theme_and_more_ingenuity.jpg
+│   ├── An_inspiring_industrial_vintage_scene_with_a_patriotic_American_theme_and_more_ingenuity.jpg:Zone.Identifier
+│   ├── Darker_industrial_vintage_scene_for_white_text_overlay.jpg
+│   ├── Darker_industrial_vintage_scene_for_white_text_overlay.jpg:Zone.Identifier
+│   ├── Error_Screen.png
+│   ├── Flag.jpg
+│   ├── Flag.jpg:Zone.Identifier
+│   ├── IMG_3050.JPG
+│   ├── MUSH3.jpg
+│   ├── MUSH3.jpg:Zone.Identifier
+│   ├── Star_Spangled_Banner_choral.ogg
+│   ├── Star_Spangled_Banner_choral.ogg:Zone.Identifier
+│   ├── USAssembler.png
+│   ├── USAssembler.png:Zone.Identifier
+│   ├── arial
+│   │   ├── ARIALN.TTF
+│   │   ├── ARIALNB.TTF
+│   │   ├── ARIALNBI.TTF
+│   │   ├── ARIALNI.TTF
+│   │   ├── arial.ttf
+│   │   ├── arialbd.ttf
+│   │   ├── arialbi.ttf
+│   │   ├── ariali.ttf
+│   │   └── ariblk.ttf
+│   ├── bigchinhead.jpg
+│   ├── bigchinhead.jpg:Zone.Identifier
+│   ├── bootlogo.png
+│   ├── smileyface.png
+│   └── smileyface.png:Zone.Identifier
+├── bin
+│   ├── menu
+│   └── terminal
+├── config
+├── cpp_notes.txt
+├── demo
+│   ├── fib.asm
+│   ├── input.asm
+│   ├── main.cpp
+│   ├── output.hex
+│   ├── p16f877a.inc
+│   ├── p16f877a_FULL.inc
+│   └── terminal.cpp
+├── include
+│   ├── ALU_OpCode.hh
+│   ├── B_OpCode.hh
+│   ├── Boperand.hh
+│   ├── CTRL_OpCode.hh
+│   ├── ConstPrefix.hh
+│   ├── Doperand.hh
+│   ├── EventEnum.hh
+│   ├── Foperand.hh
+│   ├── Koperand.hh
+│   ├── Label_OpCode.hh
+│   ├── Line.hh
+│   ├── Misc_OpCode.hh
+│   ├── OpCode.hh
+│   ├── Operand.hh
+│   ├── Poperand.hh
+│   ├── Pseudo_OpCode.hh
+│   ├── Section.hh
+│   ├── Segment.hh
+│   ├── Translator.hh
+│   ├── UI.hh
+│   ├── W_OpCode.hh
+│   └── str_utils.hh
+├── library
+│   ├── ALU_OpCode.cpp
+│   ├── B_OpCode.cpp
+│   ├── Boperand.cpp
+│   ├── CTRL_OpCode.cpp
+│   ├── ConstPrefix.cpp
+│   ├── Doperand.cpp
+│   ├── Foperand.cpp
+│   ├── Koperand.cpp
+│   ├── Label_OpCode.cpp
+│   ├── Line.cpp
+│   ├── Misc_OpCode.cpp
+│   ├── OpCode.cpp
+│   ├── Operand.cpp
+│   ├── Poperand.cpp
+│   ├── Pseudo_OpCode.cpp
+│   ├── Section.cpp
+│   ├── Segment.cpp
+│   ├── Translator.cpp
+│   ├── UI.cpp
+│   ├── W_OpCode.cpp
+│   └── str_utils.cpp
+├── make_backup.txt
+├── out
+│   ├── ALU_OpCode.o
+│   ├── B_OpCode.o
+│   ├── Boperand.o
+│   ├── CTRL_OpCode.o
+│   ├── ConstPrefix.o
+│   ├── Doperand.o
+│   ├── Foperand.o
+│   ├── Koperand.o
+│   ├── Label_OpCode.o
+│   ├── Line.o
+│   ├── Misc_OpCode.o
+│   ├── OpCode.o
+│   ├── Operand.o
+│   ├── Poperand.o
+│   ├── Pseudo_OpCode.o
+│   ├── Section.o
+│   ├── Segment.o
+│   ├── Translator.o
+│   ├── UI.o
+│   ├── W_OpCode.o
+│   └── str_utils.o
+├── project_structure.txt
+├── project_tree.txt
+├── ref
+├── scripts
+└── test
+    ├── LineTest.cpp
+    ├── OpCodeTest.cpp
+    ├── OperandTest.cpp
+    ├── SectionTest.cpp
+    ├── SegmentTest.cpp
+    ├── TranslatorTest.cpp
+    └── UITest.cpp
+
+11 directories, 125 files
