@@ -1,4 +1,4 @@
-# USAssembler Debian Installation Guide
+# USAssembler 1.0 Debian Installation Guide
 This is a project for the Caltech 150 class. This assembler is designed for the PIC16 family of chips.
 This guide explains how to install the `USAssembler_1.0.deb` package on your computer.
 
@@ -27,11 +27,11 @@ You can use any of the following methods to put the file onto your computer:
     sudo dpkg -i USAssembler_1.0.deb
     ```
 
-If dpkg is not installed, you can install it using apt-get:
-```bash
-sudo apt-get update
-sudo apt-get install dpkg
-```
+    If dpkg is not installed, you can install it using apt-get:
+    ```bash
+    sudo apt-get update
+    sudo apt-get install dpkg
+    ```
 
 4. **Fix any dependency issues:**
     ```bash
@@ -41,17 +41,21 @@ sudo apt-get install dpkg
 ## Step 3: Run the Executables
 
 After installation, you can run the executables `menu` and `terminal` from the terminal:
+
 ```bash
 menu
 ```
+
 or
+
 ```bash
 terminal
 ```
 
-## Using the Full Path
+### Using the Full Path
 
 If the executables do not run, you can use the full path:
+
 ```bash
 /usr/local/bin/menu
 /usr/local/bin/terminal
@@ -59,20 +63,32 @@ If the executables do not run, you can use the full path:
 
 ## Troubleshooting
 
-Missing Dependencies: If there are any missing dependencies, the sudo apt-get install -f command will attempt to fix them.
-Executable Not Found: Ensure that /usr/local/bin is in your PATH. You can check this by running:
+### Missing Dependencies: 
+
+If there are any missing dependencies, the `sudo apt-get install -f` command will attempt to fix them.
+
+### Executable Not Found: 
+
+Ensure that /usr/local/bin is in your PATH. You can check this by running:
 ```bash
-echo $PATH
+echo $PATH | tr ':' '\n'
 ```
 
 If /usr/local/bin is not listed, you can add it by adding the following line to your ~/.bashrc or ~/.zshrc file:
-bash
-Copy code
+```bash
 export PATH=$PATH:/usr/local/bin
+```
+
 Then, reload your shell configuration:
-bash
-Copy code
+
+```bash
 source ~/.bashrc  # For Bash shell
-# or
+```
+
+or
+
+```bash
 source ~/.zshrc  # For Zsh shell
-If you encounter any issues or have any questions, please contact the package maintainer.
+```
+
+***If you encounter any issues or have any questions, please contact the package maintainer at `gore@caltech.edu`.***
